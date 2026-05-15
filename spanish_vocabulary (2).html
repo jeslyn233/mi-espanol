@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi español</title>
+<style>
+:root{
+  --bg:#f7f5f0;--surface:#fff;--surface2:#f0ede6;
+  --border:#e0dbd0;--border2:#ccc8bc;
+  --text:#1a1a18;--text2:#6b6860;--text3:#9b9890;
+  --accent:#2d6a4f;--accent-bg:#e8f4ee;--accent-text:#1a4a32;
+  --rel-bg:#fef6e4;--rel-text:#7a4f00;
+  --chip-bg:#f0ede6;--chip-text:#4a4840;
+  --err-bg:#fdecea;--err-text:#7a1f1a;
+  --radius:12px;--radius-sm:8px;--shadow:0 1px 3px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Georgia',serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 4rem;}
+.container{max-width:780px;margin:0 auto;padding-right:36px;}
+header{margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1.25rem;}
+header h1{font-size:1.6rem;font-weight:normal;letter-spacing:-.02em;}
+header p{font-size:.875rem;color:var(--text2);margin-top:4px;font-family:sans-serif;}
+
+.nav{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--surface2);border-radius:var(--radius-sm);padding:4px;border:1px solid var(--border);}
+.nav-btn{flex:1;font-family:sans-serif;font-size:14px;padding:8px 12px;border:none;border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;}
+.nav-btn.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow);}
+
+.az-bar{position:fixed;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:5px 2px;box-shadow:var(--shadow);}
+.az-bar a{font-family:sans-serif;font-size:9.5px;font-weight:600;color:var(--text3);text-decoration:none;width:18px;height:14px;display:flex;align-items:center;justify-content:center;border-radius:3px;transition:all .1s;}
+.az-bar a:hover{background:var(--accent-bg);color:var(--accent);}
+.az-bar a.has-words{color:var(--text2);}
+
+input[type=text],select,textarea{font-family:sans-serif;font-size:14px;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent);}
+textarea{resize:vertical;min-height:64px;line-height:1.5;}
+button{font-family:sans-serif;font-size:13px;padding:8px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:5px;}
+button:hover{background:var(--surface2);}
+button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+button.primary:hover{background:#245a40;}
+button.danger{color:#b91c1c;}
+button.danger:hover{background:#fdecea;border-color:#f5c2c2;}
+
+.fab-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.toolbar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+#search{flex:1;min-width:150px;}
+.count{font-size:13px;color:var(--text3);margin-bottom:10px;font-family:sans-serif;}
+
+.letter-group{margin-bottom:16px;scroll-margin-top:20px;}
+.letter-heading{font-family:sans-serif;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:6px 0;margin-bottom:8px;border-bottom:1px solid var(--border);}
+.letter-heading span{font-size:18px;color:var(--text2);font-weight:normal;letter-spacing:0;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:8px;transition:box-shadow .2s,border-color .2s;scroll-margin-top:20px;}
+.card.highlight{box-shadow:0 0 0 2px var(--accent);border-color:var(--accent);}
+.card-head{display:flex;align-items:center;padding:11px 16px;cursor:pointer;user-select:none;transition:background .12s;}
+.card-head:hover{background:var(--surface2);}
+.head-left{width:40%;display:flex;align-items:baseline;flex-shrink:0;overflow:hidden;}
+.word-main{font-size:16px;font-weight:normal;font-style:italic;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.type-tag{font-family:sans-serif;font-size:11px;color:var(--text3);margin-left:5px;flex-shrink:0;}
+.head-right{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
+.badge{font-family:sans-serif;font-size:11px;padding:2px 7px;border-radius:999px;font-weight:600;white-space:nowrap;}
+.badge-level{background:var(--accent-bg);color:var(--accent-text);}
+.badge-freq{background:var(--surface2);color:var(--text2);border:1px solid var(--border);font-size:10px;}
+.core-meaning{font-size:13px;color:var(--text2);font-family:sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.chevron{font-size:11px;color:var(--text3);transition:transform .2s;flex-shrink:0;margin-left:auto;}
+.chevron.open{transform:rotate(180deg);}
+
+.card-body{border-top:1px solid var(--border);padding:16px;display:none;}
+.card-body.open{display:block;}
+.section{margin-bottom:16px;}
+.section:last-child{margin-bottom:0;}
+.sec-label{font-family:sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+
+/* chips */
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-family:sans-serif;font-size:13px;padding:3px 10px;border-radius:999px;background:var(--chip-bg);color:var(--chip-text);border:1px solid var(--border);}
+.chip.clickable{cursor:pointer;}
+.chip.clickable:hover{opacity:.7;}
+.chip.tone{background:#f0f0fa;color:#4a4870;border-color:#d0d0ea;}
+.chip.tag{background:var(--rel-bg);color:var(--rel-text);border-color:#f5dfa0;}
+.chip.mistake{background:var(--err-bg);color:var(--err-text);border-radius:var(--radius-sm);padding:6px 12px;width:100%;font-size:13px;}
+.chip.related{background:var(--accent-bg);color:var(--accent-text);border-color:#b6dfc8;}
+
+/* situation pills */
+.situation-row{display:flex;flex-wrap:wrap;gap:6px;}
+.situation{font-family:sans-serif;font-size:12px;padding:4px 10px;border-radius:999px;background:#f5f0ff;color:#5a3f8a;border:1px solid #ddd0f5;}
+
+/* structures */
+.structure-list{display:flex;flex-direction:column;gap:6px;}
+.structure-item{font-family:sans-serif;font-size:13px;padding:6px 12px;background:var(--surface2);border-radius:var(--radius-sm);color:var(--text);border-left:3px solid var(--accent);font-style:italic;}
+
+/* starter sentences */
+.starter-list{display:flex;flex-direction:column;gap:6px;}
+.starter-item{font-family:sans-serif;font-size:14px;padding:8px 12px;background:var(--accent-bg);border-radius:var(--radius-sm);color:var(--accent-text);font-style:italic;}
+
+/* micro patterns */
+.micro-list{display:flex;flex-wrap:wrap;gap:6px;}
+.micro-item{font-family:sans-serif;font-size:13px;padding:4px 12px;background:#fff8e6;border:1px solid #f5dfa0;border-radius:999px;color:var(--rel-text);font-style:italic;}
+
+.card-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-family:sans-serif;font-size:15px;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;font-family:sans-serif;font-size:13px;padding:10px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:300;white-space:nowrap;}
+.toast.show{opacity:1;}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:100%;max-width:600px;box-shadow:0 8px 32px rgba(0,0,0,.15);margin:auto;}
+.modal h2{font-size:18px;font-weight:normal;margin-bottom:18px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-full{grid-column:1/-1;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-family:sans-serif;font-size:12px;color:var(--text2);font-weight:600;}
+.form-group input,.form-group select,.form-group textarea{width:100%;}
+.hint{font-family:sans-serif;font-size:11px;color:var(--text3);}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.import-area{width:100%;min-height:120px;font-family:monospace;font-size:12px;}
+
+/* GRAMMAR */
+.grammar-list{display:flex;flex-direction:column;gap:8px;}
+.gram-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
+.gram-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .12s;}
+.gram-head:hover{background:var(--surface2);}
+.gram-title{font-size:16px;font-weight:normal;flex:1;font-family:sans-serif;}
+.gram-tag{font-family:sans-serif;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--rel-bg);color:var(--rel-text);border:1px solid #f5dfa0;font-weight:600;}
+.gram-body{display:none;border-top:1px solid var(--border);padding:20px;}
+.gram-body.open{display:block;}
+.gb-text{font-family:sans-serif;font-size:14px;color:var(--text);line-height:1.7;margin-bottom:14px;}
+.gb-list{font-family:sans-serif;font-size:14px;color:var(--text);line-height:1.8;margin-bottom:14px;padding-left:4px;}
+.gb-list li{margin-bottom:4px;list-style:none;display:flex;gap:8px;}
+.gb-list li::before{content:attr(data-n);color:var(--accent);font-weight:700;min-width:16px;}
+.gb-note{background:var(--accent-bg);border-radius:var(--radius-sm);padding:12px 14px;font-family:sans-serif;font-size:13px;color:var(--accent-text);line-height:1.6;margin-bottom:14px;}
+.gb-examples{margin-bottom:14px;}
+.gb-example{font-size:14px;color:var(--text2);font-style:italic;padding:8px 12px;border-left:2px solid var(--border2);margin-bottom:6px;font-family:sans-serif;line-height:1.6;}
+.gb-table{width:100%;border-collapse:collapse;font-family:sans-serif;font-size:13px;margin-bottom:14px;}
+.gb-table th{background:var(--accent-bg);color:var(--accent-text);padding:7px 10px;text-align:left;font-weight:600;border:1px solid #b6dfc8;}
+.gb-table td{padding:6px 10px;border:1px solid var(--border);color:var(--text);vertical-align:top;}
+.gb-table tr:nth-child(even) td{background:var(--surface2);}
+.tense-section{margin-bottom:24px;}
+.tense-section:last-child{margin-bottom:0;}
+.tense-title{font-family:sans-serif;font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.conj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.conj-col h4{font-family:sans-serif;font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;padding:4px 8px;background:var(--accent-bg);border-radius:4px;}
+.conj-col table{width:100%;border-collapse:collapse;}
+.conj-col td{font-family:sans-serif;font-size:13px;padding:3px 4px;line-height:1.6;}
+.conj-col td:first-child{color:var(--text3);width:36px;}
+.conj-col td:last-child{color:var(--text);font-style:italic;}
+.non-personal{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.non-personal-item{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;}
+.np-label{font-family:sans-serif;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.np-forms{font-family:sans-serif;font-size:13px;color:var(--text);}
+.np-forms span{display:block;font-style:italic;color:var(--text2);font-size:12px;margin-top:2px;}
+.note-box{background:var(--accent-bg);border-radius:var(--radius-sm);padding:12px 14px;font-family:sans-serif;font-size:13px;color:var(--accent-text);line-height:1.6;margin-top:16px;}
+
+@media(max-width:540px){
+  body{padding:1rem .5rem 4rem;}
+  .container{padding-right:28px;}
+  .form-grid{grid-template-columns:1fr;}
+  .form-full{grid-column:1;}
+  .conj-grid{grid-template-columns:1fr;}
+  .non-personal{grid-template-columns:1fr;}
+  .core-meaning{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Mi español</h1>
+    <p>Vocabulario y gramática en un solo lugar</p>
+  </header>
+  <div class="nav">
+    <button class="nav-btn active" onclick="showTab('vocab')">📖 Vocabulario</button>
+    <button class="nav-btn" onclick="showTab('grammar')">📐 Gramática</button>
+  </div>
+
+  <div id="tab-vocab">
+    <div class="fab-row">
+      <button class="primary" onclick="openImportModal('word')">⬇ Importar palabra</button>
+      <button onclick="exportData()">↑ Exportar datos</button>
+      <button onclick="openImportModal('restore')">↓ Restaurar datos</button>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="Buscar…" oninput="render()">
+      <select id="filterType" onchange="render()">
+        <option value="">Todas las categorías</option>
+        <option value="n">n — nombre</option>
+        <option value="v">v — verbo</option>
+        <option value="adj">adj — adjetivo</option>
+        <option value="adv">adv — adverbio</option>
+        <option value="prep">prep — preposición</option>
+        <option value="conj">conj — conjunción</option>
+        <option value="pron">pron — pronombre</option>
+        <option value="interj">interj — interjección</option>
+      </select>
+      <select id="filterLevel" onchange="render()">
+        <option value="">Todos los niveles</option>
+        <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
+      </select>
+      <select id="filterFreq" onchange="render()">
+        <option value="">Todas las frecuencias</option>
+        <option value="A">A — daily</option>
+        <option value="B">B — high</option>
+        <option value="C">C — medium</option>
+        <option value="D">D — low</option>
+      </select>
+    </div>
+    <div id="count" class="count"></div>
+    <div id="wordList"></div>
+  </div>
+
+  <div id="tab-grammar" style="display:none">
+    <div class="fab-row">
+      <button onclick="openImportModal('grammar')">⬇ Importar nota gramatical</button>
+    </div>
+    <div class="grammar-list" id="grammarList">
+      <div class="gram-card">
+        <div class="gram-head" onclick="toggleGram('builtin-conj')">
+          <span class="gram-title">Conjugación regular: -AR, -ER, -IR</span>
+          <span class="gram-tag">verbos</span>
+          <span class="chevron" id="gchev-builtin-conj">▼</span>
+        </div>
+        <div class="gram-body" id="gbody-builtin-conj">
+          <div class="tense-title">Formas no personales</div>
+          <div class="non-personal">
+            <div class="non-personal-item"><div class="np-label">Infinitivo</div><div class="np-forms">hablar · comer · vivir<span>forma base</span></div></div>
+            <div class="non-personal-item"><div class="np-label">Gerundio</div><div class="np-forms">hablando · comiendo · viviendo<span>-ando / -iendo</span></div></div>
+            <div class="non-personal-item"><div class="np-label">Participio pasado</div><div class="np-forms">hablado · comido · vivido<span>-ado / -ido</span></div></div>
+          </div>
+          <div class="tense-section"><div class="tense-title">Presente de indicativo</div><div class="conj-grid">
+            <div class="conj-col"><h4>-AR hablar</h4><table><tr><td>yo</td><td>hablo</td></tr><tr><td>tú</td><td>hablas</td></tr><tr><td>él</td><td>habla</td></tr><tr><td>nos.</td><td>hablamos</td></tr><tr><td>vos.</td><td>habláis</td></tr><tr><td>ellos</td><td>hablan</td></tr></table></div>
+            <div class="conj-col"><h4>-ER comer</h4><table><tr><td>yo</td><td>como</td></tr><tr><td>tú</td><td>comes</td></tr><tr><td>él</td><td>come</td></tr><tr><td>nos.</td><td>comemos</td></tr><tr><td>vos.</td><td>coméis</td></tr><tr><td>ellos</td><td>comen</td></tr></table></div>
+            <div class="conj-col"><h4>-IR vivir</h4><table><tr><td>yo</td><td>vivo</td></tr><tr><td>tú</td><td>vives</td></tr><tr><td>él</td><td>vive</td></tr><tr><td>nos.</td><td>vivimos</td></tr><tr><td>vos.</td><td>vivís</td></tr><tr><td>ellos</td><td>viven</td></tr></table></div>
+          </div></div>
+          <div class="tense-section"><div class="tense-title">Pretérito indefinido</div><div class="conj-grid">
+            <div class="conj-col"><h4>-AR hablar</h4><table><tr><td>yo</td><td>hablé</td></tr><tr><td>tú</td><td>hablaste</td></tr><tr><td>él</td><td>habló</td></tr><tr><td>nos.</td><td>hablamos</td></tr><tr><td>vos.</td><td>hablasteis</td></tr><tr><td>ellos</td><td>hablaron</td></tr></table></div>
+            <div class="conj-col"><h4>-ER comer</h4><table><tr><td>yo</td><td>comí</td></tr><tr><td>tú</td><td>comiste</td></tr><tr><td>él</td><td>comió</td></tr><tr><td>nos.</td><td>comimos</td></tr><tr><td>vos.</td><td>comisteis</td></tr><tr><td>ellos</td><td>comieron</td></tr></table></div>
+            <div class="conj-col"><h4>-IR vivir</h4><table><tr><td>yo</td><td>viví</td></tr><tr><td>tú</td><td>viviste</td></tr><tr><td>él</td><td>vivió</td></tr><tr><td>nos.</td><td>vivimos</td></tr><tr><td>vos.</td><td>vivisteis</td></tr><tr><td>ellos</td><td>vivieron</td></tr></table></div>
+          </div></div>
+          <div class="tense-section"><div class="tense-title">Pretérito imperfecto</div><div class="conj-grid">
+            <div class="conj-col"><h4>-AR hablar</h4><table><tr><td>yo</td><td>hablaba</td></tr><tr><td>tú</td><td>hablabas</td></tr><tr><td>él</td><td>hablaba</td></tr><tr><td>nos.</td><td>hablábamos</td></tr><tr><td>vos.</td><td>hablabais</td></tr><tr><td>ellos</td><td>hablaban</td></tr></table></div>
+            <div class="conj-col"><h4>-ER comer</h4><table><tr><td>yo</td><td>comía</td></tr><tr><td>tú</td><td>comías</td></tr><tr><td>él</td><td>comía</td></tr><tr><td>nos.</td><td>comíamos</td></tr><tr><td>vos.</td><td>comíais</td></tr><tr><td>ellos</td><td>comían</td></tr></table></div>
+            <div class="conj-col"><h4>-IR vivir</h4><table><tr><td>yo</td><td>vivía</td></tr><tr><td>tú</td><td>vivías</td></tr><tr><td>él</td><td>vivía</td></tr><tr><td>nos.</td><td>vivíamos</td></tr><tr><td>vos.</td><td>vivíais</td></tr><tr><td>ellos</td><td>vivían</td></tr></table></div>
+          </div><div class="note-box">⚠ Solo 3 verbos irregulares: <strong>ser</strong> (era), <strong>ir</strong> (iba), <strong>ver</strong> (veía).</div></div>
+          <div class="tense-section"><div class="tense-title">Futuro simple</div><div class="conj-grid">
+            <div class="conj-col"><h4>-AR hablar</h4><table><tr><td>yo</td><td>hablaré</td></tr><tr><td>tú</td><td>hablarás</td></tr><tr><td>él</td><td>hablará</td></tr><tr><td>nos.</td><td>hablaremos</td></tr><tr><td>vos.</td><td>hablaréis</td></tr><tr><td>ellos</td><td>hablarán</td></tr></table></div>
+            <div class="conj-col"><h4>-ER comer</h4><table><tr><td>yo</td><td>comeré</td></tr><tr><td>tú</td><td>comerás</td></tr><tr><td>él</td><td>comerá</td></tr><tr><td>nos.</td><td>comeremos</td></tr><tr><td>vos.</td><td>comeréis</td></tr><tr><td>ellos</td><td>comerán</td></tr></table></div>
+            <div class="conj-col"><h4>-IR vivir</h4><table><tr><td>yo</td><td>viviré</td></tr><tr><td>tú</td><td>vivirás</td></tr><tr><td>él</td><td>vivirá</td></tr><tr><td>nos.</td><td>viviremos</td></tr><tr><td>vos.</td><td>viviréis</td></tr><tr><td>ellos</td><td>vivirán</td></tr></table></div>
+          </div><div class="note-box">💡 Terminaciones iguales para los tres grupos.</div></div>
+          <div class="tense-section"><div class="tense-title">Condicional simple</div><div class="conj-grid">
+            <div class="conj-col"><h4>-AR hablar</h4><table><tr><td>yo</td><td>hablaría</td></tr><tr><td>tú</td><td>hablarías</td></tr><tr><td>él</td><td>hablaría</td></tr><tr><td>nos.</td><td>hablaríamos</td></tr><tr><td>vos.</td><td>hablaríais</td></tr><tr><td>ellos</td><td>hablarían</td></tr></table></div>
+            <div class="conj-col"><h4>-ER comer</h4><table><tr><td>yo</td><td>comería</td></tr><tr><td>tú</td><td>comerías</td></tr><tr><td>él</td><td>comería</td></tr><tr><td>nos.</td><td>comeríamos</td></tr><tr><td>vos.</td><td>comeríais</td></tr><tr><td>ellos</td><td>comerían</td></tr></table></div>
+            <div class="conj-col"><h4>-IR vivir</h4><table><tr><td>yo</td><td>viviría</td></tr><tr><td>tú</td><td>vivirías</td></tr><tr><td>él</td><td>viviría</td></tr><tr><td>nos.</td><td>viviríamos</td></tr><tr><td>vos.</td><td>viviríais</td></tr><tr><td>ellos</td><td>vivirían</td></tr></table></div>
+          </div><div class="note-box">💡 Mismo radical que el futuro.</div></div>
+          <div class="tense-section"><div class="tense-title">Subjuntivo presente</div><div class="conj-grid">
+            <div class="conj-col"><h4>-AR hablar</h4><table><tr><td>yo</td><td>hable</td></tr><tr><td>tú</td><td>hables</td></tr><tr><td>él</td><td>hable</td></tr><tr><td>nos.</td><td>hablemos</td></tr><tr><td>vos.</td><td>habléis</td></tr><tr><td>ellos</td><td>hablen</td></tr></table></div>
+            <div class="conj-col"><h4>-ER comer</h4><table><tr><td>yo</td><td>coma</td></tr><tr><td>tú</td><td>comas</td></tr><tr><td>él</td><td>coma</td></tr><tr><td>nos.</td><td>comamos</td></tr><tr><td>vos.</td><td>comáis</td></tr><tr><td>ellos</td><td>coman</td></tr></table></div>
+            <div class="conj-col"><h4>-IR vivir</h4><table><tr><td>yo</td><td>viva</td></tr><tr><td>tú</td><td>vivas</td></tr><tr><td>él</td><td>viva</td></tr><tr><td>nos.</td><td>vivamos</td></tr><tr><td>vos.</td><td>viváis</td></tr><tr><td>ellos</td><td>vivan</td></tr></table></div>
+          </div><div class="note-box">💡 Vocal contraria: -AR usa -E, -ER/-IR usan -A.</div></div>
+          <div class="tense-section"><div class="tense-title">Subjuntivo imperfecto</div><div class="conj-grid">
+            <div class="conj-col"><h4>-AR hablar</h4><table><tr><td>yo</td><td>hablara</td></tr><tr><td>tú</td><td>hablaras</td></tr><tr><td>él</td><td>hablara</td></tr><tr><td>nos.</td><td>habláramos</td></tr><tr><td>vos.</td><td>hablarais</td></tr><tr><td>ellos</td><td>hablaran</td></tr></table></div>
+            <div class="conj-col"><h4>-ER comer</h4><table><tr><td>yo</td><td>comiera</td></tr><tr><td>tú</td><td>comieras</td></tr><tr><td>él</td><td>comiera</td></tr><tr><td>nos.</td><td>comiéramos</td></tr><tr><td>vos.</td><td>comierais</td></tr><tr><td>ellos</td><td>comieran</td></tr></table></div>
+            <div class="conj-col"><h4>-IR vivir</h4><table><tr><td>yo</td><td>viviera</td></tr><tr><td>tú</td><td>vivieras</td></tr><tr><td>él</td><td>viviera</td></tr><tr><td>nos.</td><td>viviéramos</td></tr><tr><td>vos.</td><td>vivierais</td></tr><tr><td>ellos</td><td>vivieran</td></tr></table></div>
+          </div><div class="note-box">💡 Radical = 3ª persona plural del indefinido.</div></div>
+          <div class="tense-section"><div class="tense-title">Tiempos compuestos (haber + participio)</div><div class="conj-grid">
+            <div class="conj-col"><h4>Pret. perfecto</h4><table><tr><td>yo</td><td>he hablado</td></tr><tr><td>tú</td><td>has hablado</td></tr><tr><td>él</td><td>ha hablado</td></tr><tr><td>nos.</td><td>hemos hablado</td></tr><tr><td>vos.</td><td>habéis hablado</td></tr><tr><td>ellos</td><td>han hablado</td></tr></table></div>
+            <div class="conj-col"><h4>Pluscuamperfecto</h4><table><tr><td>yo</td><td>había hablado</td></tr><tr><td>tú</td><td>habías hablado</td></tr><tr><td>él</td><td>había hablado</td></tr><tr><td>nos.</td><td>habíamos hablado</td></tr><tr><td>vos.</td><td>habíais hablado</td></tr><tr><td>ellos</td><td>habían hablado</td></tr></table></div>
+            <div class="conj-col"><h4>Futuro perfecto</h4><table><tr><td>yo</td><td>habré hablado</td></tr><tr><td>tú</td><td>habrás hablado</td></tr><tr><td>él</td><td>habrá hablado</td></tr><tr><td>nos.</td><td>habremos hablado</td></tr><tr><td>vos.</td><td>habréis hablado</td></tr><tr><td>ellos</td><td>habrán hablado</td></tr></table></div>
+          </div><div style="height:12px"></div><div class="conj-grid">
+            <div class="conj-col"><h4>Condicional perfecto</h4><table><tr><td>yo</td><td>habría hablado</td></tr><tr><td>tú</td><td>habrías hablado</td></tr><tr><td>él</td><td>habría hablado</td></tr><tr><td>nos.</td><td>habríamos hablado</td></tr><tr><td>vos.</td><td>habríais hablado</td></tr><tr><td>ellos</td><td>habrían hablado</td></tr></table></div>
+            <div class="conj-col"><h4>Subj. perfecto</h4><table><tr><td>yo</td><td>haya hablado</td></tr><tr><td>tú</td><td>hayas hablado</td></tr><tr><td>él</td><td>haya hablado</td></tr><tr><td>nos.</td><td>hayamos hablado</td></tr><tr><td>vos.</td><td>hayáis hablado</td></tr><tr><td>ellos</td><td>hayan hablado</td></tr></table></div>
+            <div class="conj-col"><h4>Subj. pluscuamp.</h4><table><tr><td>yo</td><td>hubiera hablado</td></tr><tr><td>tú</td><td>hubieras hablado</td></tr><tr><td>él</td><td>hubiera hablado</td></tr><tr><td>nos.</td><td>hubiéramos hablado</td></tr><tr><td>vos.</td><td>hubierais hablado</td></tr><tr><td>ellos</td><td>hubieran hablado</td></tr></table></div>
+          </div><div class="note-box">💡 El participio nunca cambia. Solo se conjuga haber.</div></div>
+          <div class="tense-section"><div class="tense-title">Imperativo</div><div class="conj-grid">
+            <div class="conj-col"><h4>Afirmativo -AR</h4><table><tr><td>tú</td><td>habla</td></tr><tr><td>usted</td><td>hable</td></tr><tr><td>nos.</td><td>hablemos</td></tr><tr><td>vos.</td><td>hablad</td></tr><tr><td>ustedes</td><td>hablen</td></tr></table></div>
+            <div class="conj-col"><h4>Afirmativo -ER</h4><table><tr><td>tú</td><td>come</td></tr><tr><td>usted</td><td>coma</td></tr><tr><td>nos.</td><td>comamos</td></tr><tr><td>vos.</td><td>comed</td></tr><tr><td>ustedes</td><td>coman</td></tr></table></div>
+            <div class="conj-col"><h4>Afirmativo -IR</h4><table><tr><td>tú</td><td>vive</td></tr><tr><td>usted</td><td>viva</td></tr><tr><td>nos.</td><td>vivamos</td></tr><tr><td>vos.</td><td>vivid</td></tr><tr><td>ustedes</td><td>vivan</td></tr></table></div>
+          </div><div class="note-box">⚠ Imperativo negativo = subjuntivo presente: no hables, no comas, no vivas…</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="az-bar" id="azBar"></div>
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="importModal">
+  <div class="modal">
+    <h2 id="importTitle">Importar</h2>
+    <p id="importHint" style="font-family:sans-serif;font-size:13px;color:#6b6860;margin-bottom:12px;"></p>
+    <textarea class="import-area" id="importText"></textarea>
+    <div class="form-actions">
+      <button onclick="closeImportModal()">Cancelar</button>
+      <button class="primary" onclick="doImport()">Importar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ALPHABET='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+let words=[];
+let grammarNotes=[];
+let importMode='word';
+let lastScrollY=0;
+
+function load(){
+  try{const s=localStorage.getItem('es_vocab_v6');if(s)words=JSON.parse(s);}catch(e){}
+  try{const g=localStorage.getItem('es_grammar_v1');if(g)grammarNotes=JSON.parse(g);}catch(e){}
+  if(!words.length){
+    words=[
+      {"word":"agotado","type":"adj","level":"B1","core_meaning":"筋疲力尽的；耗尽的；售罄的","situations":["下班后累到不想说话","社交一整天之后完全没电","门票或商品卖完了"],"structures":["estar agotado/a","sentirse agotado/a","estar agotado/a de + algo","quedar agotado/a"],"collocations":["completamente agotado","mentalmente agotado","físicamente agotado","entradas agotadas"],"starter_sentences":["Hoy estoy agotada.","Me siento agotada después del trabajo.","Ya no puedo, estoy agotada.","Las entradas ya están agotadas."],"micro_patterns":["estoy ___","me siento ___","estoy completamente ___","estoy agotado/a de ___"],"tone":["口语","高频","偏负面","日常表达"],"common_mistakes":["不要用 ser agotado，要用 estar agotado（状态动词）","cansado 是普通疲惫，agotado 是彻底耗尽，程度更强"],"related_words":["cansado","extenuado","sin energía","estresado","agotador"],"tags":["情绪","状态","高频口语"],"frequency":"A"},
+      {"word":"aprovechar","type":"v","level":"B1","core_meaning":"充分利用；抓住机会","situations":["提醒自己或别人不要浪费时间","抓住难得的机会","利用空闲时间做有意义的事"],"structures":["aprovechar + sustantivo","aprovechar para + infinitivo","aprovechar que + indicativo"],"collocations":["aprovechar el tiempo","aprovechar la oportunidad","aprovechar el momento","aprovecha que..."],"starter_sentences":["Hay que aprovechar.","Aprovecha que tienes tiempo.","Voy a aprovechar para descansar."],"micro_patterns":["aprovechar para ___","aprovecha que ___","hay que aprovechar ___"],"tone":["口语","书面","中性","劝说语气"],"common_mistakes":["aprovechar DE algo 在某些搭配中不自然，通常直接接宾语","不要和 usar 混用，aprovechar 强调充分利用，不只是使用"],"related_words":["sacar partido","útilizar","desperdiciar","malgastar","aprovechado"],"tags":["工作学习","高频口语","劝说"],"frequency":"A"},
+      {"word":"renunciar","type":"v","level":"B1","core_meaning":"辞职；放弃（权利/职位）","situations":["同事或自己辞职时","放弃某个权利或机会时","正式提交辞呈"],"structures":["renunciar a + sustantivo","renunciar al trabajo / al puesto","presentar la renuncia"],"collocations":["renunciar al trabajo","renunciar a su puesto","renunciar a una oportunidad","presentar la renuncia"],"starter_sentences":["Va a renunciar.","Renuncié a mi puesto.","Decidí renunciar."],"micro_patterns":["renunciar a ___","voy a renunciar","decidio renunciar"],"tone":["口语","书面","正式","中性"],"common_mistakes":["renunciar 是主动辞职，despedir 是被解雇，方向相反","口语更常说 dejar el trabajo，renunciar 稍正式"],"related_words":["dimitir","dejar el trabajo","despedir","renuncia","dimisión"],"tags":["工作学习","正式用语"],"frequency":"B"}
+    ];
+    saveWords();
+  }
+}
+
+function saveWords(){try{localStorage.setItem('es_vocab_v6',JSON.stringify(words));}catch(e){}}
+function saveGrammar(){try{localStorage.setItem('es_grammar_v1',JSON.stringify(grammarNotes));}catch(e){}}
+function normalizeFirst(w){return w.word.normalize('NFD').replace(/[\u0300-\u036f]/g,'').charAt(0).toUpperCase();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+function jumpToWord(wordStr){
+  const target=words.find(w=>w.word.toLowerCase()===wordStr.toLowerCase());
+  if(!target){showToast('"'+wordStr+'" aun no esta en el vocabulario');return;}
+  const idx=words.indexOf(target);
+  const card=document.getElementById('card-'+idx);
+  if(!card){showToast('"'+wordStr+'" no aparece con los filtros');return;}
+  document.getElementById('body-'+idx).classList.add('open');
+  document.getElementById('chev-'+idx).classList.add('open');
+  card.classList.add('highlight');
+  card.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>card.classList.remove('highlight'),1800);
+}
+
+function chips(arr,cls){
+  if(!arr||!arr.length)return'';
+  return arr.map(item=>`<span class="chip ${cls}">${item}</span>`).join('');
+}
+function clickableChips(arr,cls){
+  if(!arr||!arr.length)return'';
+  return arr.map(item=>{
+    const bare=item.split('(')[0].trim().split(' ')[0];
+    return`<span class="chip ${cls} clickable" onclick="jumpToWord('${bare.replace(/'/g,"\\'")}')">${item}</span>`;
+  }).join('');
+}
+
+function showTab(t){
+  document.getElementById('tab-vocab').style.display=t==='vocab'?'block':'none';
+  document.getElementById('tab-grammar').style.display=t==='grammar'?'block':'none';
+  document.getElementById('azBar').style.display=t==='vocab'?'flex':'none';
+  document.querySelectorAll('.nav-btn').forEach((b,i)=>{b.classList.toggle('active',(t==='vocab'&&i===0)||(t==='grammar'&&i===1));});
+}
+
+function buildAZBar(letterSet){
+  const bar=document.getElementById('azBar');
+  bar.innerHTML=ALPHABET.map(l=>`<a href="#" class="${letterSet.has(l)?'has-words':''}" onclick="azClick(event,'${l}')">${l}</a>`).join('');
+}
+function azClick(e,l){e.preventDefault();const el=document.getElementById('letter-'+l);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
+
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const type=document.getElementById('filterType').value;
+  const level=document.getElementById('filterLevel').value;
+  const freq=document.getElementById('filterFreq').value;
+
+  const filtered=words.filter(w=>{
+    if(q&&!w.word.toLowerCase().includes(q)&&!(w.core_meaning||'').toLowerCase().includes(q))return false;
+    const wtype=(w.type||'').split('(')[0].trim();
+    if(type&&wtype!==type)return false;
+    if(level&&w.level!==level)return false;
+    if(freq&&w.frequency!==freq)return false;
+    return true;
+  }).sort((a,b)=>a.word.localeCompare(b.word,'es',{sensitivity:'base'}));
+
+  document.getElementById('count').textContent=filtered.length+' palabra'+(filtered.length!==1?'s':'');
+  const groups={};const letterSet=new Set();
+  filtered.forEach(w=>{const l=normalizeFirst(w);letterSet.add(l);if(!groups[l])groups[l]=[];groups[l].push(w);});
+  buildAZBar(letterSet);
+
+  const list=document.getElementById('wordList');
+  if(!filtered.length){list.innerHTML='<div class="empty">📖 No se encontraron palabras</div>';return;}
+
+  let html='';
+  Object.keys(groups).sort().forEach(letter=>{
+    html+=`<div class="letter-group" id="letter-${letter}"><div class="letter-heading"><span>${letter}</span></div>`;
+    groups[letter].forEach(w=>{
+      const idx=words.indexOf(w);
+      html+=`<div class="card" id="card-${idx}">
+        <div class="card-head" onclick="toggle(${idx})">
+          <div class="head-left">
+            <span class="word-main">${w.word}</span>
+            ${w.type?`<span class="type-tag">${w.type}</span>`:''}
+          </div>
+          <div class="head-right">
+            ${w.level?`<span class="badge badge-level">${w.level}</span>`:''}
+            ${w.frequency?`<span class="badge badge-freq">${w.frequency}</span>`:''}
+            <span class="core-meaning">${w.core_meaning||''}</span>
+            <span class="chevron" id="chev-${idx}">&#9660;</span>
+          </div>
+        </div>
+        <div class="card-body" id="body-${idx}">
+          ${w.situations&&w.situations.length?`<div class="section"><div class="sec-label">💬 使用场景</div><div class="situation-row">${w.situations.map(s=>`<span class="situation">${s}</span>`).join('')}</div></div>`:''}
+          ${w.structures&&w.structures.length?`<div class="section"><div class="sec-label">🔧 核心结构</div><div class="structure-list">${w.structures.map(s=>`<div class="structure-item">${s}</div>`).join('')}</div></div>`:''}
+          ${w.starter_sentences&&w.starter_sentences.length?`<div class="section"><div class="sec-label">🗣 马上能说的句子</div><div class="starter-list">${w.starter_sentences.map(s=>`<div class="starter-item">${s}</div>`).join('')}</div></div>`:''}
+          ${w.micro_patterns&&w.micro_patterns.length?`<div class="section"><div class="sec-label">⚡ 微型句块</div><div class="micro-list">${w.micro_patterns.map(s=>`<span class="micro-item">${s}</span>`).join('')}</div></div>`:''}
+          ${w.collocations&&w.collocations.length?`<div class="section"><div class="sec-label">🔗 自然搭配</div><div class="chip-row">${chips(w.collocations,'')}</div></div>`:''}
+          ${w.common_mistakes&&w.common_mistakes.length?`<div class="section"><div class="sec-label">⚠️ 常见错误</div><div class="chip-row">${w.common_mistakes.map(m=>`<span class="chip mistake">${m}</span>`).join('')}</div></div>`:''}
+          ${w.related_words&&w.related_words.length?`<div class="section"><div class="sec-label">🌐 相关词</div><div class="chip-row">${clickableChips(w.related_words,'related')}</div></div>`:''}
+          ${w.tone&&w.tone.length?`<div class="section"><div class="sec-label">🎭 语气</div><div class="chip-row">${chips(w.tone,'tone')}</div></div>`:''}
+          ${w.tags&&w.tags.length?`<div class="section"><div class="sec-label">🏷 标签</div><div class="chip-row">${chips(w.tags,'tag')}</div></div>`:''}
+          <div class="card-actions">
+            <button class="danger" onclick="deleteWord(${idx})">&#10005; Eliminar</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  list.innerHTML=html;
+}
+
+function toggle(idx){document.getElementById('body-'+idx).classList.toggle('open');document.getElementById('chev-'+idx).classList.toggle('open');}
+function toggleGram(id){document.getElementById('gbody-'+id).classList.toggle('open');document.getElementById('gchev-'+id).classList.toggle('open');}
+
+function deleteWord(idx){
+  lastScrollY=window.scrollY;
+  if(!confirm('Eliminar "'+words[idx].word+'"?'))return;
+  words.splice(idx,1);saveWords();render();
+  requestAnimationFrame(()=>window.scrollTo({top:lastScrollY,behavior:'instant'}));
+}
+
+function openImportModal(mode){
+  importMode=mode;
+  document.getElementById('importText').value='';
+  const hints={
+    word:['Importar palabra','Pega aqui el JSON de la palabra.'],
+    grammar:['Importar nota gramatical','Pega aqui el JSON de la nota gramatical.'],
+    restore:['Restaurar datos','Pega aqui el contenido del archivo de respaldo.']
+  };
+  document.getElementById('importTitle').textContent=hints[mode][0];
+  document.getElementById('importHint').textContent=hints[mode][1];
+  document.getElementById('importModal').classList.add('open');
+}
+function closeImportModal(){document.getElementById('importModal').classList.remove('open');}
+
+function doImport(){
+  let raw=document.getElementById('importText').value.trim();
+  if(!raw){alert('Por favor pega el contenido primero.');return;}
+  raw=raw.replace(/[\u201c\u201d]/g,'"').replace(/[\u2018\u2019]/g,"'");
+  try{
+    const data=JSON.parse(raw);
+    if(importMode==='word'){
+      if(!data.word){alert('Falta el campo: word.');return;}
+      const ex=words.findIndex(w=>w.word===data.word);
+      if(ex>=0){if(confirm('"'+data.word+'" ya existe. Reemplazar?')){words[ex]=data;}else return;}
+      else words.push(data);
+      saveWords();closeImportModal();render();showToast('✓ "'+data.word+'" importado');
+    }else if(importMode==='grammar'){
+      if(!data.title||!data.blocks){alert('Faltan campos: title y blocks.');return;}
+      const ex=grammarNotes.findIndex(g=>g.title===data.title);
+      if(ex>=0){if(confirm('"'+data.title+'" ya existe. Reemplazar?')){grammarNotes[ex]=data;}else return;}
+      else grammarNotes.push(data);
+      saveGrammar();closeImportModal();renderGrammar();showToast('✓ Nota importada');
+    }else{
+      if(!data.words){alert('Formato invalido.');return;}
+      if(!confirm('Esto reemplazara todos tus datos. Continuar?'))return;
+      words=data.words||[];grammarNotes=data.grammar||[];
+      saveWords();saveGrammar();closeImportModal();render();renderGrammar();showToast('✓ Datos restaurados');
+    }
+  }catch(e){alert('Error: JSON no valido.');}
+}
+
+function exportData(){
+  const data={words,grammar:grammarNotes,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='mi_espanol_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();URL.revokeObjectURL(url);
+  showToast('✓ Datos exportados');
+}
+
+function renderGrammar(){
+  const list=document.getElementById('grammarList');
+  list.querySelectorAll('.gram-card.dynamic').forEach(el=>el.remove());
+  grammarNotes.forEach((note,ni)=>{
+    const id='dyn-'+ni;
+    const card=document.createElement('div');
+    card.className='gram-card dynamic';
+    card.innerHTML=`<div class="gram-head" onclick="toggleGram('${id}')">
+      <span class="gram-title">${note.title}</span>
+      ${note.tag?`<span class="gram-tag">${note.tag}</span>`:''}
+      <span class="chevron" id="gchev-${id}">&#9660;</span>
+    </div>
+    <div class="gram-body" id="gbody-${id}">
+      ${renderBlocks(note.blocks)}
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+        <button class="danger" onclick="deleteGrammarNote(${ni})">&#10005; Eliminar nota</button>
+      </div>
+    </div>`;
+    list.appendChild(card);
+  });
+}
+
+function renderBlocks(blocks){
+  if(!blocks||!blocks.length)return'';
+  return blocks.map(b=>{
+    if(b.type==='text')return`<div class="gb-text">${b.content}</div>`;
+    if(b.type==='note')return`<div class="gb-note">${b.content}</div>`;
+    if(b.type==='list')return`<ul class="gb-list">${b.items.map((item,i)=>`<li data-n="${i+1}.">${item}</li>`).join('')}</ul>`;
+    if(b.type==='examples')return`<div class="gb-examples">${b.items.map(e=>`<div class="gb-example">${e}</div>`).join('')}</div>`;
+    if(b.type==='table'){
+      const head=b.headers.map(h=>`<th>${h}</th>`).join('');
+      const rows=b.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
+      return`<table class="gb-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+    }
+    return'';
+  }).join('');
+}
+
+function deleteGrammarNote(ni){
+  if(!confirm('Eliminar esta nota?'))return;
+  grammarNotes.splice(ni,1);saveGrammar();renderGrammar();
+}
+
+window.onclick=function(e){
+  if(e.target===document.getElementById('importModal'))closeImportModal();
+};
+
+load();showTab('vocab');render();renderGrammar();
+</script>
+</body>
+</html>
