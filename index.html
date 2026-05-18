@@ -6,114 +6,158 @@
 <title>Mi español</title>
 <style>
 :root{
-  --bg:#f7f5f0;--surface:#fff;--surface2:#f0ede6;
-  --border:#e0dbd0;--border2:#ccc8bc;
-  --text:#1a1a18;--text2:#6b6860;--text3:#9b9890;
-  --accent:#2d6a4f;--accent-bg:#e8f4ee;--accent-text:#1a4a32;
-  --rel-bg:#fef6e4;--rel-text:#7a4f00;
-  --chip-bg:#f0ede6;--chip-text:#4a4840;
-  --err-bg:#fdecea;--err-text:#7a1f1a;
-  --radius:12px;--radius-sm:8px;--shadow:0 1px 3px rgba(0,0,0,.08);
+  --bg:#f5f3ee;
+  --surface:#ffffff;
+  --surface2:#eeebe3;
+  --surface3:#e8e4da;
+  --border:#ddd8cc;
+  --border2:#ccc8bb;
+  --text:#1a1916;
+  --text2:#6b6758;
+  --text3:#a09c8e;
+  --accent:#2d6a4f;
+  --accent-bg:#e6f2ec;
+  --accent-text:#1a4a32;
+  --accent-border:#b8d9c6;
+  --warn-bg:#fef3e2;
+  --warn-text:#7a4f00;
+  --warn-border:#f5dfa0;
+  --err-bg:#fdecea;
+  --err-text:#8b1a1a;
+  --err-border:#f5c2c2;
+  --purple-bg:#f0eeff;
+  --purple-text:#4a3580;
+  --purple-border:#ccc0f0;
+  --radius:14px;
+  --radius-sm:8px;
+  --radius-xs:6px;
+  --shadow:0 1px 4px rgba(0,0,0,.06);
+  --shadow-md:0 2px 8px rgba(0,0,0,.1);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Georgia',serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 4rem;}
-.container{max-width:780px;margin:0 auto;padding-right:36px;}
-header{margin-bottom:1.5rem;border-bottom:1px solid var(--border);padding-bottom:1.25rem;}
-header h1{font-size:1.6rem;font-weight:normal;letter-spacing:-.02em;}
-header p{font-size:.875rem;color:var(--text2);margin-top:4px;font-family:sans-serif;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:1.5rem 1rem 5rem;}
+.container{max-width:760px;margin:0 auto;padding-right:32px;}
 
-.nav{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--surface2);border-radius:var(--radius-sm);padding:4px;border:1px solid var(--border);}
-.nav-btn{flex:1;font-family:sans-serif;font-size:14px;padding:8px 12px;border:none;border-radius:6px;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;}
+/* HEADER */
+header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+header h1{font-size:1.5rem;font-weight:600;letter-spacing:-.03em;color:var(--text);}
+header p{font-size:.8rem;color:var(--text3);margin-top:3px;}
+
+/* NAV */
+.nav{display:flex;gap:3px;margin-bottom:1.5rem;background:var(--surface2);border-radius:10px;padding:3px;border:1px solid var(--border);}
+.nav-btn{flex:1;font-size:13px;font-weight:500;padding:7px 12px;border:none;border-radius:8px;background:transparent;color:var(--text2);cursor:pointer;transition:all .15s;}
 .nav-btn.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow);}
 
-.az-bar{position:fixed;right:6px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:5px 2px;box-shadow:var(--shadow);}
-.az-bar a{font-family:sans-serif;font-size:9.5px;font-weight:600;color:var(--text3);text-decoration:none;width:18px;height:14px;display:flex;align-items:center;justify-content:center;border-radius:3px;transition:all .1s;}
-.az-bar a:hover{background:var(--accent-bg);color:var(--accent);}
+/* A-Z */
+.az-bar{position:fixed;right:5px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;z-index:50;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px 2px;box-shadow:var(--shadow);}
+.az-bar a{font-size:9px;font-weight:700;color:var(--text3);text-decoration:none;width:17px;height:13px;display:flex;align-items:center;justify-content:center;border-radius:3px;transition:all .1s;letter-spacing:0;}
+.az-bar a:hover,.az-bar a.has-words:hover{background:var(--accent-bg);color:var(--accent);}
 .az-bar a.has-words{color:var(--text2);}
 
-input[type=text],select,textarea{font-family:sans-serif;font-size:14px;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;}
-input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent);}
-textarea{resize:vertical;min-height:64px;line-height:1.5;}
-button{font-family:sans-serif;font-size:13px;padding:8px 14px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:5px;}
+/* INPUTS */
+input[type=text],select,textarea{font-size:14px;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);outline:none;transition:border-color .15s;font-family:inherit;}
+input[type=text]:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+textarea{resize:vertical;min-height:60px;line-height:1.5;}
+button{font-size:13px;font-weight:500;padding:7px 13px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;font-family:inherit;}
 button:hover{background:var(--surface2);}
 button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
 button.primary:hover{background:#245a40;}
-button.danger{color:#b91c1c;}
-button.danger:hover{background:#fdecea;border-color:#f5c2c2;}
+button.danger{color:var(--err-text);}
+button.danger:hover{background:var(--err-bg);border-color:var(--err-border);}
 
-.fab-row{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
-.toolbar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
-#search{flex:1;min-width:150px;}
-.count{font-size:13px;color:var(--text3);margin-bottom:10px;font-family:sans-serif;}
+.fab-row{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
+.toolbar{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;}
+#search{flex:1;min-width:140px;}
+.count{font-size:12px;color:var(--text3);margin-bottom:10px;}
 
-.letter-group{margin-bottom:16px;scroll-margin-top:20px;}
-.letter-heading{font-family:sans-serif;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:6px 0;margin-bottom:8px;border-bottom:1px solid var(--border);}
-.letter-heading span{font-size:18px;color:var(--text2);font-weight:normal;letter-spacing:0;}
+/* LETTER GROUP */
+.letter-group{margin-bottom:20px;scroll-margin-top:20px;}
+.letter-heading{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:4px 0;margin-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.letter-heading span{font-size:20px;color:var(--text2);font-weight:300;letter-spacing:0;text-transform:none;}
 
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:8px;transition:box-shadow .2s,border-color .2s;scroll-margin-top:20px;}
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);margin-bottom:6px;transition:box-shadow .2s,border-color .2s;scroll-margin-top:20px;}
 .card.highlight{box-shadow:0 0 0 2px var(--accent);border-color:var(--accent);}
-.card-head{display:flex;align-items:center;padding:11px 16px;cursor:pointer;user-select:none;transition:background .12s;}
+.card-head{display:flex;align-items:center;padding:12px 16px;cursor:pointer;user-select:none;transition:background .12s;gap:0;}
 .card-head:hover{background:var(--surface2);}
-.head-left{width:40%;display:flex;align-items:baseline;flex-shrink:0;overflow:hidden;}
-.word-main{font-size:16px;font-weight:normal;font-style:italic;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.type-tag{font-family:sans-serif;font-size:11px;color:var(--text3);margin-left:5px;flex-shrink:0;}
+
+/* HEAD LAYOUT */
+.head-left{width:42%;display:flex;align-items:baseline;flex-shrink:0;overflow:hidden;gap:6px;}
+.word-main{font-size:17px;font-weight:500;font-style:italic;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.01em;}
+.type-tag{font-size:10px;font-weight:600;color:var(--text3);flex-shrink:0;letter-spacing:.02em;}
 .head-right{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
-.badge{font-family:sans-serif;font-size:11px;padding:2px 7px;border-radius:999px;font-weight:600;white-space:nowrap;}
-.badge-level{background:var(--accent-bg);color:var(--accent-text);}
+.badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:600;white-space:nowrap;letter-spacing:.02em;}
+.badge-level{background:var(--accent-bg);color:var(--accent-text);border:1px solid var(--accent-border);}
 .badge-freq{background:var(--surface2);color:var(--text2);border:1px solid var(--border);font-size:10px;}
-.core-meaning{font-size:13px;color:var(--text2);font-family:sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.chevron{font-size:11px;color:var(--text3);transition:transform .2s;flex-shrink:0;margin-left:auto;}
+.core-meaning{font-size:12.5px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+.chevron{font-size:10px;color:var(--text3);transition:transform .2s;flex-shrink:0;margin-left:auto;}
 .chevron.open{transform:rotate(180deg);}
 
+/* CARD BODY */
 .card-body{border-top:1px solid var(--border);padding:16px;display:none;}
 .card-body.open{display:block;}
+
+/* SECTION */
 .section{margin-bottom:16px;}
 .section:last-child{margin-bottom:0;}
-.sec-label{font-family:sans-serif;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.sec-label{font-size:9.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
 
-/* chips */
-.chip-row{display:flex;flex-wrap:wrap;gap:6px;}
-.chip{font-family:sans-serif;font-size:13px;padding:3px 10px;border-radius:999px;background:var(--chip-bg);color:var(--chip-text);border:1px solid var(--border);}
-.chip.clickable{cursor:pointer;}
-.chip.clickable:hover{opacity:.7;}
-.chip.tone{background:#f0f0fa;color:#4a4870;border-color:#d0d0ea;}
-.chip.tag{background:var(--rel-bg);color:var(--rel-text);border-color:#f5dfa0;}
-.chip.mistake{background:var(--err-bg);color:var(--err-text);border-radius:var(--radius-sm);padding:6px 12px;width:100%;font-size:13px;}
-.chip.related{background:var(--accent-bg);color:var(--accent-text);border-color:#b6dfc8;}
+/* TAGS — top, horizontal pills */
+.tag-row{display:flex;flex-wrap:wrap;gap:5px;}
+.tag{font-size:11px;font-weight:500;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+.tag-usage{background:var(--surface2);color:var(--text2);border:1px solid var(--border);}
+.tag-func{background:var(--purple-bg);color:var(--purple-text);border:1px solid var(--purple-border);}
+.tag-tone{background:var(--warn-bg);color:var(--warn-text);border:1px solid var(--warn-border);}
 
-/* situation pills */
-.situation-row{display:flex;flex-wrap:wrap;gap:6px;}
-.situation{font-family:sans-serif;font-size:12px;padding:4px 10px;border-radius:999px;background:#f5f0ff;color:#5a3f8a;border:1px solid #ddd0f5;}
+/* SITUATIONS */
+.situation-list{display:flex;flex-direction:column;gap:5px;}
+.situation-item{font-size:13px;color:var(--text2);padding:6px 10px;background:var(--surface2);border-radius:var(--radius-xs);border-left:2px solid var(--accent-border);}
 
-/* structures */
-.structure-list{display:flex;flex-direction:column;gap:6px;}
-.structure-item{font-family:sans-serif;font-size:13px;padding:6px 12px;background:var(--surface2);border-radius:var(--radius-sm);color:var(--text);border-left:3px solid var(--accent);font-style:italic;}
+/* CHUNKS */
+.chunk-list{display:flex;flex-direction:column;gap:6px;}
+.chunk-item{font-size:15px;color:var(--text);padding:8px 14px;background:var(--accent-bg);border-radius:var(--radius-sm);font-style:italic;border:1px solid var(--accent-border);line-height:1.4;}
 
-/* starter sentences */
-.starter-list{display:flex;flex-direction:column;gap:6px;}
-.starter-item{font-family:sans-serif;font-size:14px;padding:8px 12px;background:var(--accent-bg);border-radius:var(--radius-sm);color:var(--accent-text);font-style:italic;}
+/* FRAMES */
+.frame-list{display:flex;flex-wrap:wrap;gap:6px;}
+.frame-item{font-size:13px;color:var(--warn-text);padding:4px 12px;background:var(--warn-bg);border-radius:999px;border:1px solid var(--warn-border);font-style:italic;}
 
-/* micro patterns */
-.micro-list{display:flex;flex-wrap:wrap;gap:6px;}
-.micro-item{font-family:sans-serif;font-size:13px;padding:4px 12px;background:#fff8e6;border:1px solid #f5dfa0;border-radius:999px;color:var(--rel-text);font-style:italic;}
+/* COMMON MISTAKES */
+.mistake-list{display:flex;flex-direction:column;gap:6px;}
+.mistake-item{font-size:13px;color:var(--err-text);padding:8px 12px;background:var(--err-bg);border-radius:var(--radius-sm);border:1px solid var(--err-border);line-height:1.5;}
 
-.card-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
-.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-family:sans-serif;font-size:15px;}
+/* RELATED WORDS */
+.related-row{display:flex;flex-wrap:wrap;gap:5px;}
+.related-chip{font-size:12px;padding:3px 10px;border-radius:999px;background:var(--accent-bg);color:var(--accent-text);border:1px solid var(--accent-border);cursor:pointer;transition:opacity .15s;}
+.related-chip:hover{opacity:.7;}
 
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;font-family:sans-serif;font-size:13px;padding:10px 20px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:300;white-space:nowrap;}
+/* VERB FORMS */
+.verb-forms-toggle{font-size:12px;color:var(--accent);background:none;border:1px solid var(--accent-border);border-radius:var(--radius-xs);padding:4px 10px;cursor:pointer;margin-bottom:0;}
+.verb-forms-toggle:hover{background:var(--accent-bg);}
+.verb-forms-grid{display:none;margin-top:8px;display:none;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;}
+.verb-forms-grid.open{display:grid;}
+.vf-item{background:var(--surface2);border-radius:var(--radius-xs);padding:8px 10px;border:1px solid var(--border);}
+.vf-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
+.vf-value{font-size:13px;color:var(--text);font-style:italic;}
+
+.card-actions{display:flex;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);}
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:14px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1916;color:#fff;font-size:13px;padding:9px 18px;border-radius:999px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:300;white-space:nowrap;}
 .toast.show{opacity:1;}
 
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;}
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:100%;max-width:600px;box-shadow:0 8px 32px rgba(0,0,0,.15);margin:auto;}
-.modal h2{font-size:18px;font-weight:normal;margin-bottom:18px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal{background:var(--surface);border-radius:var(--radius);padding:24px;width:100%;max-width:580px;box-shadow:var(--shadow-md);margin:auto;}
+.modal h2{font-size:17px;font-weight:600;margin-bottom:16px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .form-full{grid-column:1/-1;}
-.form-group{display:flex;flex-direction:column;gap:5px;}
-.form-group label{font-family:sans-serif;font-size:12px;color:var(--text2);font-weight:600;}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;}
 .form-group input,.form-group select,.form-group textarea{width:100%;}
-.hint{font-family:sans-serif;font-size:11px;color:var(--text3);}
-.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+.hint{font-size:11px;color:var(--text3);margin-top:2px;}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
 .import-area{width:100%;min-height:120px;font-family:monospace;font-size:12px;}
 
 /* GRAMMAR */
@@ -121,45 +165,48 @@ button.danger:hover{background:#fdecea;border-color:#f5c2c2;}
 .gram-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);}
 .gram-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .12s;}
 .gram-head:hover{background:var(--surface2);}
-.gram-title{font-size:16px;font-weight:normal;flex:1;font-family:sans-serif;}
-.gram-tag{font-family:sans-serif;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--rel-bg);color:var(--rel-text);border:1px solid #f5dfa0;font-weight:600;}
+.gram-title{font-size:15px;font-weight:500;flex:1;}
+.gram-tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--warn-bg);color:var(--warn-text);border:1px solid var(--warn-border);}
 .gram-body{display:none;border-top:1px solid var(--border);padding:20px;}
 .gram-body.open{display:block;}
-.gb-text{font-family:sans-serif;font-size:14px;color:var(--text);line-height:1.7;margin-bottom:14px;}
-.gb-list{font-family:sans-serif;font-size:14px;color:var(--text);line-height:1.8;margin-bottom:14px;padding-left:4px;}
-.gb-list li{margin-bottom:4px;list-style:none;display:flex;gap:8px;}
-.gb-list li::before{content:attr(data-n);color:var(--accent);font-weight:700;min-width:16px;}
-.gb-note{background:var(--accent-bg);border-radius:var(--radius-sm);padding:12px 14px;font-family:sans-serif;font-size:13px;color:var(--accent-text);line-height:1.6;margin-bottom:14px;}
+.gb-text{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:14px;}
+.gb-list{font-size:14px;color:var(--text);line-height:1.8;margin-bottom:14px;}
+.gb-list li{list-style:none;display:flex;gap:8px;margin-bottom:4px;}
+.gb-list li::before{content:attr(data-n);color:var(--accent);font-weight:700;min-width:18px;}
+.gb-note{background:var(--accent-bg);border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:var(--accent-text);line-height:1.6;margin-bottom:14px;border:1px solid var(--accent-border);}
 .gb-examples{margin-bottom:14px;}
-.gb-example{font-size:14px;color:var(--text2);font-style:italic;padding:8px 12px;border-left:2px solid var(--border2);margin-bottom:6px;font-family:sans-serif;line-height:1.6;}
-.gb-table{width:100%;border-collapse:collapse;font-family:sans-serif;font-size:13px;margin-bottom:14px;}
-.gb-table th{background:var(--accent-bg);color:var(--accent-text);padding:7px 10px;text-align:left;font-weight:600;border:1px solid #b6dfc8;}
-.gb-table td{padding:6px 10px;border:1px solid var(--border);color:var(--text);vertical-align:top;}
+.gb-example{font-size:14px;color:var(--text2);font-style:italic;padding:7px 12px;border-left:2px solid var(--border2);margin-bottom:5px;line-height:1.6;}
+.gb-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;}
+.gb-table th{background:var(--accent-bg);color:var(--accent-text);padding:7px 10px;text-align:left;font-weight:600;border:1px solid var(--accent-border);}
+.gb-table td{padding:6px 10px;border:1px solid var(--border);vertical-align:top;}
 .gb-table tr:nth-child(even) td{background:var(--surface2);}
+
+/* BUILT-IN GRAMMAR */
 .tense-section{margin-bottom:24px;}
 .tense-section:last-child{margin-bottom:0;}
-.tense-title{font-family:sans-serif;font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
-.conj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
-.conj-col h4{font-family:sans-serif;font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;padding:4px 8px;background:var(--accent-bg);border-radius:4px;}
+.tense-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.conj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.conj-col h4{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;padding:4px 8px;background:var(--accent-bg);border-radius:4px;}
 .conj-col table{width:100%;border-collapse:collapse;}
-.conj-col td{font-family:sans-serif;font-size:13px;padding:3px 4px;line-height:1.6;}
-.conj-col td:first-child{color:var(--text3);width:36px;}
+.conj-col td{font-size:12.5px;padding:3px 4px;line-height:1.6;}
+.conj-col td:first-child{color:var(--text3);width:34px;}
 .conj-col td:last-child{color:var(--text);font-style:italic;}
-.non-personal{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
-.non-personal-item{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;}
-.np-label{font-family:sans-serif;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
-.np-forms{font-family:sans-serif;font-size:13px;color:var(--text);}
-.np-forms span{display:block;font-style:italic;color:var(--text2);font-size:12px;margin-top:2px;}
-.note-box{background:var(--accent-bg);border-radius:var(--radius-sm);padding:12px 14px;font-family:sans-serif;font-size:13px;color:var(--accent-text);line-height:1.6;margin-top:16px;}
+.non-personal{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.non-personal-item{background:var(--surface2);border-radius:var(--radius-sm);padding:10px;}
+.np-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;}
+.np-forms{font-size:13px;color:var(--text);}
+.np-forms span{display:block;font-style:italic;color:var(--text2);font-size:11px;margin-top:2px;}
+.note-box{background:var(--accent-bg);border-radius:var(--radius-sm);padding:11px 14px;font-size:13px;color:var(--accent-text);line-height:1.6;margin-top:14px;border:1px solid var(--accent-border);}
 
 @media(max-width:540px){
-  body{padding:1rem .5rem 4rem;}
-  .container{padding-right:28px;}
+  body{padding:1rem .5rem 5rem;}
+  .container{padding-right:26px;}
   .form-grid{grid-template-columns:1fr;}
   .form-full{grid-column:1;}
   .conj-grid{grid-template-columns:1fr;}
   .non-personal{grid-template-columns:1fr;}
   .core-meaning{display:none;}
+  .head-left{width:50%;}
 }
 </style>
 </head>
@@ -167,7 +214,7 @@ button.danger:hover{background:#fdecea;border-color:#f5c2c2;}
 <div class="container">
   <header>
     <h1>Mi español</h1>
-    <p>Vocabulario y gramática en un solo lugar</p>
+    <p>Vocabulario y gramática</p>
   </header>
   <div class="nav">
     <button class="nav-btn active" onclick="showTab('vocab')">📖 Vocabulario</button>
@@ -176,29 +223,25 @@ button.danger:hover{background:#fdecea;border-color:#f5c2c2;}
 
   <div id="tab-vocab">
     <div class="fab-row">
-      <button class="primary" onclick="openImportModal('word')">⬇ Importar palabra</button>
-      <button onclick="exportData()">↑ Exportar datos</button>
-      <button onclick="openImportModal('restore')">↓ Restaurar datos</button>
+      <button class="primary" onclick="openImportModal('word')">⬇ Import word</button>
+      <button onclick="exportData()">↑ Export data</button>
+      <button onclick="openImportModal('restore')">↓ Restore data</button>
     </div>
     <div class="toolbar">
-      <input type="text" id="search" placeholder="Buscar…" oninput="render()">
+      <input type="text" id="search" placeholder="Search…" oninput="render()">
       <select id="filterType" onchange="render()">
-        <option value="">Todas las categorías</option>
-        <option value="n">n — nombre</option>
-        <option value="v">v — verbo</option>
-        <option value="adj">adj — adjetivo</option>
-        <option value="adv">adv — adverbio</option>
-        <option value="prep">prep — preposición</option>
-        <option value="conj">conj — conjunción</option>
-        <option value="pron">pron — pronombre</option>
-        <option value="interj">interj — interjección</option>
+        <option value="">All types</option>
+        <option value="n">n</option><option value="v">v</option>
+        <option value="adj">adj</option><option value="adv">adv</option>
+        <option value="prep">prep</option><option value="conj">conj</option>
+        <option value="pron">pron</option><option value="interj">interj</option>
       </select>
       <select id="filterLevel" onchange="render()">
-        <option value="">Todos los niveles</option>
+        <option value="">All levels</option>
         <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
       </select>
       <select id="filterFreq" onchange="render()">
-        <option value="">Todas las frecuencias</option>
+        <option value="">All frequency</option>
         <option value="A">A — daily</option>
         <option value="B">B — high</option>
         <option value="C">C — medium</option>
@@ -211,7 +254,7 @@ button.danger:hover{background:#fdecea;border-color:#f5c2c2;}
 
   <div id="tab-grammar" style="display:none">
     <div class="fab-row">
-      <button onclick="openImportModal('grammar')">⬇ Importar nota gramatical</button>
+      <button onclick="openImportModal('grammar')">⬇ Import grammar note</button>
     </div>
     <div class="grammar-list" id="grammarList">
       <div class="gram-card">
@@ -262,20 +305,16 @@ button.danger:hover{background:#fdecea;border-color:#f5c2c2;}
             <div class="conj-col"><h4>-ER comer</h4><table><tr><td>yo</td><td>comiera</td></tr><tr><td>tú</td><td>comieras</td></tr><tr><td>él</td><td>comiera</td></tr><tr><td>nos.</td><td>comiéramos</td></tr><tr><td>vos.</td><td>comierais</td></tr><tr><td>ellos</td><td>comieran</td></tr></table></div>
             <div class="conj-col"><h4>-IR vivir</h4><table><tr><td>yo</td><td>viviera</td></tr><tr><td>tú</td><td>vivieras</td></tr><tr><td>él</td><td>viviera</td></tr><tr><td>nos.</td><td>viviéramos</td></tr><tr><td>vos.</td><td>vivierais</td></tr><tr><td>ellos</td><td>vivieran</td></tr></table></div>
           </div><div class="note-box">💡 Radical = 3ª persona plural del indefinido.</div></div>
-          <div class="tense-section"><div class="tense-title">Tiempos compuestos (haber + participio)</div><div class="conj-grid">
+          <div class="tense-section"><div class="tense-title">Tiempos compuestos</div><div class="conj-grid">
             <div class="conj-col"><h4>Pret. perfecto</h4><table><tr><td>yo</td><td>he hablado</td></tr><tr><td>tú</td><td>has hablado</td></tr><tr><td>él</td><td>ha hablado</td></tr><tr><td>nos.</td><td>hemos hablado</td></tr><tr><td>vos.</td><td>habéis hablado</td></tr><tr><td>ellos</td><td>han hablado</td></tr></table></div>
             <div class="conj-col"><h4>Pluscuamperfecto</h4><table><tr><td>yo</td><td>había hablado</td></tr><tr><td>tú</td><td>habías hablado</td></tr><tr><td>él</td><td>había hablado</td></tr><tr><td>nos.</td><td>habíamos hablado</td></tr><tr><td>vos.</td><td>habíais hablado</td></tr><tr><td>ellos</td><td>habían hablado</td></tr></table></div>
-            <div class="conj-col"><h4>Futuro perfecto</h4><table><tr><td>yo</td><td>habré hablado</td></tr><tr><td>tú</td><td>habrás hablado</td></tr><tr><td>él</td><td>habrá hablado</td></tr><tr><td>nos.</td><td>habremos hablado</td></tr><tr><td>vos.</td><td>habréis hablado</td></tr><tr><td>ellos</td><td>habrán hablado</td></tr></table></div>
-          </div><div style="height:12px"></div><div class="conj-grid">
-            <div class="conj-col"><h4>Condicional perfecto</h4><table><tr><td>yo</td><td>habría hablado</td></tr><tr><td>tú</td><td>habrías hablado</td></tr><tr><td>él</td><td>habría hablado</td></tr><tr><td>nos.</td><td>habríamos hablado</td></tr><tr><td>vos.</td><td>habríais hablado</td></tr><tr><td>ellos</td><td>habrían hablado</td></tr></table></div>
-            <div class="conj-col"><h4>Subj. perfecto</h4><table><tr><td>yo</td><td>haya hablado</td></tr><tr><td>tú</td><td>hayas hablado</td></tr><tr><td>él</td><td>haya hablado</td></tr><tr><td>nos.</td><td>hayamos hablado</td></tr><tr><td>vos.</td><td>hayáis hablado</td></tr><tr><td>ellos</td><td>hayan hablado</td></tr></table></div>
             <div class="conj-col"><h4>Subj. pluscuamp.</h4><table><tr><td>yo</td><td>hubiera hablado</td></tr><tr><td>tú</td><td>hubieras hablado</td></tr><tr><td>él</td><td>hubiera hablado</td></tr><tr><td>nos.</td><td>hubiéramos hablado</td></tr><tr><td>vos.</td><td>hubierais hablado</td></tr><tr><td>ellos</td><td>hubieran hablado</td></tr></table></div>
           </div><div class="note-box">💡 El participio nunca cambia. Solo se conjuga haber.</div></div>
           <div class="tense-section"><div class="tense-title">Imperativo</div><div class="conj-grid">
             <div class="conj-col"><h4>Afirmativo -AR</h4><table><tr><td>tú</td><td>habla</td></tr><tr><td>usted</td><td>hable</td></tr><tr><td>nos.</td><td>hablemos</td></tr><tr><td>vos.</td><td>hablad</td></tr><tr><td>ustedes</td><td>hablen</td></tr></table></div>
             <div class="conj-col"><h4>Afirmativo -ER</h4><table><tr><td>tú</td><td>come</td></tr><tr><td>usted</td><td>coma</td></tr><tr><td>nos.</td><td>comamos</td></tr><tr><td>vos.</td><td>comed</td></tr><tr><td>ustedes</td><td>coman</td></tr></table></div>
             <div class="conj-col"><h4>Afirmativo -IR</h4><table><tr><td>tú</td><td>vive</td></tr><tr><td>usted</td><td>viva</td></tr><tr><td>nos.</td><td>vivamos</td></tr><tr><td>vos.</td><td>vivid</td></tr><tr><td>ustedes</td><td>vivan</td></tr></table></div>
-          </div><div class="note-box">⚠ Imperativo negativo = subjuntivo presente: no hables, no comas, no vivas…</div></div>
+          </div><div class="note-box">⚠ Imperativo negativo = subjuntivo presente.</div></div>
         </div>
       </div>
     </div>
@@ -287,12 +326,12 @@ button.danger:hover{background:#fdecea;border-color:#f5c2c2;}
 
 <div class="modal-overlay" id="importModal">
   <div class="modal">
-    <h2 id="importTitle">Importar</h2>
-    <p id="importHint" style="font-family:sans-serif;font-size:13px;color:#6b6860;margin-bottom:12px;"></p>
+    <h2 id="importTitle">Import</h2>
+    <p id="importHint" style="font-size:13px;color:var(--text2);margin-bottom:12px;"></p>
     <textarea class="import-area" id="importText"></textarea>
     <div class="form-actions">
-      <button onclick="closeImportModal()">Cancelar</button>
-      <button class="primary" onclick="doImport()">Importar</button>
+      <button onclick="closeImportModal()">Cancel</button>
+      <button class="primary" onclick="doImport()">Import</button>
     </div>
   </div>
 </div>
@@ -305,46 +344,34 @@ let importMode='word';
 let lastScrollY=0;
 
 function load(){
-  try{const s=localStorage.getItem('es_vocab_v6');if(s)words=JSON.parse(s);}catch(e){}
+  try{const s=localStorage.getItem('es_vocab_v7');if(s)words=JSON.parse(s);}catch(e){}
   try{const g=localStorage.getItem('es_grammar_v1');if(g)grammarNotes=JSON.parse(g);}catch(e){}
   if(!words.length){
     words=[
-      {"word":"agotado","type":"adj","level":"B1","core_meaning":"筋疲力尽的；耗尽的；售罄的","situations":["下班后累到不想说话","社交一整天之后完全没电","门票或商品卖完了"],"structures":["estar agotado/a","sentirse agotado/a","estar agotado/a de + algo","quedar agotado/a"],"collocations":["completamente agotado","mentalmente agotado","físicamente agotado","entradas agotadas"],"starter_sentences":["Hoy estoy agotada.","Me siento agotada después del trabajo.","Ya no puedo, estoy agotada.","Las entradas ya están agotadas."],"micro_patterns":["estoy ___","me siento ___","estoy completamente ___","estoy agotado/a de ___"],"tone":["口语","高频","偏负面","日常表达"],"common_mistakes":["不要用 ser agotado，要用 estar agotado（状态动词）","cansado 是普通疲惫，agotado 是彻底耗尽，程度更强"],"related_words":["cansado","extenuado","sin energía","estresado","agotador"],"tags":["情绪","状态","高频口语"],"frequency":"A"},
-      {"word":"aprovechar","type":"v","level":"B1","core_meaning":"充分利用；抓住机会","situations":["提醒自己或别人不要浪费时间","抓住难得的机会","利用空闲时间做有意义的事"],"structures":["aprovechar + sustantivo","aprovechar para + infinitivo","aprovechar que + indicativo"],"collocations":["aprovechar el tiempo","aprovechar la oportunidad","aprovechar el momento","aprovecha que..."],"starter_sentences":["Hay que aprovechar.","Aprovecha que tienes tiempo.","Voy a aprovechar para descansar."],"micro_patterns":["aprovechar para ___","aprovecha que ___","hay que aprovechar ___"],"tone":["口语","书面","中性","劝说语气"],"common_mistakes":["aprovechar DE algo 在某些搭配中不自然，通常直接接宾语","不要和 usar 混用，aprovechar 强调充分利用，不只是使用"],"related_words":["sacar partido","útilizar","desperdiciar","malgastar","aprovechado"],"tags":["工作学习","高频口语","劝说"],"frequency":"A"},
-      {"word":"renunciar","type":"v","level":"B1","core_meaning":"辞职；放弃（权利/职位）","situations":["同事或自己辞职时","放弃某个权利或机会时","正式提交辞呈"],"structures":["renunciar a + sustantivo","renunciar al trabajo / al puesto","presentar la renuncia"],"collocations":["renunciar al trabajo","renunciar a su puesto","renunciar a una oportunidad","presentar la renuncia"],"starter_sentences":["Va a renunciar.","Renuncié a mi puesto.","Decidí renunciar."],"micro_patterns":["renunciar a ___","voy a renunciar","decidio renunciar"],"tone":["口语","书面","正式","中性"],"common_mistakes":["renunciar 是主动辞职，despedir 是被解雇，方向相反","口语更常说 dejar el trabajo，renunciar 稍正式"],"related_words":["dimitir","dejar el trabajo","despedir","renuncia","dimisión"],"tags":["工作学习","正式用语"],"frequency":"B"}
+      {"word":"agotado","type":"adj","level":"B1","core_meaning":"筋疲力尽的；售罄的","frequency":"A","tags":["日常","口语","负面情绪","状态描述"],"situations":["下班后累到不想说话","社交一整天之后完全没电","门票或商品卖完了"],"chunks":["estoy agotada","me siento agotada después del trabajo","ya no puedo, estoy agotada","las entradas están agotadas","completamente agotado"],"frames":["estoy ___ de ___","ya estoy ___","me tiene ___"],"common_mistakes":["用 ser agotado ✗ → 要用 estar agotado ✓（状态动词）","cansado 是普通疲惫，agotado 是彻底耗尽，程度更强"],"related_words":["cansado","extenuado","sin energía","estresado","agotador"],"verb_forms":{}},
+      {"word":"aprovechar","type":"v","level":"B1","core_meaning":"充分利用；抓住机会","frequency":"A","tags":["日常","口语","工作","劝说"],"situations":["提醒自己或别人不要浪费时间","抓住难得的机会","利用空闲时间做有意义的事"],"chunks":["aprovechar el tiempo","aprovechar la oportunidad","aprovecha que tienes tiempo","voy a aprovechar para descansar","hay que aprovechar"],"frames":["aprovechar para ___","aprovecha que ___","hay que aprovechar ___"],"common_mistakes":["aprovechar 强调充分利用，不只是普通的 usar","aprovechar que + indicativo（不用虚拟式）：aprovecha que estás aquí ✓"],"related_words":["sacar partido","utilizar","desperdiciar","malgastar"],"verb_forms":{}},
+      {"word":"renunciar","type":"v","level":"B1","core_meaning":"辞职；放弃","frequency":"B","tags":["工作","正式","书面"],"situations":["同事或自己辞职时","放弃某个权利或机会时","正式提交辞呈"],"chunks":["renunciar al trabajo","renunciar a su puesto","presentar la renuncia","decidí renunciar","va a renunciar"],"frames":["renunciar a ___","decidió renunciar a ___"],"common_mistakes":["renunciar 是主动辞职，despedir 是被解雇，方向相反","口语更常说 dejar el trabajo，renunciar 稍正式"],"related_words":["dimitir","dejar el trabajo","despedir","dimisión"],"verb_forms":{}}
     ];
     saveWords();
   }
 }
 
-function saveWords(){try{localStorage.setItem('es_vocab_v6',JSON.stringify(words));}catch(e){}}
+function saveWords(){try{localStorage.setItem('es_vocab_v7',JSON.stringify(words));}catch(e){}}
 function saveGrammar(){try{localStorage.setItem('es_grammar_v1',JSON.stringify(grammarNotes));}catch(e){}}
 function normalizeFirst(w){return w.word.normalize('NFD').replace(/[\u0300-\u036f]/g,'').charAt(0).toUpperCase();}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
 function jumpToWord(wordStr){
   const target=words.find(w=>w.word.toLowerCase()===wordStr.toLowerCase());
-  if(!target){showToast('"'+wordStr+'" aun no esta en el vocabulario');return;}
+  if(!target){showToast('"'+wordStr+'" not in vocabulary yet');return;}
   const idx=words.indexOf(target);
   const card=document.getElementById('card-'+idx);
-  if(!card){showToast('"'+wordStr+'" no aparece con los filtros');return;}
+  if(!card){showToast('"'+wordStr+'" not visible with current filters');return;}
   document.getElementById('body-'+idx).classList.add('open');
   document.getElementById('chev-'+idx).classList.add('open');
   card.classList.add('highlight');
   card.scrollIntoView({behavior:'smooth',block:'center'});
   setTimeout(()=>card.classList.remove('highlight'),1800);
-}
-
-function chips(arr,cls){
-  if(!arr||!arr.length)return'';
-  return arr.map(item=>`<span class="chip ${cls}">${item}</span>`).join('');
-}
-function clickableChips(arr,cls){
-  if(!arr||!arr.length)return'';
-  return arr.map(item=>{
-    const bare=item.split('(')[0].trim().split(' ')[0];
-    return`<span class="chip ${cls} clickable" onclick="jumpToWord('${bare.replace(/'/g,"\\'")}')">${item}</span>`;
-  }).join('');
 }
 
 function showTab(t){
@@ -355,8 +382,7 @@ function showTab(t){
 }
 
 function buildAZBar(letterSet){
-  const bar=document.getElementById('azBar');
-  bar.innerHTML=ALPHABET.map(l=>`<a href="#" class="${letterSet.has(l)?'has-words':''}" onclick="azClick(event,'${l}')">${l}</a>`).join('');
+  document.getElementById('azBar').innerHTML=ALPHABET.map(l=>`<a href="#" class="${letterSet.has(l)?'has-words':''}" onclick="azClick(event,'${l}')">${l}</a>`).join('');
 }
 function azClick(e,l){e.preventDefault();const el=document.getElementById('letter-'+l);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 
@@ -367,27 +393,37 @@ function render(){
   const freq=document.getElementById('filterFreq').value;
 
   const filtered=words.filter(w=>{
-    if(q&&!w.word.toLowerCase().includes(q)&&!(w.core_meaning||'').toLowerCase().includes(q))return false;
     const wtype=(w.type||'').split('(')[0].trim();
+    if(q&&!w.word.toLowerCase().includes(q)&&!(w.core_meaning||'').toLowerCase().includes(q))return false;
     if(type&&wtype!==type)return false;
     if(level&&w.level!==level)return false;
     if(freq&&w.frequency!==freq)return false;
     return true;
   }).sort((a,b)=>a.word.localeCompare(b.word,'es',{sensitivity:'base'}));
 
-  document.getElementById('count').textContent=filtered.length+' palabra'+(filtered.length!==1?'s':'');
+  document.getElementById('count').textContent=filtered.length+' word'+(filtered.length!==1?'s':'');
   const groups={};const letterSet=new Set();
   filtered.forEach(w=>{const l=normalizeFirst(w);letterSet.add(l);if(!groups[l])groups[l]=[];groups[l].push(w);});
   buildAZBar(letterSet);
 
   const list=document.getElementById('wordList');
-  if(!filtered.length){list.innerHTML='<div class="empty">📖 No se encontraron palabras</div>';return;}
+  if(!filtered.length){list.innerHTML='<div class="empty">No words found</div>';return;}
 
   let html='';
   Object.keys(groups).sort().forEach(letter=>{
     html+=`<div class="letter-group" id="letter-${letter}"><div class="letter-heading"><span>${letter}</span></div>`;
     groups[letter].forEach(w=>{
       const idx=words.indexOf(w);
+      const hasVerbForms=w.verb_forms&&Object.keys(w.verb_forms).length>0;
+
+      // Tags color logic
+      const tagHTML=(w.tags||[]).map(t=>{
+        let cls='tag-usage';
+        if(t.startsWith('表达'))cls='tag-func';
+        else if(['口语','正式','书面','委婉','幽默','强烈','负面','中性'].includes(t))cls='tag-tone';
+        return`<span class="tag ${cls}">${t}</span>`;
+      }).join('');
+
       html+=`<div class="card" id="card-${idx}">
         <div class="card-head" onclick="toggle(${idx})">
           <div class="head-left">
@@ -398,21 +434,19 @@ function render(){
             ${w.level?`<span class="badge badge-level">${w.level}</span>`:''}
             ${w.frequency?`<span class="badge badge-freq">${w.frequency}</span>`:''}
             <span class="core-meaning">${w.core_meaning||''}</span>
-            <span class="chevron" id="chev-${idx}">&#9660;</span>
+            <span class="chevron" id="chev-${idx}">▼</span>
           </div>
         </div>
         <div class="card-body" id="body-${idx}">
-          ${w.situations&&w.situations.length?`<div class="section"><div class="sec-label">💬 使用场景</div><div class="situation-row">${w.situations.map(s=>`<span class="situation">${s}</span>`).join('')}</div></div>`:''}
-          ${w.structures&&w.structures.length?`<div class="section"><div class="sec-label">🔧 核心结构</div><div class="structure-list">${w.structures.map(s=>`<div class="structure-item">${s}</div>`).join('')}</div></div>`:''}
-          ${w.starter_sentences&&w.starter_sentences.length?`<div class="section"><div class="sec-label">🗣 马上能说的句子</div><div class="starter-list">${w.starter_sentences.map(s=>`<div class="starter-item">${s}</div>`).join('')}</div></div>`:''}
-          ${w.micro_patterns&&w.micro_patterns.length?`<div class="section"><div class="sec-label">⚡ 微型句块</div><div class="micro-list">${w.micro_patterns.map(s=>`<span class="micro-item">${s}</span>`).join('')}</div></div>`:''}
-          ${w.collocations&&w.collocations.length?`<div class="section"><div class="sec-label">🔗 自然搭配</div><div class="chip-row">${chips(w.collocations,'')}</div></div>`:''}
-          ${w.common_mistakes&&w.common_mistakes.length?`<div class="section"><div class="sec-label">⚠️ 常见错误</div><div class="chip-row">${w.common_mistakes.map(m=>`<span class="chip mistake">${m}</span>`).join('')}</div></div>`:''}
-          ${w.related_words&&w.related_words.length?`<div class="section"><div class="sec-label">🌐 相关词</div><div class="chip-row">${clickableChips(w.related_words,'related')}</div></div>`:''}
-          ${w.tone&&w.tone.length?`<div class="section"><div class="sec-label">🎭 语气</div><div class="chip-row">${chips(w.tone,'tone')}</div></div>`:''}
-          ${w.tags&&w.tags.length?`<div class="section"><div class="sec-label">🏷 标签</div><div class="chip-row">${chips(w.tags,'tag')}</div></div>`:''}
+          ${tagHTML?`<div class="section"><div class="tag-row">${tagHTML}</div></div>`:''}
+          ${w.situations&&w.situations.length?`<div class="section"><div class="sec-label">场景</div><div class="situation-list">${w.situations.map(s=>`<div class="situation-item">${s}</div>`).join('')}</div></div>`:''}
+          ${w.chunks&&w.chunks.length?`<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">${w.chunks.map(c=>`<div class="chunk-item">${c}</div>`).join('')}</div></div>`:''}
+          ${w.frames&&w.frames.length?`<div class="section"><div class="sec-label">Frames</div><div class="frame-list">${w.frames.map(f=>`<span class="frame-item">${f}</span>`).join('')}</div></div>`:''}
+          ${w.common_mistakes&&w.common_mistakes.length?`<div class="section"><div class="sec-label">Common mistakes</div><div class="mistake-list">${w.common_mistakes.map(m=>`<div class="mistake-item">${m}</div>`).join('')}</div></div>`:''}
+          ${w.related_words&&w.related_words.length?`<div class="section"><div class="sec-label">Related words</div><div class="related-row">${w.related_words.map(r=>{const bare=r.split('(')[0].trim().split(' ')[0];return`<span class="related-chip" onclick="jumpToWord('${bare.replace(/'/g,"\\'")}')">${r}</span>`;}).join('')}</div></div>`:''}
+          ${hasVerbForms?`<div class="section"><button class="verb-forms-toggle" onclick="toggleVerbForms(event,${idx})">▸ Verb forms</button><div class="verb-forms-grid" id="vf-${idx}">${Object.entries(w.verb_forms).map(([k,v])=>`<div class="vf-item"><div class="vf-label">${k}</div><div class="vf-value">${v}</div></div>`).join('')}</div></div>`:''}
           <div class="card-actions">
-            <button class="danger" onclick="deleteWord(${idx})">&#10005; Eliminar</button>
+            <button class="danger" onclick="deleteWord(${idx})">✕ Delete</button>
           </div>
         </div>
       </div>`;
@@ -423,11 +457,12 @@ function render(){
 }
 
 function toggle(idx){document.getElementById('body-'+idx).classList.toggle('open');document.getElementById('chev-'+idx).classList.toggle('open');}
+function toggleVerbForms(e,idx){e.stopPropagation();const g=document.getElementById('vf-'+idx);g.classList.toggle('open');e.target.textContent=g.classList.contains('open')?'▾ Verb forms':'▸ Verb forms';}
 function toggleGram(id){document.getElementById('gbody-'+id).classList.toggle('open');document.getElementById('gchev-'+id).classList.toggle('open');}
 
 function deleteWord(idx){
   lastScrollY=window.scrollY;
-  if(!confirm('Eliminar "'+words[idx].word+'"?'))return;
+  if(!confirm('Delete "'+words[idx].word+'"?'))return;
   words.splice(idx,1);saveWords();render();
   requestAnimationFrame(()=>window.scrollTo({top:lastScrollY,behavior:'instant'}));
 }
@@ -436,9 +471,9 @@ function openImportModal(mode){
   importMode=mode;
   document.getElementById('importText').value='';
   const hints={
-    word:['Importar palabra','Pega aqui el JSON de la palabra.'],
-    grammar:['Importar nota gramatical','Pega aqui el JSON de la nota gramatical.'],
-    restore:['Restaurar datos','Pega aqui el contenido del archivo de respaldo.']
+    word:['Import word','Paste the JSON from Claude.'],
+    grammar:['Import grammar note','Paste the grammar JSON.'],
+    restore:['Restore data','Paste the content of your backup file.']
   };
   document.getElementById('importTitle').textContent=hints[mode][0];
   document.getElementById('importHint').textContent=hints[mode][1];
@@ -448,29 +483,29 @@ function closeImportModal(){document.getElementById('importModal').classList.rem
 
 function doImport(){
   let raw=document.getElementById('importText').value.trim();
-  if(!raw){alert('Por favor pega el contenido primero.');return;}
+  if(!raw){alert('Please paste content first.');return;}
   raw=raw.replace(/[\u201c\u201d]/g,'"').replace(/[\u2018\u2019]/g,"'");
   try{
     const data=JSON.parse(raw);
     if(importMode==='word'){
-      if(!data.word){alert('Falta el campo: word.');return;}
+      if(!data.word){alert('Missing field: word.');return;}
       const ex=words.findIndex(w=>w.word===data.word);
-      if(ex>=0){if(confirm('"'+data.word+'" ya existe. Reemplazar?')){words[ex]=data;}else return;}
+      if(ex>=0){if(confirm('"'+data.word+'" already exists. Replace?')){words[ex]=data;}else return;}
       else words.push(data);
-      saveWords();closeImportModal();render();showToast('✓ "'+data.word+'" importado');
+      saveWords();closeImportModal();render();showToast('✓ "'+data.word+'" imported');
     }else if(importMode==='grammar'){
-      if(!data.title||!data.blocks){alert('Faltan campos: title y blocks.');return;}
+      if(!data.title||!data.blocks){alert('Missing fields: title and blocks.');return;}
       const ex=grammarNotes.findIndex(g=>g.title===data.title);
-      if(ex>=0){if(confirm('"'+data.title+'" ya existe. Reemplazar?')){grammarNotes[ex]=data;}else return;}
+      if(ex>=0){if(confirm('"'+data.title+'" already exists. Replace?')){grammarNotes[ex]=data;}else return;}
       else grammarNotes.push(data);
-      saveGrammar();closeImportModal();renderGrammar();showToast('✓ Nota importada');
+      saveGrammar();closeImportModal();renderGrammar();showToast('✓ Grammar note imported');
     }else{
-      if(!data.words){alert('Formato invalido.');return;}
-      if(!confirm('Esto reemplazara todos tus datos. Continuar?'))return;
+      if(!data.words){alert('Invalid format.');return;}
+      if(!confirm('This will replace all current data. Continue?'))return;
       words=data.words||[];grammarNotes=data.grammar||[];
-      saveWords();saveGrammar();closeImportModal();render();renderGrammar();showToast('✓ Datos restaurados');
+      saveWords();saveGrammar();closeImportModal();render();renderGrammar();showToast('✓ Data restored');
     }
-  }catch(e){alert('Error: JSON no valido.');}
+  }catch(e){alert('Error: invalid JSON.');}
 }
 
 function exportData(){
@@ -480,7 +515,7 @@ function exportData(){
   const a=document.createElement('a');
   a.href=url;a.download='mi_espanol_backup_'+new Date().toISOString().slice(0,10)+'.json';
   a.click();URL.revokeObjectURL(url);
-  showToast('✓ Datos exportados');
+  showToast('✓ Data exported');
 }
 
 function renderGrammar(){
@@ -493,12 +528,12 @@ function renderGrammar(){
     card.innerHTML=`<div class="gram-head" onclick="toggleGram('${id}')">
       <span class="gram-title">${note.title}</span>
       ${note.tag?`<span class="gram-tag">${note.tag}</span>`:''}
-      <span class="chevron" id="gchev-${id}">&#9660;</span>
+      <span class="chevron" id="gchev-${id}">▼</span>
     </div>
     <div class="gram-body" id="gbody-${id}">
       ${renderBlocks(note.blocks)}
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
-        <button class="danger" onclick="deleteGrammarNote(${ni})">&#10005; Eliminar nota</button>
+        <button class="danger" onclick="deleteGrammarNote(${ni})">✕ Delete note</button>
       </div>
     </div>`;
     list.appendChild(card);
@@ -513,23 +548,18 @@ function renderBlocks(blocks){
     if(b.type==='list')return`<ul class="gb-list">${b.items.map((item,i)=>`<li data-n="${i+1}.">${item}</li>`).join('')}</ul>`;
     if(b.type==='examples')return`<div class="gb-examples">${b.items.map(e=>`<div class="gb-example">${e}</div>`).join('')}</div>`;
     if(b.type==='table'){
-      const head=b.headers.map(h=>`<th>${h}</th>`).join('');
-      const rows=b.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('');
-      return`<table class="gb-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>`;
+      return`<table class="gb-table"><thead><tr>${b.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
     }
     return'';
   }).join('');
 }
 
 function deleteGrammarNote(ni){
-  if(!confirm('Eliminar esta nota?'))return;
+  if(!confirm('Delete this note?'))return;
   grammarNotes.splice(ni,1);saveGrammar();renderGrammar();
 }
 
-window.onclick=function(e){
-  if(e.target===document.getElementById('importModal'))closeImportModal();
-};
-
+window.onclick=function(e){if(e.target===document.getElementById('importModal'))closeImportModal();};
 load();showTab('vocab');render();renderGrammar();
 </script>
 </body>
