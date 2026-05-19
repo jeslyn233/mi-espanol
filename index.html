@@ -687,8 +687,9 @@ function getDefaults() {
         "pretérito": "tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",
         "subjuntivo presente": "tenga / tengas / tenga / tengamos / tengáis / tengan",
         "subjuntivo imperfecto": "tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",
-        "imperativo": "ten / tenga / tengamos / tened / tengan",
-	        "otros": ["futuro: tendré / tendrás / tendrá / tendremos / tendréis / tendrán"]
+        "futuro": "tendré / tendrás / tendrá / tendremos / tendréis / tendrán",
+	        "imperativo": "ten / tenga / tengamos / tened / tengan",
+	        "otros": []
       }
     }
   ];
@@ -809,7 +810,7 @@ REGLAS:
 - chunks: 3-5个，从简单到复杂。highlight规则：(1)只标与该词直接相关的固定搭配/介词搭配 (2)同一结构只标一次，选最典型的那个chunk (3)通用语法(如名词+de)不高亮，那是西语常识不是该词特有的 (4)短句/自明结构不高亮
 - explain: 简短讲语法结构功能，可选字段
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
-- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形"}。将来时等特殊时态放入"otros":["futuro: ..."]
+- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形"}。将来时如果词根不规则也按6人称写入"futuro":"yo形 / ..."。只有无法对应6人称的才放"otros"
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
 SOLO RESPONDE CON EL JSON.`;
