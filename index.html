@@ -544,11 +544,12 @@ async function loadWords() {
   // 2. Try localStorage
   try {
     const s = localStorage.getItem('es_vocab_v14');
-    if (s) { words = JSON.parse(s); return; }
+    if (s) { words = JSON.parse(s); }
   } catch (e) {}
-  // 3. Defaults
-  words = getDefaults();
-  saveLocal();
+  // 3. Defaults (if still empty)
+  if (!words.length) { words = getDefaults(); saveLocal(); }
+  // 4. Sync local → Supabase (first-time migration)
+  if (sb && words.length) { await syncToSupabase(); }
 }
 
 function getDefaults() {
