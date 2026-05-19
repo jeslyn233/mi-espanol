@@ -686,7 +686,8 @@ function getDefaults() {
         "pretérito": "tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",
         "subjuntivo presente": "tenga / tengas / tenga / tengamos / tengáis / tengan",
         "subjuntivo imperfecto": "tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",
-        "otros": ["imperativo (tú): ten", "imperativo (usted): tenga", "imperativo (nosotros): tengamos", "imperativo (vosotros): tened", "imperativo (ustedes): tengan", "futuro: tendré / tendrás / tendrá / tendremos / tendréis / tendrán"]
+        "imperativo": "ten / tenga / tengamos / tened / tengan",
+	        "otros": ["futuro: tendré / tendrás / tendrá / tendremos / tendréis / tendrán"]
       }
     }
   ];
@@ -806,7 +807,7 @@ REGLAS:
 - chunks: 3-5个，从简单到复杂。highlight只标长句中的固定搭配(短句/自明结构不高亮)
 - explain: 简短讲语法结构功能，可选字段
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
-- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","subjuntivo presente":"...","subjuntivo imperfecto":"..."}。命令式、将来时等放入"otros":["imperativo (tú): xx","imperativo (usted): xx","imperativo (nosotros): xx","imperativo (vosotros): xx","imperativo (ustedes): xx"]
+- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形"}。将来时等特殊时态放入"otros":["futuro: ..."]
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
 SOLO RESPONDE CON EL JSON.`;
@@ -925,9 +926,25 @@ function buildCard(w, idx) {
 
   const isVerb = (w.type || '').startsWith('v');
   if (isVerb) {
-    const verbKeys = w.verb_forms ? Object.keys(w.verb_forms).filter(k => k !== 'otros') : [];
-    const hasIrregular = verbKeys.length > 0;
+    const tenseKeys = w.verb_forms ? Object.keys(w.verb_forms).filter(k => k !== 'otros') : [];
+    const hasIrregular = tenseKeys.length > 0;
     const otrosItems = (w.verb_forms && w.verb_forms.otros) ? w.verb_forms.otros : [];
+
+    const stdPersons = ['yo', 'tú', 'él', 'nosotros', 'vosotros', 'ellos'];
+    const impPersons = ['tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
+
+    function renderTenseGrid(k, forms, persons) {
+      let h = `<div class="verb-tense-block"><div class="verb-tense-title">${escapeHTML(k)}</div><div class="verb-conj-grid">`;
+      for (let i = 0; i < persons.length; i++) {
+        const fv = forms[i] || '';
+        h += `<div class="verb-conj-cell"><span class="verb-person">${persons[i]}</span><span class="verb-form${fv === '—' || !fv ? ' empty' : ''}">${escapeHTML(fv || '—')}</span></div>`;
+      }
+      // Fill empty cells to complete the grid row
+      const rem = persons.length % 3;
+      if (rem) { for (let j = 0; j < 3 - rem; j++) h += `<div class="verb-conj-cell"></div>`; }
+      h += `</div></div>`;
+      return h;
+    }
 
     body += `<div class="section"><div class="verb-toggle" onclick="toggleVerb(${idx})">
       <span class="sec-label" style="margin-bottom:0">Verbo</span>
@@ -936,15 +953,13 @@ function buildCard(w, idx) {
     </div><div class="verb-content" id="verb-content-${idx}">`;
 
     if (hasIrregular) {
-      const persons = ['yo', 'tú', 'él', 'nosotros', 'vosotros', 'ellos'];
-      verbKeys.forEach(k => {
+      tenseKeys.forEach(k => {
         const forms = w.verb_forms[k].split('/').map(f => f.trim());
-        body += `<div class="verb-tense-block"><div class="verb-tense-title">${escapeHTML(k)}</div><div class="verb-conj-grid">`;
-        for (let i = 0; i < 6; i++) {
-          const formVal = forms[i] || '';
-          body += `<div class="verb-conj-cell"><span class="verb-person">${persons[i]}</span><span class="verb-form${formVal === '—' || !formVal ? ' empty' : ''}">${escapeHTML(formVal || '—')}</span></div>`;
+        if (k === 'imperativo') {
+          body += renderTenseGrid(k, forms, impPersons);
+        } else {
+          body += renderTenseGrid(k, forms, stdPersons);
         }
-        body += `</div></div>`;
       });
       if (otrosItems.length) {
         body += `<div class="verb-others">`;
