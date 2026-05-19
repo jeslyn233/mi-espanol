@@ -807,9 +807,10 @@ ESTRUCTURA:
 
 REGLAS:
 - situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种敷衍的抽象描述。基础词(如tener)实在难写具体场景时允许适度概括，但仍要具体到用法类别。场景中不要夹杂西语单词，纯中文。
-- chunks: 3-5个，从简单到复杂。highlight规则：(1)只标与该词直接相关的固定搭配/介词搭配 (2)同一搭配结构严格只标第一次，后续出现禁止高亮 (3)通用语法(如名词+de)不高亮 (4)短句/自明结构不高亮。内容要求：如果该词支持接动词(如动词+a/de/por+inf)，必须至少1-2个chunk展示接动词原形的用法，禁止全部堆砌名词
+- chunks: 不限制数量，从以下4个方向全面抓取。高亮规则A:同一搭配结构严格只标第一个，后续禁止重复高亮。规则B:该词能接动词时(如动词+a/de/por+inf)必须至少1-2个chunk展示接动词原形用法，禁止全部堆砌名词。4个方向：(1)【核心语法块】目标词+固定介词/后接结构 如"renunciar a..." (2)【灵魂高频搭配】母语日常最常绑定的名词/动词组合 如"renunciar al trabajo" (3)【场景半成品】口语高频方便替换的半固定句式 如"No pienso renunciar a..." (4)【独立高频句】最基础最高频的独立整句 如"¡No renuncies!"
 - explain: 简短讲语法结构功能，可选字段
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
+- native_expressions: 2-3个。绝对禁止重复chunks里出现过的内容。两个方向：(1)【原词高阶俚语】该词衍生出的高阶地道口头禅或俚语，带强烈语气或本土语境 (2)【同义神仙俗语】不含原词但该场景下母语者常用的地道俗语/成语/俚语 如"Tirar la toalla"
 - verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形"}。将来时如果词根不规则也按6人称写入"futuro":"yo形 / ..."。只有无法对应6人称的才放"otros"
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
