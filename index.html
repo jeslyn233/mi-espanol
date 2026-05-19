@@ -165,7 +165,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .situation {
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 13px;
   padding: 5px 12px; border-radius: 999px;
-  background: var(--scenes-bg); color: #4A6078; border: 1px solid #C5D4E4;
+  background: linear-gradient(to bottom, var(--scenes-bg), var(--related-bg));
+  color: #4A6078; border: 1px solid #C5D4E4;
 }
 
 .chunk-list { display: flex; flex-direction: column; gap: 6px; }
@@ -604,7 +605,7 @@ function getDefaults() {
     {
       "word": "agotado", "type": "adj", "level": "B1", "core_meaning": "筋疲力尽的；耗尽的；售罄的", "frequency": "A",
       "tags": ["情绪", "状态", "高频口语"],
-      "situations": ["下班后累到不想说话", "社交一整天之后完全没电", "门票或商品卖完了"],
+      "situations": ["加班到晚上十点完全不想说话", "社交一整天之后彻底没电了", "想买的演唱会门票售罄了", "搬家完瘫在沙发上动不了"],
       "chunks": [
         { "text": "estar agotado/a", "zh": "筋疲力尽（表达状态）", "highlight": "", "note": "A1", "explain": "estar + adj. 表示状态（非本质），形容词与主语性数一致。" },
         { "text": "Me siento agotada después del trabajo.", "zh": "下班后我感觉筋疲力尽。", "highlight": "", "note": "A2" },
@@ -631,7 +632,7 @@ function getDefaults() {
     {
       "word": "aprovechar", "type": "v", "level": "B1", "core_meaning": "充分利用；抓住机会", "frequency": "A",
       "tags": ["工作学习", "高频口语", "劝说"],
-      "situations": ["提醒自己或别人不要浪费时间", "抓住难得的机会", "利用空闲时间做有意义的事"],
+      "situations": ["周末前计划好要做什么充分利用两天时间", "机票打折赶紧下单买了", "午休一小时跑去健身房不浪费"],
       "chunks": [
         { "text": "Voy a aprovechar para descansar.", "zh": "我要趁这个机会休息一下。", "highlight": "aprovechar para", "note": "A2", "explain": "aprovechar para + inf. 固定结构，表示「趁机做某事」。" },
         { "text": "Aprovecha que tienes tiempo libre.", "zh": "趁你有空，好好利用。", "highlight": "Aprovecha que", "note": "A2", "explain": "aprovechar que + indicativo 固定结构，表示「趁着……」。后面接陈述式。" },
@@ -658,7 +659,7 @@ function getDefaults() {
     {
       "word": "tener", "type": "v", "level": "A1", "core_meaning": "有；拥有；感到", "frequency": "A",
       "tags": ["基础动词", "高频", "不规则"],
-      "situations": ["表达拥有某物", "表达身体感受（饿、渴、冷热）", "表达年龄"],
+      "situations": ["中午没吃饭饿得不行跟同事说 Tengo hambre", "冬天出门没穿够衣服冷得发抖", "被问到年龄回答 Tengo 25 años", "朋友问你有没有空帮忙搬家"],
       "chunks": [
         { "text": "Tengo hambre.", "zh": "我饿了。", "highlight": "", "note": "A1", "explain": "tener + 名词 表示身体感受（hambre/sed/frío/calor/sueño），不是 ser/estar + adj。" },
         { "text": "¿Tienes tiempo mañana?", "zh": "你明天有时间吗？", "highlight": "", "note": "A1" },
@@ -792,7 +793,7 @@ ESTRUCTURA:
   "core_meaning": "中文释义，简短",
   "frequency": "A|B|C",
   "tags": ["标签"],
-  "situations": ["使用场景中文"],
+  "situations": ["生活化中文场景短语"],
   "chunks": [
     {"text":"西语句子/语块","zh":"中文翻译","highlight":"固定搭配子串或空","note":"A1|A2|B1","explain":"结构说明(可选，有则加)"}
   ],
@@ -804,6 +805,7 @@ ESTRUCTURA:
 }
 
 REGLAS:
+- situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种抽象描述。
 - chunks: 3-5个，从简单到复杂。highlight只标长句中的固定搭配(短句/自明结构不高亮)
 - explain: 简短讲语法结构功能，可选字段
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
