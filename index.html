@@ -1178,18 +1178,19 @@ window.onclick = function (e) {
     if (g) grammarNotes = JSON.parse(g);
   } catch (e) {}
   await loadWords();
-  // Ensure default words always exist in Supabase
+  // Ensure default words always up to date in Supabase
   if (sb) {
     const defaults = getDefaults();
-    let added = false;
     for (const w of defaults) {
-      if (!words.find(x => x.word === w.word)) {
+      const idx = words.findIndex(x => x.word === w.word);
+      if (idx >= 0) {
+        words[idx] = w;
+      } else {
         words.push(w);
-        try { await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch (e) {}
-        added = true;
       }
+      try { await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch (e) {}
     }
-    if (added) { saveLocal(); }
+    saveLocal();
   }
   render();
   renderGrammar();
