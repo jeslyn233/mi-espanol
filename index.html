@@ -803,7 +803,7 @@ ESTRUCTURA:
 REGLAS:
 - chunks: 3-5个，从简单到复杂。highlight只标长句中的固定搭配(短句/自明结构不高亮)
 - explain: 简短讲语法结构功能，可选字段
-- notes: 使用场景/常见错误，用\\n分段
+- notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
 - verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形",...}
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
@@ -913,13 +913,9 @@ function buildCard(w, idx) {
 
   if (w.notes && w.notes.length) {
     body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
-    const noteItems = [];
     w.notes.forEach(n => {
-      // Split by \n to create separate items with dividers
-      noteItems.push(...n.split('\n').filter(s => s.trim()));
-    });
-    noteItems.forEach(n => {
-      body += `<div class="note-item">${escapeHTML(n.trim())}</div>`;
+      const html = escapeHTML(n).replace(/\n/g, '<br>');
+      body += `<div class="note-item">${html}</div>`;
     });
     body += `</div></div>`;
   }
