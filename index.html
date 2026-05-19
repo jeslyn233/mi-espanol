@@ -686,7 +686,7 @@ function getDefaults() {
         "pretérito": "tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",
         "subjuntivo presente": "tenga / tengas / tenga / tengamos / tengáis / tengan",
         "subjuntivo imperfecto": "tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",
-        "otros": ["imperativo (tú): ten", "futuro: tendré / tendrás / tendrá / tendremos / tendréis / tendrán"]
+        "otros": ["imperativo (tú): ten", "imperativo (usted): tenga", "imperativo (nosotros): tengamos", "imperativo (vosotros): tened", "imperativo (ustedes): tengan", "futuro: tendré / tendrás / tendrá / tendremos / tendréis / tendrán"]
       }
     }
   ];
@@ -806,7 +806,7 @@ REGLAS:
 - chunks: 3-5个，从简单到复杂。highlight只标长句中的固定搭配(短句/自明结构不高亮)
 - explain: 简短讲语法结构功能，可选字段
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
-- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形",...}
+- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","subjuntivo presente":"...","subjuntivo imperfecto":"..."}。命令式、将来时等放入"otros":["imperativo (tú): xx","imperativo (usted): xx","imperativo (nosotros): xx","imperativo (vosotros): xx","imperativo (ustedes): xx"]
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
 SOLO RESPONDE CON EL JSON.`;
