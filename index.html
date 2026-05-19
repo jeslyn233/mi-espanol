@@ -351,14 +351,59 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .np-forms span { display: block; font-style: italic; color: var(--text2); font-size: 12px; margin-top: 2px; }
 .note-box { background: var(--accent-bg); border-radius: var(--radius-sm); padding: 12px 14px; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: var(--accent-text); line-height: 1.6; margin-top: 16px; }
 
-@media (max-width: 540px) {
-  body { padding: 1rem .5rem 4rem; }
-  .container { padding-right: 28px; }
-  .gen-box { flex-direction: column; }
-  .gen-box input { width: 100%; }
+@media (max-width: 640px) {
+  body { padding: .75rem .25rem 3rem; }
+  .container { padding-right: 22px; max-width: 100%; }
+
+  /* A-Z bar — shrink */
+  .az-bar { right: 2px; padding: 3px 1px; }
+  .az-bar a { font-size: 8px; width: 14px; height: 12px; }
+
+  /* Header */
+  header h1 { font-size: 1.3rem; }
+
+  /* Toolbar */
+  .fab-row { flex-direction: column; gap: 6px; }
+  .gen-box { flex-wrap: wrap; }
+  .gen-box input { width: 100%; min-width: 0; }
+  .toolbar { flex-direction: column; }
+  #search { width: 100%; }
+
+  /* Card */
+  .card-head { padding: 10px 12px; }
+  .head-left { width: 35%; }
+  .word-main { font-size: 16px; }
+  .core-meaning { display: none; }
+  .card-body { padding: 12px; }
+
+  /* Chunks */
+  .chunk-text { font-size: 15px; }
+  .chunk-main { padding: 8px 10px; }
+  .chunk-zh { padding: 0 10px 8px; }
+  .chunk-explain { padding: 5px 10px 8px; }
+
+  /* Nuance */
+  .nuance-word { font-size: 14px; min-width: 70px; }
+
+  /* Native */
+  .native-text { font-size: 13px; min-width: 80px; }
+
+  /* Notes */
+  .note-list { max-width: 100%; padding: 2px 8px; }
+
+  /* Verb */
+  .verb-conj-grid { grid-template-columns: repeat(2, 1fr); gap: 2px 12px; }
+  .verb-form { font-size: 13px; }
+  .verb-person { font-size: 10px; min-width: 32px; }
+
+  /* Grammar */
   .conj-grid { grid-template-columns: 1fr; }
   .non-personal { grid-template-columns: 1fr; }
-  .core-meaning { display: none; }
+
+  /* Modal */
+  .modal { padding: 16px; margin: .5rem; }
+  .modal h2 { font-size: 16px; }
+  .form-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -544,11 +589,12 @@ async function loadWords() {
   // 2. Try localStorage
   try {
     const s = localStorage.getItem('es_vocab_v14');
-    if (s) { words = JSON.parse(s); return; }
+    if (s) { words = JSON.parse(s); }
   } catch (e) {}
-  // 3. Defaults
-  words = getDefaults();
-  saveLocal();
+  // 3. Defaults (if still empty)
+  if (!words.length) { words = getDefaults(); saveLocal(); }
+  // 4. Sync local → Supabase (first-time migration)
+  if (sb && words.length) { await syncToSupabase(); }
 }
 
 function getDefaults() {
@@ -757,7 +803,7 @@ ESTRUCTURA:
 REGLAS:
 - chunks: 3-5个，从简单到复杂。highlight只标长句中的固定搭配(短句/自明结构不高亮)
 - explain: 简短讲语法结构功能，可选字段
-- notes: 使用场景/常见错误，用\\n分段
+- notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
 - verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形",...}
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
