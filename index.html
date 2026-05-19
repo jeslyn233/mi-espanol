@@ -495,10 +495,10 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 // ── Supabase ──────────────────────────────────────
 const SUPABASE_URL = 'https://kgluiyqvbztzoqykaolc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_vZD3beQFZm0-5Tu4SQ_w3A_373q4oh9';
-let supabase = null;
+let sb = null;
 try {
   if (typeof window.supabase !== 'undefined') {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
 } catch (e) { console.warn('Supabase not available'); }
 
@@ -531,9 +531,9 @@ function showToast(msg) {
 // ── Data load/sync ────────────────────────────────
 async function loadWords() {
   // 1. Try Supabase
-  if (supabase) {
+  if (sb) {
     try {
-      const { data, error } = await supabase.from('words').select('data').order('word');
+      const { data, error } = await sb.from('words').select('data').order('word');
       if (!error && data && data.length) {
         words = data.map(r => r.data);
         saveLocal();
@@ -649,10 +649,10 @@ function saveLocal() {
 }
 
 async function syncToSupabase() {
-  if (!supabase) return;
+  if (!sb) return;
   for (const w of words) {
     try {
-      await supabase.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' });
+      await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' });
     } catch (e) { console.warn('Sync failed for', w.word); }
   }
 }
@@ -690,8 +690,8 @@ async function autoGenerate() {
     else words.push(card);
 
     saveLocal();
-    if (supabase) {
-      try { await supabase.from('words').upsert({ word: card.word, data: card }, { onConflict: 'word' }); } catch (e) {}
+    if (sb) {
+      try { await sb.from('words').upsert({ word: card.word, data: card }, { onConflict: 'word' }); } catch (e) {}
     }
 
     render();
@@ -951,8 +951,8 @@ async function deleteWord(idx) {
   if (!confirm('¿Eliminar "' + w.word + '"?')) return;
   words.splice(idx, 1);
   saveLocal();
-  if (supabase) {
-    try { await supabase.from('words').delete().eq('word', w.word); } catch (e) {}
+  if (sb) {
+    try { await sb.from('words').delete().eq('word', w.word); } catch (e) {}
   }
   render();
   requestAnimationFrame(() => window.scrollTo({ top: lastScrollY, behavior: 'instant' }));
@@ -983,8 +983,8 @@ async function doImport() {
       if (ex >= 0) { if (confirm('"' + data.word + '" ya existe. ¿Reemplazar?')) { words[ex] = data; } else return; }
       else words.push(data);
       saveLocal();
-      if (supabase) {
-        try { await supabase.from('words').upsert({ word: data.word, data: data }, { onConflict: 'word' }); } catch (e) {}
+      if (sb) {
+        try { await sb.from('words').upsert({ word: data.word, data: data }, { onConflict: 'word' }); } catch (e) {}
       }
       closeImportModal(); render();
       showToast('"' + data.word + '" importado');
