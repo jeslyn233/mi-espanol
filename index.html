@@ -351,14 +351,59 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .np-forms span { display: block; font-style: italic; color: var(--text2); font-size: 12px; margin-top: 2px; }
 .note-box { background: var(--accent-bg); border-radius: var(--radius-sm); padding: 12px 14px; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: var(--accent-text); line-height: 1.6; margin-top: 16px; }
 
-@media (max-width: 540px) {
-  body { padding: 1rem .5rem 4rem; }
-  .container { padding-right: 28px; }
-  .gen-box { flex-direction: column; }
-  .gen-box input { width: 100%; }
+@media (max-width: 640px) {
+  body { padding: .75rem .25rem 3rem; }
+  .container { padding-right: 22px; max-width: 100%; }
+
+  /* A-Z bar — shrink */
+  .az-bar { right: 2px; padding: 3px 1px; }
+  .az-bar a { font-size: 8px; width: 14px; height: 12px; }
+
+  /* Header */
+  header h1 { font-size: 1.3rem; }
+
+  /* Toolbar */
+  .fab-row { flex-direction: column; gap: 6px; }
+  .gen-box { flex-wrap: wrap; }
+  .gen-box input { width: 100%; min-width: 0; }
+  .toolbar { flex-direction: column; }
+  #search { width: 100%; }
+
+  /* Card */
+  .card-head { padding: 10px 12px; }
+  .head-left { width: 35%; }
+  .word-main { font-size: 16px; }
+  .core-meaning { display: none; }
+  .card-body { padding: 12px; }
+
+  /* Chunks */
+  .chunk-text { font-size: 15px; }
+  .chunk-main { padding: 8px 10px; }
+  .chunk-zh { padding: 0 10px 8px; }
+  .chunk-explain { padding: 5px 10px 8px; }
+
+  /* Nuance */
+  .nuance-word { font-size: 14px; min-width: 70px; }
+
+  /* Native */
+  .native-text { font-size: 13px; min-width: 80px; }
+
+  /* Notes */
+  .note-list { max-width: 100%; padding: 2px 8px; }
+
+  /* Verb */
+  .verb-conj-grid { grid-template-columns: repeat(2, 1fr); gap: 2px 12px; }
+  .verb-form { font-size: 13px; }
+  .verb-person { font-size: 10px; min-width: 32px; }
+
+  /* Grammar */
   .conj-grid { grid-template-columns: 1fr; }
   .non-personal { grid-template-columns: 1fr; }
-  .core-meaning { display: none; }
+
+  /* Modal */
+  .modal { padding: 16px; margin: .5rem; }
+  .modal h2 { font-size: 16px; }
+  .form-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -868,9 +913,13 @@ function buildCard(w, idx) {
 
   if (w.notes && w.notes.length) {
     body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
+    const noteItems = [];
     w.notes.forEach(n => {
-      const html = escapeHTML(n).replace(/\n/g, '<br>');
-      body += `<div class="note-item">${html}</div>`;
+      // Split by \n to create separate items with dividers
+      noteItems.push(...n.split('\n').filter(s => s.trim()));
+    });
+    noteItems.forEach(n => {
+      body += `<div class="note-item">${escapeHTML(n.trim())}</div>`;
     });
     body += `</div></div>`;
   }
