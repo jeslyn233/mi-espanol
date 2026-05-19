@@ -1157,6 +1157,19 @@ window.onclick = function (e) {
     if (g) grammarNotes = JSON.parse(g);
   } catch (e) {}
   await loadWords();
+  // Ensure default words always exist in Supabase
+  if (sb) {
+    const defaults = getDefaults();
+    let added = false;
+    for (const w of defaults) {
+      if (!words.find(x => x.word === w.word)) {
+        words.push(w);
+        try { await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch (e) {}
+        added = true;
+      }
+    }
+    if (added) { saveLocal(); }
+  }
   render();
   renderGrammar();
   showTab('vocab');
