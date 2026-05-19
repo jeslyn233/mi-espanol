@@ -138,6 +138,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.core-meaning-mobile { display: none; }
 .chevron { font-size: 11px; color: var(--text3); transition: transform .2s; flex-shrink: 0; margin-left: auto; }
 .chevron.open { transform: rotate(180deg); }
 
@@ -379,7 +380,13 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .card-head { padding: 10px 12px; }
   .head-left { width: 35%; }
   .word-main { font-size: 16px; }
-  .core-meaning { font-size: 11px; }
+  .core-meaning { display: none; }
+  .core-meaning-mobile { display: block; font-family: '京华老宋体','Noto Serif SC','STSong','SimSun',serif; font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .nuance-item { flex-direction: column; gap: 2px; align-items: flex-start; }
+  .nuance-dot { margin-top: 0; }
+  .nuance-word { min-width: 0; }
+  .native-item { flex-direction: column; gap: 2px; }
+  .native-item::before { display: none; }
   .card-body { padding: 12px; }
 
   /* Chunks */
@@ -883,6 +890,8 @@ function render() {
 
 function buildCard(w, idx) {
   let body = '';
+
+  body += `<div class="core-meaning-mobile">${escapeHTML(w.core_meaning || '')}</div>`;
 
   if (w.situations && w.situations.length) {
     body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${w.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
