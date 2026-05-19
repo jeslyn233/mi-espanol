@@ -673,18 +673,35 @@ async function autoGenerate() {
   showToast('Generando con IA…');
 
   try {
-    const resp = await fetch('/api/generate', {
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ word })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer sk-7fcc78c119ff411cac24ee4ec8b2da28'
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: AI_SYSTEM_PROMPT },
+          { role: 'user', content: 'Genera la tarjeta para: "' + word + '"' }
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.3,
+        max_tokens: 2000
+      })
     });
 
     if (!resp.ok) {
-      const err = await resp.json();
-      throw new Error(err.detail || err.error || 'Error desconocido');
+      const errText = await resp.text();
+      throw new Error('API error: ' + resp.status + ' ' + errText.slice(0, 100));
     }
 
-    const card = await resp.json();
+    const data = await resp.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new Error('Respuesta vacía de la IA');
+
+    const card = JSON.parse(content);
+    if (!card.word) throw new Error('JSON generado sin campo word');
 
     if (exist >= 0) words[exist] = card;
     else words.push(card);
@@ -701,9 +718,9 @@ async function autoGenerate() {
     // Expand new card
     const idx = words.findIndex(w => w.word === card.word);
     setTimeout(() => {
-      const body = document.getElementById('body-' + idx);
+      const bodyEl = document.getElementById('body-' + idx);
       const chev = document.getElementById('chev-' + idx);
-      if (body) { body.classList.add('open'); }
+      if (bodyEl) { bodyEl.classList.add('open'); }
       if (chev) { chev.classList.add('open'); }
     }, 300);
 
@@ -715,6 +732,36 @@ async function autoGenerate() {
     spin.classList.remove('active');
   }
 }
+
+const AI_SYSTEM_PROMPT = `Eres profesor de español ELE. Genera una tarjeta de vocabulario en JSON para estudiantes chinos.
+
+ESTRUCTURA:
+{
+  "word": "palabra",
+  "type": "n|v|adj|adv",
+  "level": "A1|A2|B1|B2",
+  "core_meaning": "中文释义，简短",
+  "frequency": "A|B|C",
+  "tags": ["标签"],
+  "situations": ["使用场景中文"],
+  "chunks": [
+    {"text":"西语句子/语块","zh":"中文翻译","highlight":"固定搭配子串或空","note":"A1|A2|B1","explain":"结构说明(可选，有则加)"}
+  ],
+  "nuance": [{"word":"近义词","desc":"中文辨析"}],
+  "related_words": ["相关词"],
+  "native_expressions": [{"text":"地道表达","zh":"中文解释"}],
+  "notes": ["使用提示。用\\n分段。"],
+  "verb_forms": {}
+}
+
+REGLAS:
+- chunks: 3-5个，从简单到复杂。highlight只标长句中的固定搭配(短句/自明结构不高亮)
+- explain: 简短讲语法结构功能，可选字段
+- notes: 使用场景/常见错误，用\\n分段
+- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形",...}
+- 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
+- 西语: word,chunks.text,related_words,native_expressions.text
+SOLO RESPONDE CON EL JSON.`;
 
 // ── Card Rendering ────────────────────────────────
 
