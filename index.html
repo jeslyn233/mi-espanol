@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root {
-  --bg: #F6F5F0;
+  --bg: #FAF9F6;
   --surface: #FFFFFF;
   --surface2: #F0EDE6;
   --border: #E8E5DF;
@@ -366,8 +366,11 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   header h1 { font-size: 1.3rem; }
 
   /* Toolbar */
-  .fab-row { flex-direction: column; gap: 6px; }
-  .gen-box { flex-wrap: wrap; }
+  .fab-row { gap: 4px; }
+  .fab-row button { font-size: 11px; padding: 6px 8px; white-space: nowrap; }
+  .gen-box { flex: 1; min-width: 0; }
+  .gen-box input { width: 120px; font-size: 12px; }
+  .gen-box button { font-size: 11px; padding: 6px 10px; }
   .gen-box input { width: 100%; min-width: 0; }
   .toolbar { flex-direction: column; }
   #search { width: 100%; }
