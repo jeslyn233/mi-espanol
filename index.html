@@ -806,7 +806,7 @@ ESTRUCTURA:
 
 REGLAS:
 - situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种抽象描述。
-- chunks: 3-5个，从简单到复杂。highlight只标长句中的固定搭配(短句/自明结构不高亮)
+- chunks: 3-5个，从简单到复杂。highlight规则：(1)只标与该词直接相关的固定搭配/介词搭配 (2)同一结构只标一次，选最典型的那个chunk (3)通用语法(如名词+de)不高亮，那是西语常识不是该词特有的 (4)短句/自明结构不高亮
 - explain: 简短讲语法结构功能，可选字段
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
 - verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形"}。将来时等特殊时态放入"otros":["futuro: ..."]
