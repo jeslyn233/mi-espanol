@@ -376,10 +376,11 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   <div id="tab-vocab">
     <div class="fab-row">
       <div class="gen-box">
-        <input type="text" id="genInput" placeholder="ej. aprovechar" onkeydown="if(event.key==='Enter')autoGenerate()">
-        <button class="primary" id="genBtn" onclick="autoGenerate()"><span class="gen-spin" id="genSpin">⟳</span> Generar</button>
+        <input type="text" id="genInput" placeholder="输入西语单词，AI 自动生成卡片…" onkeydown="if(event.key==='Enter')autoGenerate()" style="width:260px;">
+        <button class="primary" id="genBtn" onclick="autoGenerate()"><span class="gen-spin" id="genSpin">⟳</span> AI 生成</button>
+        <span style="color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;margin:0 4px;">o</span>
+        <button onclick="openImportModal('word')">粘贴 JSON</button>
       </div>
-      <button onclick="openImportModal('word')">Importar JSON</button>
       <button onclick="exportData()">Exportar</button>
       <button onclick="openImportModal('restore')">Restaurar</button>
     </div>
