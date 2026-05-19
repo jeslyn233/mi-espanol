@@ -239,6 +239,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 }
 .note-item:first-child { padding-top: 10px; }
 .note-item:last-child { border-bottom: none; padding-bottom: 10px; }
+.note-p { margin: 0; }
+.note-p + .note-p { margin-top: 8px; }
 
 .verb-toggle {
   display: flex; align-items: center; gap: 6px;
@@ -914,7 +916,8 @@ function buildCard(w, idx) {
   if (w.notes && w.notes.length) {
     body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
     w.notes.forEach(n => {
-      const html = escapeHTML(n).replace(/\n/g, '<br>');
+      const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
+      const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
       body += `<div class="note-item">${html}</div>`;
     });
     body += `</div></div>`;
