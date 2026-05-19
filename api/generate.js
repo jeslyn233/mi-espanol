@@ -110,6 +110,9 @@ export default async function handler(req) {
   }
 
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 50000);
+
     const resp = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
       headers: {
@@ -124,9 +127,11 @@ export default async function handler(req) {
         ],
         response_format: { type: 'json_object' },
         temperature: 0.3,
-        max_tokens: 3000
-      })
+        max_tokens: 2000
+      }),
+      signal: controller.signal
     });
+    clearTimeout(timeout);
 
     if (!resp.ok) {
       const err = await resp.text();
