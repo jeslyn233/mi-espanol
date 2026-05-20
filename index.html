@@ -67,8 +67,8 @@ button {
   display: inline-flex; align-items: center; gap: 5px;
 }
 button:hover { background: var(--surface2); }
-button.primary { background: #554569; color: #fff; border-color: #554569; }
-button.primary:hover { background: #6B5A82; border-color: #6B5A82; }
+button.primary { background: #D9E0E7; color: #475569; border-color: #CBD5E1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1); }
+button.primary:hover { background: #CDD5DE; border-color: #BAC3CF; }
 button.primary:disabled { opacity: .5; cursor: not-allowed; }
 button.danger { color: #b91c1c; }
 button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
@@ -99,23 +99,15 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .flashcard-btn {
   width: 26px; height: 26px; border-radius: 50%;
   border: none; cursor: pointer; flex-shrink: 0;
-  background: linear-gradient(145deg, #716085, #554569);
-  box-shadow:
-    inset 0 1px 0px rgba(255,255,255,0.25),
-    inset 0 -1px 2px rgba(0,0,0,0.2),
-    0 2px 4px rgba(91,75,112,0.25),
-    0 1px 1px rgba(0,0,0,0.1);
+  background: #D9E0E7;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .flashcard-btn:hover { filter: brightness(1.05); }
-.flashcard-btn:active { transform: scale(0.92); transition: transform 0.1s ease; }
+.flashcard-btn:active { transform: scale(0.95); transition: transform 0.1s ease; }
 .flashcard-btn.active {
-  background: linear-gradient(145deg, #FFE1E4, #FFF0F2);
-  border: 1px solid #FFC2CE;
-  box-shadow:
-    inset 0 2px 4px rgba(255,150,170,0.4),
-    inset 0 -1px 2px rgba(255,255,255,0.8),
-    0 1px 1px rgba(255,214,220,0.5);
+  background: #FFD6DC;
+  box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -1px 1px rgba(255,100,120,0.2);
   transform: none;
 }
 .flashcard-btn.active:hover { filter: brightness(1.03); }
@@ -220,16 +212,21 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .section { margin-bottom: 18px; }
 .section:last-child { margin-bottom: 0; }
 
-.gender-tabs { display: flex; gap: 2px; margin-bottom: 10px; background: #FFF5F7; border-radius: var(--radius-sm); padding: 5px; }
+.gender-tabs { display: inline-flex; gap: 12px; margin-bottom: 10px; background: #FDF8F8; border-radius: var(--radius-sm); padding: 6px 8px; }
 .gender-tab {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px;
-  padding: 6px 18px; border: none; border-radius: 6px;
-  background: transparent; color: #451A03; cursor: pointer;
-  transition: background .15s, color .15s; display: inline-flex; align-items: center; gap: 6px;
+  padding: 0; border: none; border-radius: 0;
+  background: transparent; color: #57534E; cursor: pointer;
+  transition: opacity .15s; display: inline-flex; align-items: center; gap: 6px;
 }
-.gender-tab:hover { background: rgba(212,212,216,0.3); }
-.gender-tab.active { background: #FFFFFF; color: #451A03; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-.gender-tab-badge { font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #D4D4D8; color: #52525B; }
+.gender-tab:hover { opacity: 0.7; }
+.gender-tab.active { color: #57534E; font-weight: 600; opacity: 1; }
+.gender-tab-badge {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 600;
+  min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px;
+  background: #F1ECEC; color: #57534E;
+  display: inline-flex; align-items: center; justify-content: center;
+}
 .gender-divider { border-bottom: 1px solid #EAEAEA; margin-bottom: 16px; }
 .gender-panel { display: none; }
 .gender-panel.active { display: block; }
