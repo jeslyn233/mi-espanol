@@ -49,7 +49,7 @@ header h1 { font-size: 1.6rem; font-weight: normal; letter-spacing: -0.02em; }
 header p { font-size: .875rem; color: var(--text2); margin-top: 4px; font-family: 'DM Sans', system-ui, sans-serif; }
 
 .nav { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--cool-bg); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
-.nav-btn { flex: 1; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; padding: 8px 12px; border: none; border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; transition: all .15s; }
+.nav-btn { flex: 1; font-family: 'Georgia', 'Times New Roman', serif; font-size: 14px; padding: 8px 12px; border: none; border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
 .nav-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 
 input[type=text], select, textarea {
@@ -93,9 +93,26 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .more-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: 0 4px 16px rgba(0,0,0,.1); z-index: 60; min-width: 140px; flex-direction: column; padding: 4px; }
 .more-dropdown.open { display: flex; }
 .more-dropdown button { width: 100%; justify-content: flex-start; border: none; border-radius: 6px; font-size: 13px; padding: 8px 12px; }
-.toolbar { display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.toolbar { display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
 .toolbar-left { flex: 1; min-width: 0; }
 .toolbar-right { flex-shrink: 0; }
+.flashcard-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; cursor: pointer; flex-shrink: 0;
+  background: var(--accent);
+  box-shadow: 0 2px 6px rgba(15,23,42,0.08);
+  transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+}
+.flashcard-btn:hover { box-shadow: 0 3px 8px rgba(15,23,42,0.12); }
+.flashcard-btn.active {
+  background: #FFD6DC;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  transform: scale(0.95);
+}
+/* Flashcard mode: hide Chinese on collapsed cards only */
+.flashcard-mode .card:not(.open) .core-meaning { opacity: 0; transition: opacity 0.2s; }
+.flashcard-mode .card:not(.open) .card-head:hover .core-meaning { opacity: 1; }
+.flashcard-mode .card.open .core-meaning { opacity: 1 !important; }
 .search-bar {
   display: flex; align-items: center; background: #FFFFFF;
   border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -192,7 +209,21 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .section { margin-bottom: 18px; }
 .section:last-child { margin-bottom: 0; }
 
-.gender-meanings { background: var(--cool-bg); border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 18px; }
+.gender-tabs { display: flex; gap: 2px; margin-bottom: 10px; }
+.gender-tab {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px;
+  padding: 6px 18px; border: none; border-radius: var(--radius-sm);
+  background: transparent; color: var(--text2); cursor: pointer;
+  transition: background .15s, color .15s; display: inline-flex; align-items: center; gap: 6px;
+}
+.gender-tab:hover { background: var(--cool-bg2); }
+.gender-tab.active { background: var(--cool-bg2); color: var(--text); font-weight: 600; }
+.gender-tab-badge { font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: var(--accent-bg); color: var(--accent-text); }
+.gender-divider { border-bottom: 1px solid #EAEAEA; margin-bottom: 16px; }
+.gender-panel { display: none; }
+.gender-panel.active { display: block; }
+
+.gender-meanings { margin-bottom: 18px; }
 .gender-item { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; }
 .gender-item:first-child { padding-top: 0; }
 .gender-item:last-child { padding-bottom: 0; }
@@ -225,15 +256,15 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .chunk-item {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-sm); cursor: pointer;
-  transition: background .12s; overflow: hidden;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; overflow: hidden;
 }
-.chunk-item:hover { background: #fdfcf9; }
+.chunk-item:hover { background: var(--surface); border-color: #FFD6DC; box-shadow: 0 0 8px rgba(255,214,220,0.5); }
 .chunk-main { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; gap: 10px; }
 .chunk-text {
   font-family: 'Georgia', serif; font-size: 18px; font-weight: 500; font-style: italic;
   color: var(--text); line-height: 1.5; flex: 1;
 }
-.chunk-hl { background: var(--hl-bg); border-radius: 3px; padding: 0 2px; }
+.chunk-hl { background: var(--hl-bg); border-radius: 4px; padding: 0 4px; }
 .chunk-hint { font-size: 11px; color: var(--text3); flex-shrink: 0; opacity: 0.5; }
 .chunk-badge {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 600;
@@ -450,6 +481,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .task-tabs { width: 100%; }
   .task-tab { flex: 1; text-align: center; font-size: 11px; padding: 6px 4px; }
   .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
+  .flashcard-btn { width: 28px; height: 28px; }
   #search { min-width: 80px; }
 
   /* Card */
@@ -472,6 +504,9 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .chunk-main { padding: 8px 10px; }
   .chunk-zh { padding: 0 10px 8px; }
   .chunk-explain { padding: 5px 10px 8px; }
+
+  /* Gender tabs */
+  .gender-tab { font-size: 12px; padding: 5px 14px; }
 
   /* Gender meanings */
   .gender-meanings { padding: 10px 12px; }
@@ -511,8 +546,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
     <p>Vocabulario y gramática — generación automática con IA</p>
   </header>
   <div class="nav">
-    <button class="nav-btn active" onclick="showTab('vocab')">Vocabulario</button>
-    <button class="nav-btn" onclick="showTab('grammar')">Gramática</button>
+    <button class="nav-btn active" onclick="showTab('vocab')"><span style="margin-right:4px;">📇</span>Vocabulario</button>
+    <button class="nav-btn" onclick="showTab('grammar')"><span style="margin-right:4px;">📝</span>Gramática</button>
   </div>
 
   <div id="tab-vocab">
@@ -555,6 +590,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
           </select>
         </div>
       </div>
+      <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
       <div class="toolbar-right">
         <div class="task-tabs">
           <button class="task-tab active" onclick="setReviewFilter('all')">全部 <span class="task-num" id="taskAll">0</span></button>
@@ -671,6 +707,7 @@ let grammarNotes = [];
 let importMode = 'word';
 let lastScrollY = 0;
 let reviewFilter = 'all';
+let flashcardMode = false;
 
 // ── Helpers ───────────────────────────────────────
 function normalizeFirst(w) {
@@ -915,6 +952,7 @@ ESTRUCTURA:
   "level": "A1|A2|B1|B2",
   "core_meaning": "中文释义，简短（m/f词用；分隔两性释义）",
   "gender_meanings": [{"gender":"m","meaning":"阳性释义"},{"gender":"f","meaning":"阴性释义"}],
+  "gender_data": {"m":{"situations":["..."],"chunks":[...]},"f":{"situations":["..."],"chunks":[...]}},
 
 
 
@@ -932,7 +970,7 @@ ESTRUCTURA:
 }
 
 REGLAS:
-- type: 名词直接标阴阳性即可，无需前缀。纯阳性→"m"，纯阴性→"f"，阴阳性意思不同→"m/f"，两性通用意思相同→"n"。其余词性不变(v/adj/adv等)。m/f词必须填gender_meanings字段，core_meaning用；分隔两性释义如"首都；资本"。
+- type: 名词直接标阴阳性即可，无需前缀。纯阳性→"m"，纯阴性→"f"，阴阳性意思不同→"m/f"，两性通用意思相同→"n"。其余词性不变(v/adj/adv等)。m/f词必须填gender_meanings和gender_data字段，core_meaning用；分隔两性释义如"首都；资本"。gender_data按性别分别提供situations和chunks，两套数据严格隔离。
 - situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种敷衍的抽象描述。基础词(如tener)实在难写具体场景时允许适度概括，但仍要具体到用法类别。场景中不要夹杂西语单词，纯中文。
 - chunks: 不限制数量，从以下4个方向全面抓取。高亮默认规则:不确定时一律不高亮，宁可缺不可滥。规则A:同一搭配严格只标最长句中的第一次，后续禁止。规则B:能接动词时至少1-2个chunk展示动词原形用法。4个方向：(1)【核心语法块】目标词+固定介词/后接结构 如"renunciar a..." (2)【灵魂高频搭配】母语日常最常绑定的名词/动词组合 如"renunciar al trabajo" (3)【场景半成品】口语高频方便替换的半固定句式 如"No pienso renunciar a..." (4)【独立高频句】最基础最高频的独立整句 如"¡No renuncies!"
 - explain: 简短讲语法结构功能，可选字段
@@ -1078,28 +1116,62 @@ function buildCard(w, idx) {
 
   body += `<div class="core-meaning-mobile">${escapeHTML(w.core_meaning || '')}</div>`;
 
-  if (w.gender_meanings && w.gender_meanings.length) {
-    body += `<div class="gender-meanings">${w.gender_meanings.map(g => `<div class="gender-item"><span class="gender-badge">${escapeHTML(g.gender)}</span><span class="gender-text">${escapeHTML(g.meaning)}</span></div>`).join('')}</div>`;
-  }
+  const hasGenderTabs = w.gender_meanings && w.gender_meanings.length > 1;
 
-  if (w.situations && w.situations.length) {
-    body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${w.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
-  }
-
-  if (w.chunks && w.chunks.length) {
-    body += `<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">`;
-    w.chunks.forEach((ch, ci) => {
-      body += `<div class="chunk-item" onclick="toggleChunk(${idx},${ci})">
-        <div class="chunk-main">
-          <span class="chunk-text">${renderChunkText(ch.text, ch.highlight || '')}</span>
-          ${ch.explain ? '<span class="chunk-hint">✦</span>' : ''}
-          ${ch.note ? `<span class="chunk-badge">${escapeHTML(ch.note)}</span>` : ''}
-        </div>
-        <div class="chunk-zh" id="chunk-zh-${idx}-${ci}">${escapeHTML(ch.zh || '')}</div>
-        ${ch.explain ? `<div class="chunk-explain" id="chunk-explain-${idx}-${ci}">${escapeHTML(ch.explain)}</div>` : ''}
-      </div>`;
+  if (hasGenderTabs) {
+    // Gender tabs
+    body += `<div class="gender-tabs" id="gtabs-${idx}">`;
+    w.gender_meanings.forEach((gm, i) => {
+      body += `<div class="gender-tab${i===0?' active':''}" id="gtab-${idx}-${gm.gender}" onclick="switchGender(event,${idx},'${gm.gender}')"><span class="gender-tab-badge">${escapeHTML(gm.gender)}</span>${escapeHTML(gm.meaning)}</div>`;
     });
-    body += `</div></div>`;
+    body += `</div><div class="gender-divider"></div>`;
+
+    // Gender panels with own situations + chunks
+    w.gender_meanings.forEach((gm, i) => {
+      const gd = (w.gender_data && w.gender_data[gm.gender]) ? w.gender_data[gm.gender] : {};
+      const sits = gd.situations || [];
+      const chs = gd.chunks || [];
+      body += `<div class="gender-panel gender-panel-${gm.gender}${i===0?' active':''}" id="gpanel-${idx}-${gm.gender}">`;
+      if (sits.length) {
+        body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${sits.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
+      }
+      if (chs.length) {
+        body += `<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">`;
+        chs.forEach((ch, ci) => {
+          body += `<div class="chunk-item" onclick="toggleChunk(${idx},'${gm.gender}',${ci})">
+            <div class="chunk-main">
+              <span class="chunk-text">${renderChunkText(ch.text, ch.highlight || '')}</span>
+              ${ch.explain ? '<span class="chunk-hint">✦</span>' : ''}
+              ${ch.note ? `<span class="chunk-badge">${escapeHTML(ch.note)}</span>` : ''}
+            </div>
+            <div class="chunk-zh" id="chunk-zh-${idx}-${gm.gender}-${ci}">${escapeHTML(ch.zh || '')}</div>
+            ${ch.explain ? `<div class="chunk-explain" id="chunk-explain-${idx}-${gm.gender}-${ci}">${escapeHTML(ch.explain)}</div>` : ''}
+          </div>`;
+        });
+        body += `</div></div>`;
+      }
+      body += `</div>`;
+    });
+  } else {
+    // No gender tabs: render flat situations + chunks as before
+    if (w.situations && w.situations.length) {
+      body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${w.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
+    }
+    if (w.chunks && w.chunks.length) {
+      body += `<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">`;
+      w.chunks.forEach((ch, ci) => {
+        body += `<div class="chunk-item" onclick="toggleChunk(${idx},'',${ci})">
+          <div class="chunk-main">
+            <span class="chunk-text">${renderChunkText(ch.text, ch.highlight || '')}</span>
+            ${ch.explain ? '<span class="chunk-hint">✦</span>' : ''}
+            ${ch.note ? `<span class="chunk-badge">${escapeHTML(ch.note)}</span>` : ''}
+          </div>
+          <div class="chunk-zh" id="chunk-zh-${idx}--${ci}">${escapeHTML(ch.zh || '')}</div>
+          ${ch.explain ? `<div class="chunk-explain" id="chunk-explain-${idx}--${ci}">${escapeHTML(ch.explain)}</div>` : ''}
+        </div>`;
+      });
+      body += `</div></div>`;
+    }
   }
 
   if (w.nuance && w.nuance.length) {
@@ -1230,11 +1302,30 @@ function toggle(idx) {
   if (!wasOpen) { bodyEl.classList.add('open'); chev.classList.add('open'); }
 }
 
-function toggleChunk(wordIdx, chunkIdx) {
-  const zh = document.getElementById('chunk-zh-' + wordIdx + '-' + chunkIdx);
+function toggleChunk(wordIdx, gender, chunkIdx) {
+  const prefix = 'chunk-zh-' + wordIdx + '-' + (gender || '') + '-';
+  const zh = document.getElementById(prefix + chunkIdx);
   if (zh) zh.classList.toggle('show');
-  const ex = document.getElementById('chunk-explain-' + wordIdx + '-' + chunkIdx);
+  const ex = document.getElementById('chunk-explain-' + wordIdx + '-' + (gender || '') + '-' + chunkIdx);
   if (ex) ex.classList.toggle('show');
+}
+
+function switchGender(e, idx, gender) {
+  e.stopPropagation();
+  const word = words[idx];
+  if (!word || !word.gender_meanings) return;
+  // Toggle tabs
+  const tabContainer = document.getElementById('gtabs-' + idx);
+  if (tabContainer) {
+    tabContainer.querySelectorAll('.gender-tab').forEach(t => t.classList.remove('active'));
+    const activeTab = document.getElementById('gtab-' + idx + '-' + gender);
+    if (activeTab) activeTab.classList.add('active');
+  }
+  // Toggle panels
+  word.gender_meanings.forEach(gm => {
+    const panel = document.getElementById('gpanel-' + idx + '-' + gm.gender);
+    if (panel) panel.classList.toggle('active', gm.gender === gender);
+  });
 }
 
 function toggleVerb(idx) {
@@ -1263,6 +1354,18 @@ function setReviewFilter(f) {
     if (t.textContent.startsWith(f === 'all' ? '全部' : f === 'reviewed' ? '已复习' : '未复习')) t.classList.add('active');
   });
   render();
+}
+
+function toggleFlashcard() {
+  flashcardMode = !flashcardMode;
+  const btn = document.getElementById('flashcardBtn');
+  if (flashcardMode) {
+    btn.classList.add('active');
+    document.body.classList.add('flashcard-mode');
+  } else {
+    btn.classList.remove('active');
+    document.body.classList.remove('flashcard-mode');
+  }
 }
 
 function jumpToWord(wordStr) {
