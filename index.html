@@ -487,8 +487,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .toolbar-right { width: 100%; display: flex; align-items: center; gap: 8px; }
   .search-bar { width: 100%; }
   .search-bar input { font-size: 13px; padding: 7px 10px; }
-  .task-tabs { flex: 1; }
-  .task-tab { font-size: 11px; padding: 6px 8px; white-space: nowrap; }
+  .task-tabs { display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; }
+  .task-tab { flex: 1; font-size: 11px; padding: 6px 8px; white-space: nowrap; text-align: center; }
   .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
   .search-divider { height: 18px; }
   .flashcard-btn { width: 24px; height: 24px; flex-shrink: 0; }
@@ -1341,9 +1341,16 @@ function toggle(idx) {
   const bodyEl = document.getElementById('body-' + idx);
   const chev = document.getElementById('chev-' + idx);
   const wasOpen = bodyEl.classList.contains('open');
+  const card = document.getElementById('card-' + idx);
+  const topBefore = card ? card.getBoundingClientRect().top : 0;
   document.querySelectorAll('.card-body.open').forEach(b => b.classList.remove('open'));
   document.querySelectorAll('.chevron.open').forEach(c => c.classList.remove('open'));
   if (!wasOpen) { bodyEl.classList.add('open'); chev.classList.add('open'); }
+  // Restore scroll position so the card head stays in view
+  if (!wasOpen && card) {
+    const topAfter = card.getBoundingClientRect().top;
+    window.scrollBy({ top: topAfter - topBefore, behavior: 'instant' });
+  }
 }
 
 function toggleChunk(wordIdx, gender, chunkIdx) {
