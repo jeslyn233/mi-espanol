@@ -1139,10 +1139,10 @@ function buildCard(w, idx) {
       const gd = (w.gender_data && w.gender_data[gm.gender]) ? w.gender_data[gm.gender] : {};
       const gSits = gd.situations || [];
       const gChs = gd.chunks || [];
-      const gNuance = gd.nuance || [];
-      const gRelated = gd.related_words || [];
-      const gNative = gd.native_expressions || [];
-      const gNotes = gd.notes || [];
+      const gNuance = gd.nuance && gd.nuance.length ? gd.nuance : (w.nuance || []);
+      const gRelated = gd.related_words && gd.related_words.length ? gd.related_words : (w.related_words || []);
+      const gNative = gd.native_expressions && gd.native_expressions.length ? gd.native_expressions : (w.native_expressions || []);
+      const gNotes = gd.notes && gd.notes.length ? gd.notes : (w.notes || []);
       body += `<div class="gender-panel gender-panel-${gm.gender}${i===0?' active':''}" id="gpanel-${idx}-${gm.gender}">`;
       if (gSits.length) {
         body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${gSits.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
