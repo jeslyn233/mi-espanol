@@ -303,7 +303,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   font-family: 'Georgia', serif; font-size: 16px; font-style: italic;
   color: var(--text); min-width: 100px;
 }
-.nuance-desc { color: var(--text2); font-size: 14px; font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; flex: 1; }
+.nuance-desc { color: var(--text2); font-size: 14px; font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; flex: 1; letter-spacing: 0.02em; }
 
 .related-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .related-pill {
@@ -482,17 +482,17 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .gen-box input { width: 120px; font-size: 12px; }
   .gen-box button { font-size: 11px; padding: 6px 10px; }
   .gen-box input { width: 100%; min-width: 0; }
-  .toolbar { flex-wrap: nowrap; gap: 6px; }
-  .toolbar-left { flex: 1; min-width: 0; }
-  .toolbar-right { flex-shrink: 0; }
+  .toolbar { flex-direction: column; gap: 8px; }
+  .toolbar-left { width: 100%; }
+  .toolbar-right { width: 100%; display: flex; align-items: center; gap: 8px; }
   .search-bar { width: 100%; }
-  .search-bar input { font-size: 12px; padding: 6px 8px; }
-  .task-tabs { gap: 1px; padding: 2px; }
-  .task-tab { font-size: 10px; padding: 5px 6px; white-space: nowrap; }
-  .light-select { font-size: 10px; width: 44px; padding: 6px 2px; padding-right: 12px; background-position: right 2px center; }
-  .search-divider { height: 16px; }
-  .flashcard-btn { width: 22px; height: 22px; flex-shrink: 0; }
-  #search { min-width: 60px; }
+  .search-bar input { font-size: 13px; padding: 7px 10px; }
+  .task-tabs { flex: 1; }
+  .task-tab { font-size: 11px; padding: 6px 8px; white-space: nowrap; }
+  .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
+  .search-divider { height: 18px; }
+  .flashcard-btn { width: 24px; height: 24px; flex-shrink: 0; }
+  #search { min-width: 80px; }
 
   /* Card */
   .card-head { padding: 10px 12px; }
@@ -502,8 +502,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .core-meaning-mobile { display: block; font-family: '京华老宋体','Noto Serif SC','STSong','SimSun',serif; font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
   .nuance-item { flex-wrap: wrap; gap: 6px 12px; align-items: center; }
   .nuance-dot { margin-top: 0; flex-shrink: 0; }
-  .nuance-word { min-width: 0; flex-shrink: 0; }
-  .nuance-desc { flex-basis: 100%; padding-left: 20px; }
+  .nuance-word { min-width: 0; flex-shrink: 0; font-size: 14px; }
+  .nuance-desc { flex-basis: 100%; padding-left: 20px; font-size: 13px; line-height: 1.7; margin-top: 2px; letter-spacing: 0.02em; }
   .native-item { flex-direction: column; gap: 6px; }
   .native-item::before { display: none; }
   .native-text { margin-bottom: 4px; }
