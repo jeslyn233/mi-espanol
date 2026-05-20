@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root {
-  --bg: #F4F4F2;
+  --bg: #F5F9FC;
   --surface: #FFFFFF;
   --surface2: #F0EDE6;
   --border: #E8E5DF;
@@ -152,6 +152,13 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 
 .section { margin-bottom: 18px; }
 .section:last-child { margin-bottom: 0; }
+
+.gender-meanings { background: #F0EDE8; border-radius: var(--radius-sm); padding: 12px 16px; margin-bottom: 18px; }
+.gender-item { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; }
+.gender-item:first-child { padding-top: 0; }
+.gender-item:last-child { padding-bottom: 0; }
+.gender-badge { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--accent-bg); color: var(--accent-text); flex-shrink: 0; }
+.gender-text { color: var(--text); font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 14px; line-height: 1.6; }
 .sec-label {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 8.5px; font-weight: 700;
   color: var(--text3); text-transform: uppercase; letter-spacing: .14em;
@@ -374,6 +381,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   /* Toolbar */
   .fab-row { gap: 4px; }
   .fab-row button { font-size: 11px; padding: 6px 8px; white-space: nowrap; }
+.more-btn { font-size: 14px; padding: 6px 8px; }
+.more-dropdown { min-width: 120px; right: -4px; }
   .gen-box { flex: 1; min-width: 0; }
   .gen-box input { width: 120px; font-size: 12px; }
   .gen-box button { font-size: 11px; padding: 6px 10px; }
@@ -399,6 +408,10 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .chunk-main { padding: 8px 10px; }
   .chunk-zh { padding: 0 10px 8px; }
   .chunk-explain { padding: 5px 10px 8px; }
+
+  /* Gender meanings */
+  .gender-meanings { padding: 10px 12px; }
+  .gender-item { font-size: 13px; }
 
   /* Nuance */
   .nuance-word { font-size: 14px; min-width: 70px; }
@@ -456,7 +469,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
       <input type="text" id="search" placeholder="Buscar…" oninput="render()">
       <select id="filterType" onchange="render()">
         <option value="">Todas las categorías</option>
-        <option value="n">n — nombre (m·f·m/f·n)</option><option value="v">v — verbo</option>
+        <option value="n">nombre (m·f·m/f·n)</option><option value="v">v — verbo</option>
         <option value="adj">adj — adjetivo</option><option value="adv">adv — adverbio</option>
         <option value="prep">prep — preposición</option><option value="conj">conj — conjunción</option>
         <option value="pron">pron — pronombre</option><option value="interj">interj — interjección</option>
@@ -817,9 +830,13 @@ const AI_SYSTEM_PROMPT = `Eres profesor de español ELE. Genera una tarjeta de v
 ESTRUCTURA:
 {
   "word": "palabra",
-  "type": "n|v|adj|adv",
+  "type": "m|f|m/f|n|v|adj|adv",
   "level": "A1|A2|B1|B2",
-  "core_meaning": "中文释义，简短",
+  "core_meaning": "中文释义，简短（m/f词用；分隔两性释义）",
+  "gender_meanings": [{"gender":"m","meaning":"阳性释义"},{"gender":"f","meaning":"阴性释义"}],
+
+
+
   "frequency": "A|B|C",
   "tags": ["标签"],
   "situations": ["生活化中文场景短语"],
@@ -834,6 +851,7 @@ ESTRUCTURA:
 }
 
 REGLAS:
+- type: 名词直接标阴阳性即可，无需前缀。纯阳性→"m"，纯阴性→"f"，阴阳性意思不同→"m/f"，两性通用意思相同→"n"。其余词性不变(v/adj/adv等)。m/f词必须填gender_meanings字段，core_meaning用；分隔两性释义如"首都；资本"。
 - situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种敷衍的抽象描述。基础词(如tener)实在难写具体场景时允许适度概括，但仍要具体到用法类别。场景中不要夹杂西语单词，纯中文。
 - chunks: 不限制数量，从以下4个方向全面抓取。高亮默认规则:不确定时一律不高亮，宁可缺不可滥。规则A:同一搭配严格只标最长句中的第一次，后续禁止。规则B:能接动词时至少1-2个chunk展示动词原形用法。4个方向：(1)【核心语法块】目标词+固定介词/后接结构 如"renunciar a..." (2)【灵魂高频搭配】母语日常最常绑定的名词/动词组合 如"renunciar al trabajo" (3)【场景半成品】口语高频方便替换的半固定句式 如"No pienso renunciar a..." (4)【独立高频句】最基础最高频的独立整句 如"¡No renuncies!"
 - explain: 简短讲语法结构功能，可选字段
@@ -865,8 +883,9 @@ function render() {
 
   const filtered = words.filter(w => {
     if (q && !w.word.toLowerCase().includes(q) && !(w.core_meaning || '').toLowerCase().includes(q)) return false;
-    const wtype = (w.type || '').split(/[\s(]/)[0].trim();
-    if (type && wtype !== type) return false;
+    const wtype = (w.type || '').trim();
+    if (type === 'n') { if (!['m','f','m/f','n'].includes(wtype)) return false; }
+    else if (type && wtype !== type) return false;
     if (level && w.level !== level) return false;
     if (freq && w.frequency !== freq) return false;
     return true;
@@ -902,6 +921,10 @@ function buildCard(w, idx) {
   let body = '';
 
   body += `<div class="core-meaning-mobile">${escapeHTML(w.core_meaning || '')}</div>`;
+
+  if (w.gender_meanings && w.gender_meanings.length) {
+    body += `<div class="gender-meanings">${w.gender_meanings.map(g => `<div class="gender-item"><span class="gender-badge">${escapeHTML(g.gender)}</span><span class="gender-text">${escapeHTML(g.meaning)}</span></div>`).join('')}</div>`;
+  }
 
   if (w.situations && w.situations.length) {
     body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${w.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
