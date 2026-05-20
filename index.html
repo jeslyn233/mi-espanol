@@ -44,9 +44,18 @@ body {
 }
 .container { max-width: 780px; margin: 0 auto; padding-right: 36px; }
 
-header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; }
+header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; display: flex; align-items: flex-end; justify-content: space-between; }
 header h1 { font-size: 1.6rem; font-weight: normal; letter-spacing: -0.02em; }
 header p { font-size: .875rem; color: var(--text2); margin-top: 4px; font-family: 'DM Sans', system-ui, sans-serif; }
+.header-right { flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+.lock-btn { font-size: 18px; background: none; border: none; cursor: pointer; padding: 4px; line-height: 1; }
+.lock-input { font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; padding: 4px 8px; border: 1px solid var(--border2); border-radius: 4px; width: 100px; display: none; }
+.lock-input.show { display: inline-block; }
+.lock-msg { font-size: 11px; color: var(--text3); font-family: 'DM Sans', system-ui, sans-serif; display: none; }
+.locked .gen-box,
+.locked .more-menu,
+.locked .card-actions,
+.locked .review-area { display: none !important; }
 
 .nav { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--cool-bg); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
 .nav-btn { flex: 1; font-family: 'Georgia', 'Times New Roman', serif; font-size: 14px; padding: 8px 12px; border: none; border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
@@ -95,7 +104,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .more-dropdown button { width: 100%; justify-content: flex-start; border: none; border-radius: 6px; font-size: 13px; padding: 8px 12px; }
 .toolbar { display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
 .toolbar-left { flex: 1; min-width: 0; }
-.toolbar-right { flex-shrink: 0; }
+.toolbar-right { flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
 .flashcard-btn {
   width: 26px; height: 26px; border-radius: 50%;
   border: none; cursor: pointer; flex-shrink: 0;
@@ -472,6 +481,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 
   /* Header */
   header h1 { font-size: 1.3rem; }
+  .lock-input { width: 80px; font-size: 11px; }
 
   /* Toolbar */
   .fab-row { gap: 4px; }
@@ -553,8 +563,15 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 <body>
 <div class="container">
   <header>
-    <h1>Mi español</h1>
-    <p>Vocabulario y gramática — generación automática con IA</p>
+    <div>
+      <h1>Mi español</h1>
+      <p>Vocabulario y gramática — generación automática con IA</p>
+    </div>
+    <div class="header-right">
+      <span class="lock-msg" id="lockMsg"></span>
+      <input type="password" class="lock-input" id="lockInput" placeholder="密码" onkeydown="if(event.key==='Enter')unlock()">
+      <button class="lock-btn" id="lockBtn" onclick="toggleLock()" title="编辑权限">🔒</button>
+    </div>
   </header>
   <div class="nav">
     <button class="nav-btn active" onclick="showTab('vocab')"><span style="margin-right:4px;">📇</span>Vocabulario</button>
@@ -719,6 +736,8 @@ let importMode = 'word';
 let lastScrollY = 0;
 let reviewFilter = 'all';
 let flashcardMode = false;
+let isLocked = true;
+const EDIT_PASSWORD = 'espanol2024';
 
 // ── Helpers ───────────────────────────────────────
 function normalizeFirst(w) {
@@ -1408,6 +1427,41 @@ function setReviewFilter(f) {
   render();
 }
 
+function toggleLock() {
+  if (isLocked) {
+    document.getElementById('lockInput').classList.toggle('show');
+    if (document.getElementById('lockInput').classList.contains('show')) {
+      document.getElementById('lockInput').focus();
+    }
+  } else {
+    lockUI();
+  }
+}
+function unlock() {
+  const input = document.getElementById('lockInput');
+  if (input.value === EDIT_PASSWORD) {
+    isLocked = false;
+    document.body.classList.remove('locked');
+    document.getElementById('lockBtn').textContent = '🔓';
+    document.getElementById('lockInput').classList.remove('show');
+    document.getElementById('lockMsg').style.display = 'none';
+    input.value = '';
+    render();
+  } else {
+    document.getElementById('lockMsg').textContent = '密码错误';
+    document.getElementById('lockMsg').style.display = 'inline';
+    setTimeout(() => { document.getElementById('lockMsg').style.display = 'none'; }, 2000);
+    input.value = '';
+  }
+}
+function lockUI() {
+  isLocked = true;
+  document.body.classList.add('locked');
+  document.getElementById('lockBtn').textContent = '🔒';
+  document.getElementById('lockInput').classList.remove('show');
+  document.getElementById('lockInput').value = '';
+  render();
+}
 function toggleFlashcard() {
   flashcardMode = !flashcardMode;
   const btn = document.getElementById('flashcardBtn');
@@ -1568,6 +1622,7 @@ window.onclick = function (e) {
   } catch (e) {}
   await loadWords();
   resetOverdue();
+  document.body.classList.add('locked'); // lock by default
   // Ensure default words always up to date in Supabase
   if (sb) {
     const defaults = getDefaults();
