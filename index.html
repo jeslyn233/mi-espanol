@@ -488,7 +488,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .search-bar { width: 100%; }
   .search-bar input { font-size: 13px; padding: 7px 10px; }
   .task-tabs { display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; }
-  .task-tab { flex: 1; font-size: 11px; padding: 6px 8px; white-space: nowrap; text-align: center; }
+  .task-tab { font-size: 11px; padding: 6px 10px; white-space: nowrap; }
   .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
   .search-divider { height: 18px; }
   .flashcard-btn { width: 24px; height: 24px; flex-shrink: 0; }
@@ -505,7 +505,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .nuance-word { min-width: 0; flex-shrink: 0; font-size: 14px; }
   .nuance-desc { flex-basis: 100%; padding-left: 20px; font-size: 13px; line-height: 1.7; margin-top: 2px; letter-spacing: 0.02em; }
   .native-item { flex-direction: column; gap: 6px; }
-  .native-item::before { display: none; }
+  .native-item::before { font-size: 14px; }
   .native-text { margin-bottom: 4px; }
   .card-body { padding: 12px; }
 
@@ -606,8 +606,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
           <button class="task-tab" onclick="setReviewFilter('reviewed')">已复习 <span class="task-num" id="taskReviewed">0</span></button>
           <button class="task-tab" onclick="setReviewFilter('unreviewed')">未复习 <span class="task-num" id="taskUnreviewed">0</span></button>
         </div>
+        <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
       </div>
-      <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
     </div>
     <div id="count" class="count"></div>
     <div id="wordList"></div>
