@@ -67,8 +67,8 @@ button {
   display: inline-flex; align-items: center; gap: 5px;
 }
 button:hover { background: var(--surface2); }
-button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-button.primary:hover { background: #2E4E70; }
+button.primary { background: #554569; color: #fff; border-color: #554569; }
+button.primary:hover { background: #6B5A82; border-color: #6B5A82; }
 button.primary:disabled { opacity: .5; cursor: not-allowed; }
 button.danger { color: #b91c1c; }
 button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
@@ -97,18 +97,29 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .toolbar-left { flex: 1; min-width: 0; }
 .toolbar-right { flex-shrink: 0; }
 .flashcard-btn {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 26px; height: 26px; border-radius: 50%;
   border: none; cursor: pointer; flex-shrink: 0;
-  background: var(--accent);
-  box-shadow: 0 2px 6px rgba(15,23,42,0.08);
-  transition: background 0.25s, box-shadow 0.25s, transform 0.2s;
+  background: linear-gradient(145deg, #716085, #554569);
+  box-shadow:
+    inset 0 1px 0px rgba(255,255,255,0.25),
+    inset 0 -1px 2px rgba(0,0,0,0.2),
+    0 2px 4px rgba(91,75,112,0.25),
+    0 1px 1px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.flashcard-btn:hover { box-shadow: 0 3px 8px rgba(15,23,42,0.12); }
+.flashcard-btn:hover { filter: brightness(1.05); }
+.flashcard-btn:active { transform: scale(0.92); transition: transform 0.1s ease; }
 .flashcard-btn.active {
-  background: #FFD6DC;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-  transform: scale(0.95);
+  background: linear-gradient(145deg, #FFE1E4, #FFF0F2);
+  border: 1px solid #FFC2CE;
+  box-shadow:
+    inset 0 2px 4px rgba(255,150,170,0.4),
+    inset 0 -1px 2px rgba(255,255,255,0.8),
+    0 1px 1px rgba(255,214,220,0.5);
+  transform: none;
 }
+.flashcard-btn.active:hover { filter: brightness(1.03); }
+.flashcard-btn.active:active { transform: scale(0.95); }
 /* Flashcard mode: hide Chinese on collapsed cards only */
 .flashcard-mode .card:not(.open) .core-meaning { opacity: 0; transition: opacity 0.2s; }
 .flashcard-mode .card:not(.open) .card-head:hover .core-meaning { opacity: 1; }
@@ -209,16 +220,16 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .section { margin-bottom: 18px; }
 .section:last-child { margin-bottom: 0; }
 
-.gender-tabs { display: flex; gap: 2px; margin-bottom: 10px; }
+.gender-tabs { display: flex; gap: 2px; margin-bottom: 10px; background: #FFF5F7; border-radius: var(--radius-sm); padding: 5px; }
 .gender-tab {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px;
-  padding: 6px 18px; border: none; border-radius: var(--radius-sm);
-  background: transparent; color: var(--text2); cursor: pointer;
+  padding: 6px 18px; border: none; border-radius: 6px;
+  background: transparent; color: #451A03; cursor: pointer;
   transition: background .15s, color .15s; display: inline-flex; align-items: center; gap: 6px;
 }
-.gender-tab:hover { background: var(--cool-bg2); }
-.gender-tab.active { background: var(--cool-bg2); color: var(--text); font-weight: 600; }
-.gender-tab-badge { font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: var(--accent-bg); color: var(--accent-text); }
+.gender-tab:hover { background: rgba(212,212,216,0.3); }
+.gender-tab.active { background: #FFFFFF; color: #451A03; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.gender-tab-badge { font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 999px; background: #D4D4D8; color: #52525B; }
 .gender-divider { border-bottom: 1px solid #EAEAEA; margin-bottom: 16px; }
 .gender-panel { display: none; }
 .gender-panel.active { display: block; }
@@ -481,7 +492,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .task-tabs { width: 100%; }
   .task-tab { flex: 1; text-align: center; font-size: 11px; padding: 6px 4px; }
   .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
-  .flashcard-btn { width: 28px; height: 28px; }
+  .flashcard-btn { width: 24px; height: 24px; }
   #search { min-width: 80px; }
 
   /* Card */
@@ -590,7 +601,6 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
           </select>
         </div>
       </div>
-      <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
       <div class="toolbar-right">
         <div class="task-tabs">
           <button class="task-tab active" onclick="setReviewFilter('all')">全部 <span class="task-num" id="taskAll">0</span></button>
@@ -598,6 +608,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
           <button class="task-tab" onclick="setReviewFilter('unreviewed')">未复习 <span class="task-num" id="taskUnreviewed">0</span></button>
         </div>
       </div>
+      <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
     </div>
     <div id="count" class="count"></div>
     <div id="wordList"></div>
