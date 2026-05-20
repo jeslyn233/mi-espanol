@@ -1130,7 +1130,7 @@ function buildCard(w, idx) {
     // Gender tabs
     body += `<div class="gender-tabs" id="gtabs-${idx}">`;
     w.gender_meanings.forEach((gm, i) => {
-      body += `<div class="gender-tab${i===0?' active':''}" id="gtab-${idx}-${gm.gender}" onclick="switchGender(event,${idx},'${gm.gender}')"><span class="gender-tab-badge">${escapeHTML(gm.gender)}</span>${escapeHTML(gm.meaning)}</div>`;
+      body += `<div class="gender-tab${i===0?' active':''}" id="gtab-${idx}-${gm.gender}" onclick="switchGender(event,${idx},'${gm.gender}')">${escapeHTML(gm.gender)} ${escapeHTML(gm.meaning)}</div>`;
     });
     body += `</div><div class="gender-divider"></div>`;
 
