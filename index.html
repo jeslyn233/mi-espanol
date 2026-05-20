@@ -960,7 +960,7 @@ ESTRUCTURA:
   "level": "A1|A2|B1|B2",
   "core_meaning": "中文释义，简短（m/f词用；分隔两性释义）",
   "gender_meanings": [{"gender":"m","meaning":"阳性释义"},{"gender":"f","meaning":"阴性释义"}],
-  "gender_data": {"m":{"situations":["..."],"chunks":[...]},"f":{"situations":["..."],"chunks":[...]}},
+  "gender_data": {"m":{"situations":["..."],"chunks":[...],"nuance":[...],"related_words":[...],"native_expressions":[...],"notes":[...]},"f":{...}},
 
 
 
@@ -1134,18 +1134,22 @@ function buildCard(w, idx) {
     });
     body += `</div><div class="gender-divider"></div>`;
 
-    // Gender panels with own situations + chunks
+    // Gender panels with ALL content per gender
     w.gender_meanings.forEach((gm, i) => {
       const gd = (w.gender_data && w.gender_data[gm.gender]) ? w.gender_data[gm.gender] : {};
-      const sits = gd.situations || [];
-      const chs = gd.chunks || [];
+      const gSits = gd.situations || [];
+      const gChs = gd.chunks || [];
+      const gNuance = gd.nuance || [];
+      const gRelated = gd.related_words || [];
+      const gNative = gd.native_expressions || [];
+      const gNotes = gd.notes || [];
       body += `<div class="gender-panel gender-panel-${gm.gender}${i===0?' active':''}" id="gpanel-${idx}-${gm.gender}">`;
-      if (sits.length) {
-        body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${sits.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
+      if (gSits.length) {
+        body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${gSits.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
       }
-      if (chs.length) {
+      if (gChs.length) {
         body += `<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">`;
-        chs.forEach((ch, ci) => {
+        gChs.forEach((ch, ci) => {
           body += `<div class="chunk-item" onclick="toggleChunk(${idx},'${gm.gender}',${ci})">
             <div class="chunk-main">
               <span class="chunk-text">${renderChunkText(ch.text, ch.highlight || '')}</span>
@@ -1158,10 +1162,41 @@ function buildCard(w, idx) {
         });
         body += `</div></div>`;
       }
+      if (gNuance.length) {
+        body += `<div class="section"><div class="sec-label">Matices</div><div class="nuance-list">`;
+        gNuance.forEach((n, ni) => {
+          const dotColor = NUANCE_DOTS[ni % NUANCE_DOTS.length];
+          body += `<div class="nuance-item"><span class="nuance-dot" style="background:${dotColor}"></span><span class="nuance-word">${escapeHTML(n.word)}</span><span class="nuance-desc">${escapeHTML(n.desc)}</span></div>`;
+        });
+        body += `</div></div>`;
+      }
+      if (gRelated.length) {
+        body += `<div class="section"><div class="sec-label">Relacionadas</div><div class="related-row">`;
+        gRelated.forEach(rw => {
+          body += `<span class="related-pill clickable" onclick="event.stopPropagation();jumpToWord('${rw.replace(/'/g, "\\'")}')">${escapeHTML(rw)}</span>`;
+        });
+        body += `</div></div>`;
+      }
+      if (gNative.length) {
+        body += `<div class="section"><div class="sec-label">Expresiones nativas</div><div class="native-list">`;
+        gNative.forEach(ne => {
+          body += `<div class="native-item"><span class="native-text">${escapeHTML(ne.text)}</span><span class="native-zh">${escapeHTML(ne.zh)}</span></div>`;
+        });
+        body += `</div></div>`;
+      }
+      if (gNotes.length) {
+        body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
+        gNotes.forEach(n => {
+          const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
+          const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
+          body += `<div class="note-item">${html}</div>`;
+        });
+        body += `</div></div>`;
+      }
       body += `</div>`;
     });
   } else {
-    // No gender tabs: render flat situations + chunks as before
+    // No gender tabs: render everything flat as before
     if (w.situations && w.situations.length) {
       body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${w.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
     }
@@ -1180,41 +1215,37 @@ function buildCard(w, idx) {
       });
       body += `</div></div>`;
     }
-  }
-
-  if (w.nuance && w.nuance.length) {
-    body += `<div class="section"><div class="sec-label">Matices</div><div class="nuance-list">`;
-    w.nuance.forEach((n, ni) => {
-      const dotColor = NUANCE_DOTS[ni % NUANCE_DOTS.length];
-      body += `<div class="nuance-item"><span class="nuance-dot" style="background:${dotColor}"></span><span class="nuance-word">${escapeHTML(n.word)}</span><span class="nuance-desc">${escapeHTML(n.desc)}</span></div>`;
-    });
-    body += `</div></div>`;
-  }
-
-  if (w.related_words && w.related_words.length) {
-    body += `<div class="section"><div class="sec-label">Relacionadas</div><div class="related-row">`;
-    w.related_words.forEach(rw => {
-      body += `<span class="related-pill clickable" onclick="event.stopPropagation();jumpToWord('${rw.replace(/'/g, "\\'")}')">${escapeHTML(rw)}</span>`;
-    });
-    body += `</div></div>`;
-  }
-
-  if (w.native_expressions && w.native_expressions.length) {
-    body += `<div class="section"><div class="sec-label">Expresiones nativas</div><div class="native-list">`;
-    w.native_expressions.forEach(ne => {
-      body += `<div class="native-item"><span class="native-text">${escapeHTML(ne.text)}</span><span class="native-zh">${escapeHTML(ne.zh)}</span></div>`;
-    });
-    body += `</div></div>`;
-  }
-
-  if (w.notes && w.notes.length) {
-    body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
-    w.notes.forEach(n => {
-      const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
-      const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
-      body += `<div class="note-item">${html}</div>`;
-    });
-    body += `</div></div>`;
+    if (w.nuance && w.nuance.length) {
+      body += `<div class="section"><div class="sec-label">Matices</div><div class="nuance-list">`;
+      w.nuance.forEach((n, ni) => {
+        const dotColor = NUANCE_DOTS[ni % NUANCE_DOTS.length];
+        body += `<div class="nuance-item"><span class="nuance-dot" style="background:${dotColor}"></span><span class="nuance-word">${escapeHTML(n.word)}</span><span class="nuance-desc">${escapeHTML(n.desc)}</span></div>`;
+      });
+      body += `</div></div>`;
+    }
+    if (w.related_words && w.related_words.length) {
+      body += `<div class="section"><div class="sec-label">Relacionadas</div><div class="related-row">`;
+      w.related_words.forEach(rw => {
+        body += `<span class="related-pill clickable" onclick="event.stopPropagation();jumpToWord('${rw.replace(/'/g, "\\'")}')">${escapeHTML(rw)}</span>`;
+      });
+      body += `</div></div>`;
+    }
+    if (w.native_expressions && w.native_expressions.length) {
+      body += `<div class="section"><div class="sec-label">Expresiones nativas</div><div class="native-list">`;
+      w.native_expressions.forEach(ne => {
+        body += `<div class="native-item"><span class="native-text">${escapeHTML(ne.text)}</span><span class="native-zh">${escapeHTML(ne.zh)}</span></div>`;
+      });
+      body += `</div></div>`;
+    }
+    if (w.notes && w.notes.length) {
+      body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
+      w.notes.forEach(n => {
+        const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
+        const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
+        body += `<div class="note-item">${html}</div>`;
+      });
+      body += `</div></div>`;
+    }
   }
 
   const isVerb = (w.type || '').startsWith('v');
