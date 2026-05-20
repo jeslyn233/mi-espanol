@@ -48,7 +48,7 @@ header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-
 header h1 { font-size: 1.6rem; font-weight: normal; letter-spacing: -0.02em; }
 header p { font-size: .875rem; color: var(--text2); margin-top: 4px; font-family: 'DM Sans', system-ui, sans-serif; }
 
-.nav { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
+.nav { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--cool-bg); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
 .nav-btn { flex: 1; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; padding: 8px 12px; border: none; border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; transition: all .15s; }
 .nav-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 
@@ -87,22 +87,38 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .az-bar a:hover { background: var(--accent-bg); color: var(--accent); }
 .az-bar a.has-words { color: var(--text2); }
 
-.fab-row { display: flex; gap: 8px; margin-bottom: 1rem; align-items: center; justify-content: space-between; }
+.fab-row { display: flex; gap: 8px; margin-bottom: 1rem; align-items: center; }
 .more-menu { position: relative; flex-shrink: 0; }
 .more-btn { font-size: 16px; padding: 8px 10px; letter-spacing: 1px; }
 .more-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: 0 4px 16px rgba(0,0,0,.1); z-index: 60; min-width: 140px; flex-direction: column; padding: 4px; }
 .more-dropdown.open { display: flex; }
 .more-dropdown button { width: 100%; justify-content: flex-start; border: none; border-radius: 6px; font-size: 13px; padding: 8px 12px; }
 .toolbar { display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-.toolbar-left { display: flex; gap: 4px; align-items: center; flex: 1; min-width: 0; }
+.toolbar-left { flex: 1; min-width: 0; }
 .toolbar-right { flex-shrink: 0; }
+.search-bar {
+  display: flex; align-items: center; background: #FFFFFF;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow: hidden; flex: 1; min-width: 0;
+}
+.search-bar input {
+  border: none; flex: 1; min-width: 0; background: transparent;
+  padding: 8px 12px; outline: none; font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px; color: var(--text);
+}
+.search-bar input::placeholder { color: var(--text3); }
+.search-divider { width: 1px; height: 22px; background: #E2E8F0; flex-shrink: 0; }
 .light-select {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px;
-  padding: 6px 8px; border: none; background: transparent;
+  padding: 8px 6px; border: none; background: transparent;
   color: var(--text2); cursor: pointer; outline: none;
-  -webkit-appearance: none; appearance: none; border-radius: 4px;
+  -webkit-appearance: none; appearance: none; border-radius: 0;
+  width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23AAA29D'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center;
+  padding-right: 18px;
 }
-.light-select:hover { background: var(--cool-bg2); }
+.light-select:hover { background: var(--cool-bg); }
 .light-select:focus { color: var(--text); }
 .task-tabs { display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; }
 .task-tab {
@@ -141,9 +157,9 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .card-head {
   display: flex; align-items: center; padding: 11px 16px;
   cursor: pointer; user-select: none; transition: background .12s;
-  background: var(--cool-bg);
 }
-.card-head:hover { background: #E2E8F0; }
+.card-head:hover { background: #F8FAFC; }
+.card.open .card-head { background: #F8FAFC; }
 
 .head-left { width: 40%; display: flex; align-items: baseline; flex-shrink: 0; overflow: hidden; }
 .word-main {
@@ -324,7 +340,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 }
 
 .card-actions { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); align-items: center; }
-.review-area { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.review-area { display: flex; align-items: center; gap: 8px; margin-left: auto; margin-right: 24px; }
 .review-dots { display: flex; gap: 5px; align-items: center; }
 .review-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .review-dot.pink { background: #FBCFE8; }
@@ -427,12 +443,14 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .gen-box button { font-size: 11px; padding: 6px 10px; }
   .gen-box input { width: 100%; min-width: 0; }
   .toolbar { flex-direction: column; gap: 8px; }
-  .toolbar-left { width: 100%; overflow-x: auto; }
+  .toolbar-left { width: 100%; }
   .toolbar-right { width: 100%; }
+  .search-bar { width: 100%; }
+  .search-bar input { font-size: 13px; padding: 7px 10px; }
   .task-tabs { width: 100%; }
   .task-tab { flex: 1; text-align: center; font-size: 11px; padding: 6px 4px; }
-  .light-select { font-size: 11px; padding: 4px 6px; }
-  #search { min-width: 100px; }
+  .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
+  #search { min-width: 80px; }
 
   /* Card */
   .card-head { padding: 10px 12px; }
@@ -502,33 +520,38 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
         <button class="primary" id="genBtn" onclick="autoGenerate()"><span class="gen-spin" id="genSpin">⟳</span> AI 生成</button>
         <span style="color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;margin:0 4px;">o</span>
         <button onclick="openImportModal('word')">粘贴 JSON</button>
-      </div>
-      <div class="more-menu">
-        <button class="more-btn" onclick="toggleMoreMenu(event)" title="Más opciones">⋯</button>
-        <div class="more-dropdown" id="moreDropdown">
-          <button onclick="exportData()">Exportar</button>
-          <button onclick="openImportModal('restore')">Restaurar</button>
+        <div class="more-menu">
+          <button class="more-btn" onclick="toggleMoreMenu(event)" title="Más opciones">⋯</button>
+          <div class="more-dropdown" id="moreDropdown">
+            <button onclick="exportData()">Exportar</button>
+            <button onclick="openImportModal('restore')">Restaurar</button>
+          </div>
         </div>
       </div>
     </div>
     <div class="toolbar">
       <div class="toolbar-left">
-        <input type="text" id="search" placeholder="Buscar…" oninput="render()">
-        <select id="filterType" onchange="render()" class="light-select">
-          <option value="">分类</option>
-          <option value="n">nombre</option><option value="v">verbo</option>
-          <option value="adj">adjetivo</option><option value="adv">adverbio</option>
-          <option value="prep">preposición</option><option value="conj">conjunción</option>
-          <option value="pron">pronombre</option><option value="interj">interjección</option>
-        </select>
-        <select id="filterLevel" onchange="render()" class="light-select">
-          <option value="">等级</option>
-          <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
-        </select>
-        <select id="filterFreq" onchange="render()" class="light-select">
-          <option value="">频次</option>
-          <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-        </select>
+        <div class="search-bar">
+          <input type="text" id="search" placeholder="Buscar…" oninput="render()">
+          <span class="search-divider"></span>
+          <select id="filterType" onchange="render()" class="light-select">
+            <option value="">分类</option>
+            <option value="n">nombre</option><option value="v">verbo</option>
+            <option value="adj">adjetivo</option><option value="adv">adverbio</option>
+            <option value="prep">preposición</option><option value="conj">conjunción</option>
+            <option value="pron">pronombre</option><option value="interj">interjección</option>
+          </select>
+          <span class="search-divider"></span>
+          <select id="filterLevel" onchange="render()" class="light-select">
+            <option value="">等级</option>
+            <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
+          </select>
+          <span class="search-divider"></span>
+          <select id="filterFreq" onchange="render()" class="light-select">
+            <option value="">频次</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+          </select>
+        </div>
       </div>
       <div class="toolbar-right">
         <div class="task-tabs">
