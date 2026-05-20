@@ -487,8 +487,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .toolbar-right { width: 100%; display: flex; align-items: center; gap: 8px; }
   .search-bar { width: 100%; }
   .search-bar input { font-size: 13px; padding: 7px 10px; }
-  .task-tabs { display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; }
-  .task-tab { font-size: 11px; padding: 6px 10px; white-space: nowrap; }
+  .task-tabs { flex: 1; display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; }
+  .task-tab { flex: 1; font-size: 11px; padding: 6px 4px; white-space: nowrap; text-align: center; }
   .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
   .search-divider { height: 18px; }
   .flashcard-btn { width: 24px; height: 24px; flex-shrink: 0; }
@@ -504,9 +504,10 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .nuance-dot { margin-top: 0; flex-shrink: 0; }
   .nuance-word { min-width: 0; flex-shrink: 0; font-size: 14px; }
   .nuance-desc { flex-basis: 100%; padding-left: 20px; font-size: 13px; line-height: 1.7; margin-top: 2px; letter-spacing: 0.02em; }
-  .native-item { flex-direction: column; gap: 6px; }
-  .native-item::before { font-size: 14px; }
-  .native-text { margin-bottom: 4px; }
+  .native-item { flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+  .native-item::before { font-size: 14px; margin-top: 2px; }
+  .native-text { margin-bottom: 0; min-width: 80px; }
+  .native-zh { flex-basis: 100%; padding-left: 14px; font-size: 12px; line-height: 1.6; }
   .card-body { padding: 12px; }
 
   /* Chunks */
