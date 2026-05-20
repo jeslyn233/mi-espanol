@@ -284,16 +284,16 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 }
 .native-zh { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 12px; color: var(--text2); }
 
-.note-list { background: var(--notes-bg); border-radius: var(--radius-sm); padding: 2px 12px; max-width: 92%; }
+.note-list { background: var(--notes-bg); border-radius: var(--radius-sm); padding: 10px 14px; max-width: 92%; }
 .note-item {
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 13px;
-  padding: 8px 0; color: #3A5068; line-height: 1.6;
+  padding: 10px 0; color: #3A5068; line-height: 1.6;
   border-bottom: 1px solid #D5DEE8;
 }
-.note-item:first-child { padding-top: 10px; }
-.note-item:last-child { border-bottom: none; padding-bottom: 10px; }
-.note-p { margin: 0; }
-.note-p + .note-p { margin-top: 8px; }
+.note-item:first-child { padding-top: 0; }
+.note-item:last-child { border-bottom: none; padding-bottom: 0; }
+.note-p { margin: 0 0 6px 0; }
+.note-p:last-child { margin-bottom: 0; }
 
 .verb-toggle {
   display: flex; align-items: center; gap: 6px;
@@ -458,11 +458,12 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .word-main { font-size: 16px; }
   .core-meaning { display: none; }
   .core-meaning-mobile { display: block; font-family: '京华老宋体','Noto Serif SC','STSong','SimSun',serif; font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-  .nuance-item { flex-direction: column; gap: 2px; align-items: flex-start; }
-  .nuance-dot { margin-top: 0; }
-  .nuance-word { min-width: 0; }
-  .native-item { flex-direction: column; gap: 2px; }
+  .nuance-item { flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+  .nuance-dot { margin-top: 0; flex-shrink: 0; }
+  .nuance-word { min-width: 0; flex-shrink: 0; }
+  .native-item { flex-direction: column; gap: 6px; }
   .native-item::before { display: none; }
+  .native-text { margin-bottom: 2px; }
   .card-body { padding: 12px; }
 
   /* Chunks */
@@ -482,7 +483,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .native-text { font-size: 13px; min-width: 80px; }
 
   /* Notes */
-  .note-list { max-width: 100%; padding: 2px 8px; }
+  .note-list { max-width: 100%; padding: 8px 10px; }
 
   /* Verb */
   .review-dot { width: 9px; height: 9px; }
@@ -1129,7 +1130,13 @@ function buildCard(w, idx) {
     body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
     w.notes.forEach(n => {
       const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
-      const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
+      const html = paras.map(s => {
+        let text = s;
+        if (text.startsWith('语法：')) text = '📝 ' + text.slice(3);
+        else if (text.startsWith('注意：')) text = '⚠️ ' + text.slice(3);
+        else if (text.startsWith('用法：') || text.startsWith('常用：')) text = '💡 ' + text.slice(3);
+        return `<p class="note-p">${text}</p>`;
+      }).join('');
       body += `<div class="note-item">${html}</div>`;
     });
     body += `</div></div>`;
