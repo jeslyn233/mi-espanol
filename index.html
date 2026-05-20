@@ -295,8 +295,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 
 .nuance-list { display: flex; flex-direction: column; gap: 5px; }
 .nuance-item {
-  display: flex; align-items: baseline; gap: 8px;
-  padding: 5px 0; font-family: 'DM Sans', system-ui, sans-serif;
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 6px 0; font-family: 'DM Sans', system-ui, sans-serif;
 }
 .nuance-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 .nuance-word {
@@ -355,6 +355,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   color: var(--text2); text-transform: uppercase; letter-spacing: .06em;
   padding-bottom: 3px; margin-bottom: 6px; border-bottom: 1px solid var(--border);
 }
+.tense-zh { font-size: 10px; color: var(--text3); font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 4px; }
 .verb-conj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px 20px; }
 .verb-conj-cell { display: flex; gap: 6px; padding: 2px 0; align-items: baseline; }
 .verb-person {
@@ -371,11 +372,11 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 }
 .verb-others { margin-top: 8px; }
 .verb-other-item {
-  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
-  font-size: 13px; padding: 2px 0; color: var(--text2);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 13px; padding: 4px 0; color: var(--text2);
 }
 .verb-other-item span {
-  font-family: 'Georgia', serif; font-size: 14px; font-style: italic; color: var(--text);
+  font-family: 'Georgia', serif; font-size: 15px; font-style: italic; color: var(--text); font-weight: 500;
 }
 
 .card-actions { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); align-items: center; }
@@ -498,7 +499,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .word-main { font-size: 16px; }
   .core-meaning { display: none; }
   .core-meaning-mobile { display: block; font-family: '京华老宋体','Noto Serif SC','STSong','SimSun',serif; font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-  .nuance-item { flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+  .nuance-item { flex-wrap: wrap; gap: 6px 12px; align-items: center; }
   .nuance-dot { margin-top: 0; flex-shrink: 0; }
   .nuance-word { min-width: 0; flex-shrink: 0; }
   .nuance-desc { flex-basis: 100%; }
@@ -1250,7 +1251,9 @@ function buildCard(w, idx) {
 
   const isVerb = (w.type || '').startsWith('v');
   if (isVerb) {
-    const tenseKeys = w.verb_forms ? Object.keys(w.verb_forms).filter(k => k !== 'otros') : [];
+    const TENSE_ORDER = ['presente','pretérito','futuro','subjuntivo presente','subjuntivo imperfecto','imperativo'];
+    const TENSE_ZH = { presente:'一般现在', pretérito:'一般过去', futuro:'一般将来', 'subjuntivo presente':'现在虚拟', 'subjuntivo imperfecto':'过去虚拟', imperativo:'命令' };
+    const tenseKeys = TENSE_ORDER.filter(k => w.verb_forms && w.verb_forms[k]);
     const hasIrregular = tenseKeys.length > 0;
     const otrosItems = (w.verb_forms && w.verb_forms.otros) ? w.verb_forms.otros : [];
 
@@ -1258,12 +1261,12 @@ function buildCard(w, idx) {
     const impPersons = ['tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
 
     function renderTenseGrid(k, forms, persons) {
-      let h = `<div class="verb-tense-block"><div class="verb-tense-title">${escapeHTML(k)}</div><div class="verb-conj-grid">`;
+      const zh = TENSE_ZH[k] || '';
+      let h = `<div class="verb-tense-block"><div class="verb-tense-title">${escapeHTML(k)}${zh ? ` <span class="tense-zh">${zh}</span>` : ''}</div><div class="verb-conj-grid">`;
       for (let i = 0; i < persons.length; i++) {
         const fv = forms[i] || '';
         h += `<div class="verb-conj-cell"><span class="verb-person">${persons[i]}</span><span class="verb-form${fv === '—' || !fv ? ' empty' : ''}">${escapeHTML(fv || '—')}</span></div>`;
       }
-      // Fill empty cells to complete the grid row
       const rem = persons.length % 3;
       if (rem) { for (let j = 0; j < 3 - rem; j++) h += `<div class="verb-conj-cell"></div>`; }
       h += `</div></div>`;
@@ -1286,12 +1289,12 @@ function buildCard(w, idx) {
         }
       });
       if (otrosItems.length) {
-        body += `<div class="verb-others">`;
+        body += `<div class="verb-tense-block"><div class="verb-tense-title">Formas no personales <span class="tense-zh">非人称形式</span></div><div class="verb-others">`;
         otrosItems.forEach(item => {
           const parts = item.split(': ');
-          body += `<div class="verb-other-item">${escapeHTML(parts[0])}: <span>${escapeHTML(parts[1] || '')}</span></div>`;
+          body += `<div class="verb-other-item"><span>${escapeHTML(parts[0])}</span> ${escapeHTML(parts[1] || '')}</div>`;
         });
-        body += `</div>`;
+        body += `</div></div>`;
       }
     } else {
       body += `<div class="verb-regular-note">动词变位规则，参见 Gramática 页面</div>`;
