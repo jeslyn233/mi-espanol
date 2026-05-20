@@ -147,7 +147,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .letter-heading span { font-size: 18px; color: var(--text2); font-weight: normal; letter-spacing: 0; }
 
 .card {
-  background: var(--surface); border: 1px solid var(--border);
+  background: #F4F7FA; border: 1px solid var(--border);
   border-radius: var(--radius); overflow: hidden;
   box-shadow: var(--shadow); margin-bottom: 8px;
   transition: box-shadow .2s, border-color .2s; scroll-margin-top: 20px;
@@ -461,9 +461,10 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .nuance-item { flex-wrap: wrap; gap: 4px 8px; align-items: center; }
   .nuance-dot { margin-top: 0; flex-shrink: 0; }
   .nuance-word { min-width: 0; flex-shrink: 0; }
+  .nuance-desc { flex-basis: 100%; }
   .native-item { flex-direction: column; gap: 6px; }
   .native-item::before { display: none; }
-  .native-text { margin-bottom: 2px; }
+  .native-text { margin-bottom: 4px; }
   .card-body { padding: 12px; }
 
   /* Chunks */
@@ -1130,13 +1131,7 @@ function buildCard(w, idx) {
     body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
     w.notes.forEach(n => {
       const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
-      const html = paras.map(s => {
-        let text = s;
-        if (text.startsWith('语法：')) text = '📝 ' + text.slice(3);
-        else if (text.startsWith('注意：')) text = '⚠️ ' + text.slice(3);
-        else if (text.startsWith('用法：') || text.startsWith('常用：')) text = '💡 ' + text.slice(3);
-        return `<p class="note-p">${text}</p>`;
-      }).join('');
+      const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
       body += `<div class="note-item">${html}</div>`;
     });
     body += `</div></div>`;
