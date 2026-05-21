@@ -62,8 +62,9 @@ REGLAS ESTRICTAS:
 
 4. **解释规则 (explain)**：
    - 只解释「中文母语者容易踩坑」的语法点
+   - 格式：结构 + 空格 + 说明。例："tener + 名词 表示身体感受，非 ser/estar"
    - 值得加的：
-     ✅ 西语特有固定结构（tener + 名词 表感受，非 ser/estar）
+     ✅ 西语特有固定结构（tener + 名词 表感受）
      ✅ 固定前置词搭配（renunciar a + inf.）
      ✅ 特殊用法区别于近义词（aumentar un 10% 表增幅）
    - 禁止加的：
