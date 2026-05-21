@@ -640,7 +640,10 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
   <div id="tab-grammar" style="display:none">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <input type="text" id="grammarSearch" placeholder="搜索语法…" oninput="renderGrammar()" style="width:260px;">
+      <input type="text" id="grammarSearch" placeholder="搜索标题…" oninput="renderGrammar()" style="width:260px;">
+      <select id="grammarTagFilter" onchange="renderGrammar()" style="width:auto;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
+        <option value="">全部标签</option>
+      </select>
       <button class="primary gram-import-btn" onclick="openImportModal('grammar')">+ 导入 JSON</button>
     </div>
     <div class="grammar-list" id="grammarList">
@@ -1812,9 +1815,18 @@ function renderGrammar() {
   const list = document.getElementById('grammarList');
   list.querySelectorAll('.gram-card.dynamic').forEach(el => el.remove());
   const search = (document.getElementById('grammarSearch').value || '').toLowerCase();
-  const filtered = search
-    ? grammarNotes.filter(n => (n.title || '').toLowerCase().includes(search) || (n.tag || '').toLowerCase().includes(search) || JSON.stringify(n.blocks).toLowerCase().includes(search))
-    : grammarNotes;
+  const tagFilter = document.getElementById('grammarTagFilter').value;
+  // Populate tag dropdown
+  const tagSelect = document.getElementById('grammarTagFilter');
+  const currentVal = tagSelect.value;
+  const tags = [...new Set(grammarNotes.map(n => n.tag).filter(Boolean))].sort();
+  tagSelect.innerHTML = '<option value="">全部标签</option>' + tags.map(t => `<option value="${escapeHTML(t)}">${escapeHTML(t)}</option>`).join('');
+  tagSelect.value = currentVal;
+  const filtered = grammarNotes.filter(n => {
+    if (tagFilter && n.tag !== tagFilter) return false;
+    if (search && !(n.title || '').toLowerCase().includes(search) && !(n.tag || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
   filtered.forEach((note, fi) => {
     const ni = grammarNotes.indexOf(note);
     const id = 'dyn-' + ni;
@@ -1833,26 +1845,25 @@ function renderGrammar() {
   const builtinCards = list.querySelectorAll('.gram-card:not(.dynamic)');
   builtinCards.forEach(card => {
     const titleEl = card.querySelector('.gram-title');
+    const tagEl = card.querySelector('.gram-tag');
     if (!titleEl) return;
     const origTitle = titleEl.getAttribute('data-orig-title') || titleEl.textContent;
     if (!titleEl.getAttribute('data-orig-title')) {
       titleEl.setAttribute('data-orig-title', origTitle);
     }
-    if (search) {
-      const matches = origTitle.toLowerCase().includes(search);
-      // Also check content
-      const bodyEl = card.querySelector('.gram-body');
-      const bodyText = bodyEl ? bodyEl.textContent.toLowerCase() : '';
-      const matchesBody = bodyText.includes(search);
-      if (matches || matchesBody) {
-        card.style.display = '';
-        titleEl.innerHTML = highlightTitle(origTitle, search);
-      } else {
-        card.style.display = 'none';
-      }
-    } else {
+    let show = true;
+    if (tagFilter) {
+      const tag = tagEl ? tagEl.textContent.trim() : '';
+      show = tag === tagFilter;
+    }
+    if (show && search) {
+      show = origTitle.toLowerCase().includes(search);
+    }
+    if (show) {
       card.style.display = '';
-      titleEl.textContent = origTitle;
+      titleEl.innerHTML = search ? highlightTitle(origTitle, search) : origTitle;
+    } else {
+      card.style.display = 'none';
     }
   });
 }
