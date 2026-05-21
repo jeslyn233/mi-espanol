@@ -636,6 +636,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   </div>
 
   <div id="tab-grammar" style="display:none">
+    <div style="margin-bottom:12px;">
+      <button class="primary" onclick="openImportModal('grammar')">+ 导入语法 JSON</button>
+    </div>
     <div class="grammar-list" id="grammarList">
       <div class="gram-card">
         <div class="gram-head" onclick="toggleGram('builtin-conj')">
@@ -1702,7 +1705,8 @@ function openImportModal(mode) {
   document.getElementById('importText').value = '';
   const hints = {
     word: ['Importar palabra', 'Pega aquí el JSON de la palabra.'],
-    restore: ['Restaurar datos', 'Pega aquí el JSON completo (formato exportación).']
+    restore: ['Restaurar datos', 'Pega aquí el JSON completo (formato exportación).'],
+    grammar: ['导入语法笔记', 'Pega aquí el JSON de la nota de gramática.']
   };
   document.getElementById('importTitle').textContent = hints[mode][0];
   document.getElementById('importHint').textContent = hints[mode][1];
@@ -1727,6 +1731,12 @@ async function doImport() {
       }
       closeImportModal(); render();
       showToast('"' + data.word + '" importado');
+    } else if (importMode === 'grammar') {
+      if (!data.title) { alert('Falta el campo: title.'); return; }
+      grammarNotes.push(data);
+      try { localStorage.setItem('es_grammar_v1', JSON.stringify(grammarNotes)); } catch (e) {}
+      closeImportModal(); renderGrammar();
+      showToast('"' + data.title + '" importado');
     } else {
       if (!data.words) { alert('Formato inválido.'); return; }
       if (!confirm('Esto reemplazará todos tus datos. ¿Continuar?')) return;
