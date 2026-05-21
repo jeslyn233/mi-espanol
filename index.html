@@ -55,6 +55,7 @@ header p { font-size: .875rem; color: var(--text2); margin-top: 4px; font-family
 .locked .gen-box,
 .locked .more-menu,
 .locked .card-actions,
+.locked .gram-toolbar,
 .locked .review-area { display: none !important; }
 
 .nav { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--cool-bg); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
@@ -636,8 +637,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   </div>
 
   <div id="tab-grammar" style="display:none">
-    <div style="margin-bottom:12px;">
-      <button class="primary" onclick="openImportModal('grammar')">+ 导入语法 JSON</button>
+    <div class="gram-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <input type="text" id="grammarSearch" placeholder="搜索语法…" oninput="renderGrammar()" style="width:260px;">
+      <button class="primary" onclick="openImportModal('grammar')">+ 导入 JSON</button>
     </div>
     <div class="grammar-list" id="grammarList">
       <div class="gram-card">
@@ -1764,7 +1766,12 @@ async function exportData() {
 function renderGrammar() {
   const list = document.getElementById('grammarList');
   list.querySelectorAll('.gram-card.dynamic').forEach(el => el.remove());
-  grammarNotes.forEach((note, ni) => {
+  const search = (document.getElementById('grammarSearch').value || '').toLowerCase();
+  const filtered = search
+    ? grammarNotes.filter(n => (n.title || '').toLowerCase().includes(search) || (n.tag || '').toLowerCase().includes(search) || JSON.stringify(n.blocks).toLowerCase().includes(search))
+    : grammarNotes;
+  filtered.forEach((note, fi) => {
+    const ni = grammarNotes.indexOf(note);
     const id = 'dyn-' + ni;
     const card = document.createElement('div');
     card.className = 'gram-card dynamic';
