@@ -36,6 +36,7 @@
   --radius-sm: 8px;
   --shadow: 0 1px 3px rgba(0,0,0,.06);
 }
+html { scrollbar-gutter: stable; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Georgia', 'Times New Roman', serif;
@@ -55,7 +56,7 @@ header p { font-size: .875rem; color: var(--text2); margin-top: 4px; font-family
 .locked .gen-box,
 .locked .more-menu,
 .locked .card-actions,
-.locked .gram-toolbar,
+.locked .gram-import-btn,
 .locked .review-area { display: none !important; }
 
 .nav { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--cool-bg); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
@@ -446,6 +447,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .gram-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; transition: background .12s; }
 .gram-head:hover { background: var(--surface2); }
 .gram-title { font-size: 16px; font-weight: normal; flex: 1; font-family: 'DM Sans', system-ui, sans-serif; }
+.gram-title-hl { background: var(--hl-bg); border-radius: 3px; padding: 0 2px; animation: hlFade 2s ease-out forwards; }
+@keyframes hlFade { 0% { background: #F9E3E8; } 70% { background: #F9E3E8; } 100% { background: transparent; } }
 .gram-tag { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--related-bg); color: var(--related-text); border: 1px solid #E0C8CD; font-weight: 600; }
 .gram-body { display: none; border-top: 1px solid var(--border); padding: 20px; }
 .gram-body.open { display: block; }
@@ -637,9 +640,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   </div>
 
   <div id="tab-grammar" style="display:none">
-    <div class="gram-toolbar" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
       <input type="text" id="grammarSearch" placeholder="搜索语法…" oninput="renderGrammar()" style="width:260px;">
-      <button class="primary" onclick="openImportModal('grammar')">+ 导入 JSON</button>
+      <button class="primary gram-import-btn" onclick="openImportModal('grammar')">+ 导入 JSON</button>
     </div>
     <div class="grammar-list" id="grammarList">
       <div class="gram-card">
@@ -1704,14 +1707,50 @@ async function saveEdit() {
 
 function openImportModal(mode) {
   importMode = mode;
-  document.getElementById('importText').value = '';
   const hints = {
     word: ['Importar palabra', 'Pega aquí el JSON de la palabra.'],
     restore: ['Restaurar datos', 'Pega aquí el JSON completo (formato exportación).'],
-    grammar: ['导入语法笔记', 'Pega aquí el JSON de la nota de gramática.']
+    grammar: ['导入语法笔记', 'Pega aquí el JSON de la nota de gramática. Tipos de bloque: text, note, list, examples, table']
   };
   document.getElementById('importTitle').textContent = hints[mode][0];
   document.getElementById('importHint').textContent = hints[mode][1];
+  if (mode === 'grammar') {
+    document.getElementById('importText').value = JSON.stringify({
+      "title": "Título de la nota",
+      "tag": "verbos",
+      "blocks": [
+        {"type": "text", "content": "正文段落…"},
+        {"type": "note", "content": "备注提示…"},
+        {"type": "list", "items": ["项目一", "项目二"]},
+        {"type": "examples", "items": ["例句一", "例句二"]},
+        {"type": "table", "headers": ["列A", "列B"], "rows": [["a","b"],["c","d"]]}
+      ]
+    }, null, 2);
+  } else if (mode === 'word') {
+    document.getElementById('importText').value = JSON.stringify({
+      "word": "",
+      "type": "",
+      "level": "",
+      "core_meaning": "",
+      "frequency": "",
+      "tags": [],
+      "situations": [],
+      "chunks": [
+        {"text": "", "zh": "", "highlight": "", "note": ""}
+      ],
+      "nuance": [
+        {"word": "", "desc": ""}
+      ],
+      "related_words": [],
+      "native_expressions": [
+        {"text": "", "zh": ""}
+      ],
+      "notes": [],
+      "verb_forms": {}
+    }, null, 2);
+  } else {
+    document.getElementById('importText').value = '';
+  }
   document.getElementById('importModal').classList.add('open');
 }
 function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
@@ -1770,13 +1809,19 @@ function renderGrammar() {
   const filtered = search
     ? grammarNotes.filter(n => (n.title || '').toLowerCase().includes(search) || (n.tag || '').toLowerCase().includes(search) || JSON.stringify(n.blocks).toLowerCase().includes(search))
     : grammarNotes;
+  function highlightTitle(title, q) {
+    if (!q) return escapeHTML(title);
+    const idx = title.toLowerCase().indexOf(q);
+    if (idx < 0) return escapeHTML(title);
+    return escapeHTML(title.slice(0, idx)) + '<span class="gram-title-hl">' + escapeHTML(title.slice(idx, idx + q.length)) + '</span>' + escapeHTML(title.slice(idx + q.length));
+  }
   filtered.forEach((note, fi) => {
     const ni = grammarNotes.indexOf(note);
     const id = 'dyn-' + ni;
     const card = document.createElement('div');
     card.className = 'gram-card dynamic';
     card.innerHTML = `<div class="gram-head" onclick="toggleGram('${id}')">
-      <span class="gram-title">${escapeHTML(note.title)}</span>
+      <span class="gram-title">${highlightTitle(note.title, search)}</span>
       ${note.tag ? `<span class="gram-tag">${escapeHTML(note.tag)}</span>` : ''}
       <span class="chevron" id="gchev-${id}">▼</span>
     </div><div class="gram-body" id="gbody-${id}">${renderBlocks(note.blocks)}
