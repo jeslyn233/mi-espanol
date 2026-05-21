@@ -88,7 +88,9 @@ REGLAS ESTRICTAS:
 8. **Notes (2-3条)**：
    - 使用场景、常见错误、文化背景
    - 用 \\n 在逻辑断点处分段，每条1-2句
-   - 🚫 禁止在 notas 里写：①变位表 ②"反义词：xxx"（反义词放 related_words）③"近义词：xxx"（近义词辨析放 nuance）
+   - 每个词都必须有 1-2 条有价值的 notas，不要留空
+   - 🚫 禁止在 notas 里写：①变位表 ②"反义词：xxx"（放 related_words）③"近义词：xxx"（放 nuance）
+   - 例：coger → ["在拉美一些国家（如阿根廷、乌拉圭），coger 有性暗示含义，口语建议用 tomar 或 agarrar 替代。\\n在西班牙本土无此问题。"]
 
 9. **Verb forms**：
    - 规则动词（renunciar, hablar, comer, vivir 等）：{}
