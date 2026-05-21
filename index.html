@@ -1452,7 +1452,6 @@ function buildCard(w, idx) {
     const impPersons = ['tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
 
     function renderTenseGrid(k, forms, persons) {
-      const zh = TENSE_ZH[k] || '';
       const cellData = [];
       let irregCount = 0;
       for (let i = 0; i < persons.length; i++) {
