@@ -447,7 +447,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .gram-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
 .gram-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; transition: background .12s; }
 .gram-head:hover { background: #F8FAFC; }
-.gram-title { font-family: 'Georgia', serif; font-size: 18px; font-weight: 500; font-style: italic; color: #4D4242; flex: 1; }
+.gram-title { font-family: 'Georgia', serif; font-size: 16px; font-weight: 500; font-style: italic; color: #4D4242; flex: 1; }
 .gram-title-hl { background: var(--hl-bg); border-radius: 3px; padding: 0 2px; animation: hlFade 2s ease-out forwards; }
 @keyframes hlFade { 0% { background: #F9E3E8; } 70% { background: #F9E3E8; } 100% { background: transparent; } }
 .gram-tag { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--related-bg); color: var(--related-text); border: 1px solid #E0C8CD; font-weight: 600; }
@@ -558,8 +558,20 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .verb-person { font-size: 10px; min-width: 32px; }
 
   /* Grammar */
+  .gram-title { font-size: 14px; }
+  .gram-body { padding: 14px; }
+  .gb-text, .gb-list { font-size: 12px; line-height: 1.8; }
+  .gb-note { font-size: 12px; line-height: 1.8; }
+  .gb-table { font-size: 11px; }
+  .gb-table td, .gb-table th { padding: 4px 6px; line-height: 1.7; }
+  #grammarSearch { width: 100px !important; font-size: 12px; }
+  #grammarTagFilter { font-size: 11px; padding: 4px 6px; }
+  .gram-import-btn { font-size: 11px; padding: 6px 10px; }
   .conj-grid { grid-template-columns: 1fr; }
   .non-personal { grid-template-columns: 1fr; }
+
+  /* Verb tense grid mobile: stack to 1 column */
+  .verb-tense-grid { grid-template-columns: 1fr; }
 
   /* Modal */
   .modal { padding: 16px; margin: .5rem; }
