@@ -1030,12 +1030,12 @@ ESTRUCTURA:
 REGLAS:
 - type: 名词直接标阴阳性即可，无需前缀。纯阳性→"m"，纯阴性→"f"，阴阳性意思不同→"m/f"，两性通用意思相同→"n"。其余词性不变(v/adj/adv等)。m/f词必须填gender_meanings和gender_data字段，core_meaning用；分隔两性释义如"首都；资本"。gender_data按性别分别提供situations和chunks，两套数据严格隔离。
 - situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种敷衍的抽象描述。基础词(如tener)实在难写具体场景时允许适度概括，但仍要具体到用法类别。场景中不要夹杂西语单词，纯中文。
-- chunks: 不限制数量，从以下4个方向全面抓取。⚠️高亮铁律第1条：每个固定结构只在最有代表性的那个chunk标高亮一次，其余chunk即使含同一结构也禁止再标。例：在"renunciar a algo"标了"renunciar a"，那"renunciar a un derecho""No pienso renunciar a..."都不准再标。只高亮「动词+固定介词/连词」或「习语级固定搭配」——如"aprovechar para""renunciar a""tener que"。禁止高亮：❌动词+随便一个名词(coger una flor, tener tiempo) ❌名词+de+名词普通所属(hora de la comida) ❌短句即是自明结构 ❌无语法钩子的高频搭配(tener razón) ❌同一搭配跨chunk重复高亮。高亮的目的是标记「不学就不会用的语法钩子」，不确定一律不高亮(宁缺毋滥)。规则B:能接动词时至少1-2个chunk展示动词原形用法。4个方向：(1)【核心语法块】目标词+固定介词/后接结构 如"renunciar a..." (2)【灵魂高频搭配】母语日常最常绑定的名词/动词组合 如"renunciar al trabajo" (3)【场景半成品】口语高频方便替换的半固定句式 如"No pienso renunciar a..." (4)【独立高频句】最基础最高频的独立整句 如"¡No renuncies!"
+- chunks: 不限制数量，从以下4个方向全面抓取。⚠️高亮铁律第1条：每个固定结构只在最有代表性的那个chunk标高亮一次，其余chunk即使含同一结构也禁止再标。例：在"renunciar a algo"标了"renunciar a"，那"renunciar a un derecho""No pienso renunciar a..."都不准再标。只高亮「动词+固定介词/连词」或「习语级固定搭配」——如"aprovechar para""renunciar a""tener que"。禁止高亮：❌动词+随便一个名词(coger una flor, tener tiempo) ❌名词+de+名词普通所属(hora de la comida) ❌短句即是自明结构 ❌无语法钩子的高频搭配(tener razón) ❌同一搭配跨chunk重复高亮。高亮的目的是标记「不学就不会用的语法钩子」，不确定一律不高亮(宁缺毋滥)。规则B:能接动词时至少1-2个chunk展示动词原形用法。⚠️同一句型只换名词的合并为一条，用「/」分隔：tener hambre / sed / frío / calor / sueño，禁止拆成多条凑数。4个方向：(1)【核心语法块】目标词+固定介词/后接结构 如"renunciar a..." (2)【灵魂高频搭配】母语日常最常绑定的名词/动词组合 如"renunciar al trabajo" (3)【场景半成品】口语高频方便替换的半固定句式 如"No pienso renunciar a..." (4)【独立高频句】最基础最高频的独立整句 如"¡No renuncies!"
 - explain: 简短讲语法结构功能，可选字段
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
 - native_expressions: 2-3个。绝对禁止重复chunks内容。zh只写中文解释，不要标注分类。两个方向：(1)含原词的高阶俚语/口头禅 (2)不含原词但同场景的母语地道说法 如"Tirar la toalla"
 - related_words: 4-6个高频常用关联词。范围不限：近义词、反义词、同根词、分词形式、场景搭配词均可。统一标准：只收高频常用词，拒绝生僻词。若目标词有常见不规则分词，必须包含。
-- verb_forms: 规则动词(renunciar,hablar,comer,vivir等)={}——先确认动词是否所有时态都完全规则，是就必须{}。不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形","otros":["Participio pasado: 过去分词","Gerundio: 副动词"]}。将来时如果词根不规则也按6人称写入"futuro":"yo形 / ..."。必须检查过去分词和副动词是否不规则，不规则则写入otros数组。⚠️不规则人称前后加*标记：如"*tengo* / tienes / tiene / tenemos / tenéis / tienen"或"*cojo* / coges / coge / cogemos / cogéis / cogen"，规则人称不加*。¡OJO! 在ELE教学中拼写改音动词一律归类为不规则。notas中必须有一条解释拼写变化规则，如"拼写变化不规则：g→j在a/o前（cojo, coja）"。禁止写"规则动词，但注意拼写变化""规则动词，无拼写变化"——规则动词压根不用在notas里提拼写这件事。以下情况必须填变位且标注为不规则：-ger/-gir→j在a/o前(coger→cojo)、-car→qu在e前(buscar→busqué)、-gar→gu在e前(pagar→pagué)、-zar→c在e前(empezar→empecé)、-guir→g在a/o前(seguir→sigo)。
+- verb_forms: 规则动词(renunciar,hablar,comer,vivir等)={}。不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形","otros":["Participio pasado: 过去分词","Gerundio: 副动词"],"_irreg_note":"仅拼写改音动词填，如'拼写变化：g→j在a/o前'"}。将来时词根不规则也填"futuro"。必须检查过去分词和副动词是否不规则，不规则则写入otros。不规则人称前端会自动检测高亮，无需额外标记。拼写改音动词(-ger/-gir→j, -car→qu, -gar→gu, -zar→c, -guir→g)属于不规则，填对应时态和_irreg_note，禁止在notas称为"规则动词"。真正不规则动词(tener,ir,ser等)不填_irreg_note。禁止在notas里重复写变位——变位表已经展示了。
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
 SOLO RESPONDE CON EL JSON.`;
@@ -1305,20 +1305,62 @@ function buildCard(w, idx) {
     const TENSE_ZH = { presente:'一般现在', pretérito:'一般过去', futuro:'一般将来', 'subjuntivo presente':'现在虚拟', 'subjuntivo imperfecto':'过去虚拟', imperativo:'命令' };
     const tenseKeys = TENSE_ORDER.filter(k => w.verb_forms && w.verb_forms[k]);
     const hasIrregular = tenseKeys.length > 0;
+    const irregNote = (w.verb_forms && w.verb_forms._irreg_note) ? `（${escapeHTML(w.verb_forms._irreg_note)}）` : '';
     const otrosItems = (w.verb_forms && w.verb_forms.otros) ? w.verb_forms.otros : [];
 
     const stdPersons = ['yo', 'tú', 'él', 'nosotros', 'vosotros', 'ellos'];
     const impPersons = ['tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
+
+    function expectedRegular(infinitive, k, i, persons) {
+      const isAr = infinitive.endsWith('ar');
+      const isEr = infinitive.endsWith('er');
+      const stem = infinitive.replace(/(ar|er|ir)$/, '');
+
+      if (k === 'presente') {
+        const ends = isAr ? ['o','as','a','amos','áis','an'] : isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
+        return stem + ends[i];
+      }
+      if (k === 'pretérito') {
+        const ends = isAr ? ['é','aste','ó','amos','asteis','aron'] : ['í','iste','ió','imos','isteis','ieron'];
+        return stem + ends[i];
+      }
+      if (k === 'futuro') {
+        const ends = ['é','ás','á','emos','éis','án'];
+        return infinitive + ends[i];
+      }
+      if (k === 'subjuntivo presente') {
+        const ends = isAr ? ['e','es','e','emos','éis','en'] : ['a','as','a','amos','áis','an'];
+        return stem + ends[i];
+      }
+      if (k === 'subjuntivo imperfecto') {
+        // Returns both variants (-ra/-se), check will match either
+        const vr = isAr ? ['ara','aras','ara','áramos','arais','aran'] : ['iera','ieras','iera','iéramos','ierais','ieran'];
+        const vs = isAr ? ['ase','ases','ase','ásemos','aseis','asen'] : ['iese','ieses','iese','iésemos','ieseis','iesen'];
+        return [stem + vr[i], stem + vs[i]];
+      }
+      if (k === 'imperativo') {
+        // persons: tú, usted, nosotros, vosotros, ustedes
+        if (i === 0) return stem + (isAr ? 'a' : 'e');                  // tú
+        if (i === 1) return stem + (isAr ? 'e' : 'a');                   // usted (subj)
+        if (i === 2) return stem + (isAr ? 'emos' : 'amos');              // nosotros (subj)
+        if (i === 3) return infinitive.replace(/r$/, '') + 'd';           // vosotros
+        if (i === 4) return stem + (isAr ? 'en' : 'an');                  // ustedes (subj)
+      }
+      return null;
+    }
 
     function renderTenseGrid(k, forms, persons) {
       const zh = TENSE_ZH[k] || '';
       let h = `<div class="verb-tense-block"><div class="verb-tense-title">${escapeHTML(k)}</div><div class="verb-conj-grid">`;
       for (let i = 0; i < persons.length; i++) {
         const fv = forms[i] || '';
-        const irreg = fv.startsWith('*') && fv.endsWith('*');
-        const clean = irreg ? fv.slice(1, -1) : fv;
-        const cls = (clean === '—' || !clean) ? ' empty' : (irreg ? ' irreg' : '');
-        h += `<div class="verb-conj-cell"><span class="verb-person">${persons[i]}</span><span class="verb-form${cls}">${escapeHTML(clean || '—')}</span></div>`;
+        let clean = fv.replace(/^\*|\*$/g, '').trim();
+        if (!clean || clean === '—') clean = '—';
+        const exp = expectedRegular(w.word, k, i, persons);
+        const expList = Array.isArray(exp) ? exp : [exp];
+        const irreg = exp && clean !== '—' && !expList.some(e => clean.toLowerCase() === e.toLowerCase());
+        const cls = clean === '—' ? ' empty' : (irreg ? ' irreg' : '');
+        h += `<div class="verb-conj-cell"><span class="verb-person">${persons[i]}</span><span class="verb-form${cls}">${escapeHTML(clean)}</span></div>`;
       }
       const rem = persons.length % 3;
       if (rem) { for (let j = 0; j < 3 - rem; j++) h += `<div class="verb-conj-cell"></div>`; }
@@ -1328,7 +1370,7 @@ function buildCard(w, idx) {
 
     body += `<div class="section"><div class="verb-toggle" onclick="toggleVerb(${idx})">
       <span class="sec-label" style="margin-bottom:0">Verbo</span>
-      <span class="verb-status${hasIrregular ? '' : ' regular'}">${hasIrregular ? '不规则变位' : '规则变位'}</span>
+      <span class="verb-status${hasIrregular ? '' : ' regular'}">${hasIrregular ? '不规则变位' + irregNote : '规则变位'}</span>
       <span class="verb-toggle-chevron" id="verb-chev-${idx}">▼</span>
     </div><div class="verb-content" id="verb-content-${idx}">`;
 
