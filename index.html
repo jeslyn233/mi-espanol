@@ -371,7 +371,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .tense-zh { font-size: 10px; color: var(--text3); font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 4px; }
 .verb-conj-grid { display: flex; flex-direction: column; gap: 3px; }
 .verb-conj-cell { display: flex; gap: 6px; padding: 2px 0; align-items: baseline; }
-.verb-tense-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 200px)); gap: 6px 36px; padding: 6px 0 0 12px; }
+.verb-tense-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 200px)); gap: 6px 56px; padding: 6px 0 0 12px; }
 .verb-person {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px;
   color: var(--text3); min-width: 42px; text-align: right; flex-shrink: 0;
@@ -1502,17 +1502,17 @@ function buildCard(w, idx) {
         }
       });
       if (otrosItems.length) {
-        body += `<div class="verb-tense-block" style="grid-column:1/-1;display:flex;align-items:center;gap:12px;"><div><div class="verb-tense-title" style="margin-bottom:4px;">Formas no personales</div><div class="verb-others">`;
+        const oid = 'otros-' + idx;
+        body += `<div class="verb-tense-block"><div class="verb-tense-title" onclick="toggleTense('${oid}')" style="cursor:pointer;">Formas no personales</div><div class="verb-tense-body" id="${oid}" style="display:none;"><div class="verb-others">`;
         otrosItems.forEach(item => {
           const parts = item.split(': ');
           body += `<div class="verb-other-item">${escapeHTML(parts[0])} &nbsp;<span>${escapeHTML(parts[1] || '')}</span></div>`;
         });
-        body += `</div></div><span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);margin-left:auto;white-space:nowrap;">展开全部</span></div>`;
-      } else {
-        body += `<div class="verb-tense-block" style="grid-column:1/-1;text-align:right;">
-          <span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);">展开全部</span>
-        </div>`;
+        body += `</div></div></div>`;
       }
+      body += `<div class="verb-tense-block" style="display:flex;align-items:center;justify-content:flex-end;">
+        <span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);">展开全部</span>
+      </div>`;
       body += `</div>`; // close verb-tense-grid
     } else {
       body += `<div class="verb-regular-note">动词变位规则，参见 Gramática 页面</div>`;
@@ -1617,6 +1617,9 @@ function toggleAllTenses(idx) {
   const el = document.getElementById('expand-' + idx);
   const allOpen = [...bodies].every(b => b.style.display === 'block');
   bodies.forEach(b => { b.style.display = allOpen ? 'none' : 'block'; });
+  // Also toggle otros block
+  const otros = document.getElementById('otros-' + idx);
+  if (otros) otros.style.display = allOpen ? 'none' : 'block';
   el.textContent = allOpen ? '展开全部' : '收起全部';
 }
 
