@@ -1020,7 +1020,7 @@ REGLAS:
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
 - native_expressions: 2-3个。绝对禁止重复chunks内容。zh只写中文解释，不要标注分类。两个方向：(1)含原词的高阶俚语/口头禅 (2)不含原词但同场景的母语地道说法 如"Tirar la toalla"
 - related_words: 4-6个高频常用关联词。范围不限：近义词、反义词、同根词、分词形式、场景搭配词均可。统一标准：只收高频常用词，拒绝生僻词。若目标词有常见不规则分词，必须包含。
-- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形","otros":["Participio pasado: 过去分词","Gerundio: 副动词"]}。将来时如果词根不规则也按6人称写入"futuro":"yo形 / ..."。必须检查过去分词和副动词是否不规则，不规则则写入otros数组。¡OJO! 拼写改音动词也是不规则：-ger/-gir→j在a/o前(coger→cojo)、-car→qu在e前(buscar→busqué)、-gar→gu在e前(pagar→pagué)、-zar→c在e前(empezar→empecé)、-guir→g在a/o前(seguir→sigo)。这类必须填对应变位时态。
+- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形","otros":["Participio pasado: 过去分词","Gerundio: 副动词"]}。将来时如果词根不规则也按6人称写入"futuro":"yo形 / ..."。必须检查过去分词和副动词是否不规则，不规则则写入otros数组。¡OJO! 在ELE教学中拼写改音动词一律归类为不规则。禁止在notas中写"规则动词"然后又说拼写变化——自相矛盾。以下情况必须填变位且标注为不规则：-ger/-gir→j在a/o前(coger→cojo)、-car→qu在e前(buscar→busqué)、-gar→gu在e前(pagar→pagué)、-zar→c在e前(empezar→empecé)、-guir→g在a/o前(seguir→sigo)。
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
 SOLO RESPONDE CON EL JSON.`;
