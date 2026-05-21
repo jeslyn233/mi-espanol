@@ -1691,7 +1691,7 @@ async function saveEdit() {
   words[editIdx] = card;
   saveLocal();
   if (sb) {
-    try { await sb.from('words').upsert(card); } catch (e) {}
+    try { await sb.from('words').upsert({ word: card.word, data: card }, { onConflict: 'word' }); } catch (e) {}
   }
   closeEditModal();
   render();
