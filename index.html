@@ -618,7 +618,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="search-bar">
-          <input type="text" id="search" placeholder="Buscar…" oninput="render()" onkeydown="if(event.key==='Enter'){this.value='';render();}">
+          <input type="text" id="search" placeholder="Buscar…" oninput="render()" onfocus="if(this.value){this.value='';render();}">
           <span class="search-divider"></span>
           <select id="filterType" onchange="render()" class="light-select">
             <option value="">分类</option>
@@ -654,7 +654,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
   <div id="tab-grammar" style="display:none">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <input type="text" id="grammarSearch" placeholder="搜索标题…" oninput="renderGrammar()" onkeydown="if(event.key==='Enter'){this.value='';renderGrammar();}" style="width:260px;">
+      <input type="text" id="grammarSearch" placeholder="搜索标题…" oninput="renderGrammar()" onfocus="if(this.value){this.value='';renderGrammar();}" style="width:260px;">
       <select id="grammarTagFilter" onchange="renderGrammar()" style="width:auto;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
         <option value="">全部标签</option>
       </select>
