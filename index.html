@@ -795,13 +795,14 @@ function stripConjugationNotes(card) {
     const hits = conjKeywords.filter(k => lower.includes(k.toLowerCase()));
     return hits.length < 3;
   });
-  // Also remove single-line notes that are purely conjugation boilerplate
+  // Also remove notes that are purely conjugation boilerplate
   card.notes = card.notes.filter(n => {
     const t = n.trim();
-    if (/^[a-záéíóúñ]+ 是规则动词/.test(t)) return false;
-    if (/^[a-záéíóúñ]+ 是不规则动词/.test(t)) return false;
-    if (/^[a-záéíóúñ]+ es un verbo regular/.test(t.toLowerCase())) return false;
-    if (/变位遵循.*动词/.test(t)) return false;
+    // "X是规则动词" + "变位" together = boilerplate
+    if (/规则动词/.test(t) && /变位/.test(t)) return false;
+    if (/不规则动词/.test(t) && /变位/.test(t)) return false;
+    if (/变位遵循/.test(t)) return false;
+    if (/es un verbo regular/.test(t.toLowerCase()) && /conjugación/.test(t.toLowerCase())) return false;
     return true;
   });
 }
