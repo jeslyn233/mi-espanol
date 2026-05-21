@@ -445,7 +445,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .grammar-list { display: flex; flex-direction: column; gap: 8px; }
 .gram-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
 .gram-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; transition: background .12s; }
-.gram-head:hover { background: var(--surface2); }
+.gram-head:hover { background: #F8FAFC; }
 .gram-title { font-size: 16px; font-weight: normal; flex: 1; font-family: 'DM Sans', system-ui, sans-serif; }
 .gram-title-hl { background: var(--hl-bg); border-radius: 3px; padding: 0 2px; animation: hlFade 2s ease-out forwards; }
 @keyframes hlFade { 0% { background: #F9E3E8; } 70% { background: #F9E3E8; } 100% { background: transparent; } }
@@ -462,7 +462,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .gb-table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; margin-bottom: 14px; }
 .gb-table th { background: var(--accent-bg); color: var(--accent-text); padding: 7px 10px; text-align: left; font-weight: 600; border: 1px solid #B0C8E0; }
 .gb-table td { padding: 6px 10px; border: 1px solid var(--border); color: var(--text); vertical-align: top; }
-.gb-table tr:nth-child(even) td { background: var(--surface2); }
 .tense-section { margin-bottom: 24px; }
 .tense-section:last-child { margin-bottom: 0; }
 .tense-title { font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
@@ -1758,7 +1757,7 @@ function closeImportModal() { document.getElementById('importModal').classList.r
 async function doImport() {
   let raw = document.getElementById('importText').value.trim();
   if (!raw) { alert('Pega el contenido primero.'); return; }
-  raw = raw.replace(/[""]/g, '"').replace(/['']/g, "'");
+  raw = raw.replace(/[“”„‟″‶]/g, '"').replace(/[‘’‚‛′‵]/g, "'");
   try {
     const data = JSON.parse(raw);
     if (importMode === 'word') {
@@ -1802,6 +1801,13 @@ async function exportData() {
 
 // ── Grammar ───────────────────────────────────────
 
+function highlightTitle(title, q) {
+  if (!q) return escapeHTML(title);
+  const idx = title.toLowerCase().indexOf(q);
+  if (idx < 0) return escapeHTML(title);
+  return escapeHTML(title.slice(0, idx)) + '<span class="gram-title-hl">' + escapeHTML(title.slice(idx, idx + q.length)) + '</span>' + escapeHTML(title.slice(idx + q.length));
+}
+
 function renderGrammar() {
   const list = document.getElementById('grammarList');
   list.querySelectorAll('.gram-card.dynamic').forEach(el => el.remove());
@@ -1809,12 +1815,6 @@ function renderGrammar() {
   const filtered = search
     ? grammarNotes.filter(n => (n.title || '').toLowerCase().includes(search) || (n.tag || '').toLowerCase().includes(search) || JSON.stringify(n.blocks).toLowerCase().includes(search))
     : grammarNotes;
-  function highlightTitle(title, q) {
-    if (!q) return escapeHTML(title);
-    const idx = title.toLowerCase().indexOf(q);
-    if (idx < 0) return escapeHTML(title);
-    return escapeHTML(title.slice(0, idx)) + '<span class="gram-title-hl">' + escapeHTML(title.slice(idx, idx + q.length)) + '</span>' + escapeHTML(title.slice(idx + q.length));
-  }
   filtered.forEach((note, fi) => {
     const ni = grammarNotes.indexOf(note);
     const id = 'dyn-' + ni;
@@ -1828,6 +1828,32 @@ function renderGrammar() {
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);"><button class="danger" onclick="deleteGrammarNote(${ni})">Eliminar nota</button></div>
     </div>`;
     list.appendChild(card);
+  });
+  // Handle built-in cards: show/hide + highlight title based on search
+  const builtinCards = list.querySelectorAll('.gram-card:not(.dynamic)');
+  builtinCards.forEach(card => {
+    const titleEl = card.querySelector('.gram-title');
+    if (!titleEl) return;
+    const origTitle = titleEl.getAttribute('data-orig-title') || titleEl.textContent;
+    if (!titleEl.getAttribute('data-orig-title')) {
+      titleEl.setAttribute('data-orig-title', origTitle);
+    }
+    if (search) {
+      const matches = origTitle.toLowerCase().includes(search);
+      // Also check content
+      const bodyEl = card.querySelector('.gram-body');
+      const bodyText = bodyEl ? bodyEl.textContent.toLowerCase() : '';
+      const matchesBody = bodyText.includes(search);
+      if (matches || matchesBody) {
+        card.style.display = '';
+        titleEl.innerHTML = highlightTitle(origTitle, search);
+      } else {
+        card.style.display = 'none';
+      }
+    } else {
+      card.style.display = '';
+      titleEl.textContent = origTitle;
+    }
   });
 }
 
