@@ -40,9 +40,11 @@ REGLAS ESTRICTAS:
    - 例：aumentar → ["书面", "中性", "工作", "数据"]；renunciar → ["口语", "负面", "工作", "决定"]
    - 不要重复 type 已有的信息（v 已经表明是动词，tags 就不用标"动词"）
 
-2. **Chunks (数量灵活)**：
+2. **Chunks（数量根据词灵活决定）**：
    - 真实自然的例句/语块，长度可短可长
+   - 4个方向都要覆盖到，不要厚此薄彼
    - 至少1个是包含该词固定搭配的长句
+   - 4条偏少，高频常用词建议 5-8 条
    - ⚠️ 同一语义类别+同一句型的合并为一条，用「/」分隔。例：tener hambre / sed / frío / calor / sueño（都是身体感受）可合并。tener razón / suerte / prisa 是另一类（状态/属性），分开写。tener miedo 也另开一条。禁止把不同语义类别的全部塞进一条，也禁止同类别拆成多条凑数。
 
 3. **高亮规则 (highlight)**：
@@ -211,7 +213,8 @@ export default async function handler(req) {
         if (/规则动词/.test(t) && /变位/.test(t)) return false;
         if (/不规则动词/.test(t) && /变位/.test(t)) return false;
         if (/变位遵循/.test(t)) return false;
-        if (/es un verbo regular/.test(lower) && /conjugación/.test(lower)) return false;
+        if (/反义词/.test(t)) return false;
+        if (/近义词/.test(t)) return false;
         return true;
       });
     }
