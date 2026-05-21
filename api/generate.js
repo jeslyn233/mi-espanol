@@ -111,8 +111,7 @@ REGLAS ESTRICTAS:
    - 只填真正不规则的时态，规则时态不填
    - 不规则人称，前端会自动检测并高亮，无需额外标记。
    - ⚠️ _irreg_note：仅拼写改音动词填写，如 "拼写变化：g→j 在 a/o 前"。真正不规则动词（tener, ir, ser 等）不填此字段。规则动词 verb_forms={} 也不填。
-   - 拼写改音动词（-ger/-gir → j, -car → qu, -gar → gu, -zar → c, -guir → g）属于不规则，必须填对应时态，禁止在 notas 中称之为"规则动词"。
-   - ⚠️ NO escribas conjugaciones en las notas. Las conjugaciones ya se muestran en la tabla de verbo. Las notas son solo para uso, contexto, errores comunes.
+   - ⚠️ 拼写改音动词（-ger/-gir, -car, -gar, -zar, -guir）的 verb_forms 绝对不能是 {}。必须填写有变化的时态。例如 coger 必须填 presente 和 subjuntivo presente。这不是可选的。
 
 10. **Nivel**: 根据词频和使用难度判断 A1/A2/B1/B2/C1/C2
 
