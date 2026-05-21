@@ -61,7 +61,8 @@ REGLAS ESTRICTAS:
 5. **Related words (4-6个)**：
    - 近义词、反义词、同根词、分词形式、场景搭配词
    - 只收高频常用词，拒绝生僻词
-   - ⚠️ 禁止与 chunks 或 native_expressions 里已出现的内容重复。related_words 是该词关联的独立词汇，不是语法结构的复读。
+   - ⚠️ 禁止放：①同一个词的不同变位（tengo/tiene/tuvo…）②语法结构（tener que）③与chunks/native_expressions重复的内容
+   - related_words 是关联的独立词汇，不是变位表。正确例：tener→["haber","poseer","carecer","contar con"]
 
 6. **Nuance (3-4个近义词辨析)**
 
@@ -202,6 +203,19 @@ export default async function handler(req) {
         if (/es un verbo regular/.test(lower) && /conjugación/.test(lower)) return false;
         return true;
       });
+    }
+
+    // Strip verb conjugations from related_words
+    if (card.related_words && card.related_words.length) {
+      card.related_words = card.related_words.filter(rw => rw.toLowerCase() !== card.word.toLowerCase());
+      if (card.related_words.length && (card.type || '').startsWith('v')) {
+        const stem = card.word.toLowerCase().replace(/(ar|er|ir)$/, '');
+        const prefix = stem.slice(0, 3);
+        const suspects = card.related_words.filter(rw => rw.toLowerCase().startsWith(prefix));
+        if (suspects.length >= 3) {
+          card.related_words = card.related_words.filter(rw => !rw.toLowerCase().startsWith(prefix));
+        }
+      }
     }
 
     // Validate minimum structure
