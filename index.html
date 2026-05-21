@@ -81,6 +81,8 @@ button.primary:hover { background: #CDD5DE; border-color: #BAC3CF; }
 button.primary:disabled { opacity: .5; cursor: not-allowed; }
 button.danger { color: #b91c1c; }
 button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
+button.edit { color: var(--text2); }
+button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 .az-bar {
   position: fixed; right: 6px; top: 50%; transform: translateY(-50%);
@@ -716,6 +718,17 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   </div>
 </div>
 
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2 id="editTitle">Editar</h2>
+    <textarea class="import-area" id="editText" style="min-height:320px;"></textarea>
+    <div class="form-actions">
+      <button onclick="closeEditModal()">Cancelar</button>
+      <button class="primary" onclick="saveEdit()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── Supabase ──────────────────────────────────────
 const SUPABASE_URL = 'https://kgluiyqvbztzoqykaolc.supabase.co';
@@ -1007,7 +1020,7 @@ REGLAS:
 - notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
 - native_expressions: 2-3个。绝对禁止重复chunks内容。zh只写中文解释，不要标注分类。两个方向：(1)含原词的高阶俚语/口头禅 (2)不含原词但同场景的母语地道说法 如"Tirar la toalla"
 - related_words: 4-6个高频常用关联词。范围不限：近义词、反义词、同根词、分词形式、场景搭配词均可。统一标准：只收高频常用词，拒绝生僻词。若目标词有常见不规则分词，必须包含。
-- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形","otros":["Participio pasado: 过去分词","Gerundio: 副动词"]}。将来时如果词根不规则也按6人称写入"futuro":"yo形 / ..."。必须检查过去分词和副动词是否不规则，不规则则写入otros数组。
+- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形","otros":["Participio pasado: 过去分词","Gerundio: 副动词"]}。将来时如果词根不规则也按6人称写入"futuro":"yo形 / ..."。必须检查过去分词和副动词是否不规则，不规则则写入otros数组。¡OJO! 拼写改音动词也是不规则：-ger/-gir→j在a/o前(coger→cojo)、-car→qu在e前(buscar→busqué)、-gar→gu在e前(pagar→pagué)、-zar→c在e前(empezar→empecé)、-guir→g在a/o前(seguir→sigo)。这类必须填对应变位时态。
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
 SOLO RESPONDE CON EL JSON.`;
@@ -1334,6 +1347,7 @@ function buildCard(w, idx) {
   const dotsHTML = renderReviewDots(w.review ? w.review.stage : 0);
   const checkClass = reviewedToday ? ' done' : '';
   body += `<div class="card-actions">
+    <button class="edit" onclick="event.stopPropagation();editWord(${idx})">Editar</button>
     <button class="danger" onclick="event.stopPropagation();deleteWord(${idx})">Eliminar</button>
     <div class="review-area" onclick="event.stopPropagation()">
       <div class="review-dots">${dotsHTML}</div>
@@ -1508,6 +1522,36 @@ async function deleteWord(idx) {
   }
   render();
   requestAnimationFrame(() => window.scrollTo({ top: lastScrollY, behavior: 'instant' }));
+}
+
+let editIdx = -1;
+
+function editWord(idx) {
+  editIdx = idx;
+  const w = words[idx];
+  document.getElementById('editTitle').textContent = 'Editar — ' + w.word;
+  document.getElementById('editText').value = JSON.stringify(w, null, 2);
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editIdx = -1;
+}
+
+async function saveEdit() {
+  const raw = document.getElementById('editText').value.trim();
+  if (!raw) { alert('El contenido está vacío.'); return; }
+  let card;
+  try { card = JSON.parse(raw); } catch (e) { alert('JSON inválido: ' + e.message); return; }
+  if (!card.word) { alert('Falta el campo "word".'); return; }
+  words[editIdx] = card;
+  saveLocal();
+  if (sb) {
+    try { await sb.from('words').upsert(card); } catch (e) {}
+  }
+  closeEditModal();
+  render();
 }
 
 function openImportModal(mode) {
