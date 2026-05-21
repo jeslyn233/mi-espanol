@@ -33,6 +33,13 @@ REGLAS ESTRICTAS:
   "verb_forms": {}
 }
 
+1.5 **Tags (3-5个)**：
+   - 必含一个语域标签：书面/口语/中性
+   - 必含一个情感色彩：正面/负面/中性（如果适用）
+   - 其余为使用场景分类（工作/社交/日常生活/旅行等）
+   - 例：aumentar → ["书面", "中性", "工作", "数据"]；renunciar → ["口语", "负面", "工作", "决定"]
+   - 不要重复 type 已有的信息（v 已经表明是动词，tags 就不用标"动词"）
+
 2. **Chunks (数量灵活)**：
    - 真实自然的例句/语块，长度可短可长
    - 至少1个是包含该词固定搭配的长句
@@ -52,14 +59,15 @@ REGLAS ESTRICTAS:
    - Ante la duda, NO resaltar (mejor pecar de menos que de más)
 
 4. **解释规则 (explain)**：
-   - 只解释「中文母语者容易踩坑」的语法点，不讲废话
-   - 值得加 explain 的：西语特有的固定结构、和中文/英语语序不同的搭配
-     ✅ "tener + 名词 表示身体感受，非 ser/estar + adj"（英语思维会误用 be）
-     ✅ "renunciar a + inf. 表示「放弃做某事」"（固定前置词搭配）
-   - 不值得加 explain 的：自明的日常句型
-     ❌ "¿Tienes...?" → "疑问句询问拥有"（废话）
-     ❌ "Voy a..." → "表示将要"（A1都懂）
-   - 拿不准「要不要解释」时一律不加
+   - 只解释「中文母语者容易踩坑」的语法点
+   - 值得加的：
+     ✅ 西语特有固定结构（tener + 名词 表感受，非 ser/estar）
+     ✅ 固定前置词搭配（renunciar a + inf.）
+     ✅ 特殊用法区别于近义词（aumentar un 10% 表增幅）
+   - 禁止加的：
+     ❌ 对语法时态的描述（完成时态/过去时…跟词本身无关）
+     ❌ 自明废话（"疑问句询问拥有""及物动词+名词"）
+   - 拿不准一律不加
 
 5. **Related words (4-6个)**：
    - 近义词、反义词、同根词、分词形式、场景搭配词
@@ -74,7 +82,7 @@ REGLAS ESTRICTAS:
 8. **Notes (2-3条)**：
    - 使用场景、常见错误、文化背景
    - 用 \\n 在逻辑断点处分段，每条1-2句
-   - 🚫 PROHIBIDO escribir conjugaciones verbales en notas. Las conjugaciones van en verb_forms, no en notas. No repitas la tabla de conjugación aquí.
+   - 🚫 禁止在 notas 里写：①变位表 ②"反义词：xxx"（反义词放 related_words）③"近义词：xxx"（近义词辨析放 nuance）
 
 9. **Verb forms**：
    - 规则动词（renunciar, hablar, comer, vivir 等）：{}
