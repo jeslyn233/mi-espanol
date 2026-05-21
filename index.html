@@ -446,7 +446,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .gram-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
 .gram-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; transition: background .12s; }
 .gram-head:hover { background: #F8FAFC; }
-.gram-title { font-size: 16px; font-weight: normal; flex: 1; font-family: 'DM Sans', system-ui, sans-serif; }
+.gram-title { font-family: 'Georgia', serif; font-size: 18px; font-weight: 500; color: #4D4242; flex: 1; }
 .gram-title-hl { background: var(--hl-bg); border-radius: 3px; padding: 0 2px; animation: hlFade 2s ease-out forwards; }
 @keyframes hlFade { 0% { background: #F9E3E8; } 70% { background: #F9E3E8; } 100% { background: transparent; } }
 .gram-tag { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--related-bg); color: var(--related-text); border: 1px solid #E0C8CD; font-weight: 600; }
@@ -1816,12 +1816,14 @@ function renderGrammar() {
   list.querySelectorAll('.gram-card.dynamic').forEach(el => el.remove());
   const search = (document.getElementById('grammarSearch').value || '').toLowerCase();
   const tagFilter = document.getElementById('grammarTagFilter').value;
-  // Populate tag dropdown
+  // Populate tag dropdown (collect from dynamic notes + built-in cards)
   const tagSelect = document.getElementById('grammarTagFilter');
   const currentVal = tagSelect.value;
-  const tags = [...new Set(grammarNotes.map(n => n.tag).filter(Boolean))].sort();
+  const dynTags = grammarNotes.map(n => n.tag).filter(Boolean);
+  const builtinTags = [...list.querySelectorAll('.gram-card:not(.dynamic) .gram-tag')].map(el => el.textContent.trim()).filter(Boolean);
+  const tags = [...new Set([...dynTags, ...builtinTags])].sort();
   tagSelect.innerHTML = '<option value="">全部标签</option>' + tags.map(t => `<option value="${escapeHTML(t)}">${escapeHTML(t)}</option>`).join('');
-  tagSelect.value = currentVal;
+  tagSelect.value = tags.includes(currentVal) ? currentVal : '';
   const filtered = grammarNotes.filter(n => {
     if (tagFilter && n.tag !== tagFilter) return false;
     if (search && !(n.title || '').toLowerCase().includes(search) && !(n.tag || '').toLowerCase().includes(search)) return false;
