@@ -770,6 +770,18 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2800);
 }
 
+function dedupHighlights(card) {
+  if (!card.chunks || !card.chunks.length) return;
+  const seen = new Set();
+  for (const ch of card.chunks) {
+    const h = (ch.highlight || '').trim();
+    if (!h) continue;
+    const key = h.toLowerCase();
+    if (seen.has(key)) { ch.highlight = ''; }
+    else { seen.add(key); }
+  }
+}
+
 // ── Data load/sync ────────────────────────────────
 async function loadWords() {
   // 1. Try Supabase
@@ -955,6 +967,8 @@ async function autoGenerate() {
 
     const card = JSON.parse(content);
     if (!card.word) throw new Error('JSON generado sin campo word');
+
+    dedupHighlights(card);
 
     if (exist >= 0) words[exist] = card;
     else words.push(card);
