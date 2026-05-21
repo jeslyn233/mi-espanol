@@ -52,12 +52,14 @@ REGLAS ESTRICTAS:
    - Ante la duda, NO resaltar (mejor pecar de menos que de más)
 
 4. **解释规则 (explain)**：
-   - explain 是 chunk 里最重要的教学字段，用来解释该语法块的构成逻辑
-   - 有值得说明的语法/结构/固定搭配就加 explain，简短讲结构功能
-   - 例：tener hambre/sed/frío/calor/sueño → explain: "tener + 名词 表示身体感受，非 ser/estar + adj"
-   - 使用场景和注意事项放在 notes 里
-   - 没有 highlight 也可以有 explain
-   - explain 字段可选，但有教学价值的结构不要省略
+   - 只解释「中文母语者容易踩坑」的语法点，不讲废话
+   - 值得加 explain 的：西语特有的固定结构、和中文/英语语序不同的搭配
+     ✅ "tener + 名词 表示身体感受，非 ser/estar + adj"（英语思维会误用 be）
+     ✅ "renunciar a + inf. 表示「放弃做某事」"（固定前置词搭配）
+   - 不值得加 explain 的：自明的日常句型
+     ❌ "¿Tienes...?" → "疑问句询问拥有"（废话）
+     ❌ "Voy a..." → "表示将要"（A1都懂）
+   - 拿不准「要不要解释」时一律不加
 
 5. **Related words (4-6个)**：
    - 近义词、反义词、同根词、分词形式、场景搭配词
