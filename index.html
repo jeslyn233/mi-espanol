@@ -788,12 +788,86 @@ function stripConjugationNotes(card) {
   if (!card.notes || !card.notes.length) return;
   const conjKeywords = ['现在时', '过去时', '将来时', '虚拟式', '命令式', '过去分词', '副动词',
     'presente', 'pretérito', 'futuro', 'subjuntivo', 'imperativo', 'participio', 'gerundio',
-    'tengo', 'tienes', 'tuviera', 'conjugación', '变位'];
+    'tengo', 'tienes', 'tuviera', 'conjugación', '变位', '规则动词', '不规则动词',
+    '遵循', 'ir 动词', 'er 动词', 'ar 动词'];
   card.notes = card.notes.filter(n => {
     const lower = n.toLowerCase();
     const hits = conjKeywords.filter(k => lower.includes(k.toLowerCase()));
-    return hits.length < 3; // fewer than 3 conjugation keywords = keep
+    return hits.length < 3;
   });
+  // Also remove single-line notes that are purely conjugation boilerplate
+  card.notes = card.notes.filter(n => {
+    const t = n.trim();
+    if (/^[a-záéíóúñ]+ 是规则动词/.test(t)) return false;
+    if (/^[a-záéíóúñ]+ 是不规则动词/.test(t)) return false;
+    if (/^[a-záéíóúñ]+ es un verbo regular/.test(t.toLowerCase())) return false;
+    if (/变位遵循.*动词/.test(t)) return false;
+    return true;
+  });
+}
+
+function expectedReg(infinitive, tense, idx, persons) {
+  const isAr = infinitive.endsWith('ar');
+  const isEr = infinitive.endsWith('er');
+  const stem = infinitive.replace(/(ar|er|ir)$/, '');
+  if (tense === 'presente') {
+    const ends = isAr ? ['o','as','a','amos','áis','an'] : isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
+    return stem + ends[idx];
+  }
+  if (tense === 'pretérito') {
+    const ends = isAr ? ['é','aste','ó','amos','asteis','aron'] : ['í','iste','ió','imos','isteis','ieron'];
+    return stem + ends[idx];
+  }
+  if (tense === 'futuro') {
+    return infinitive + ['é','ás','á','emos','éis','án'][idx];
+  }
+  if (tense === 'subjuntivo presente') {
+    const ends = isAr ? ['e','es','e','emos','éis','en'] : ['a','as','a','amos','áis','an'];
+    return stem + ends[idx];
+  }
+  if (tense === 'subjuntivo imperfecto') {
+    const vr = isAr ? ['ara','aras','ara','áramos','arais','aran'] : ['iera','ieras','iera','iéramos','ierais','ieran'];
+    const vs = isAr ? ['ase','ases','ase','ásemos','aseis','asen'] : ['iese','ieses','iese','iésemos','ieseis','iesen'];
+    return [stem + vr[idx], stem + vs[idx]];
+  }
+  if (tense === 'imperativo') {
+    if (idx === 0) return stem + (isAr ? 'a' : 'e');
+    if (idx === 1) return stem + (isAr ? 'e' : 'a');
+    if (idx === 2) return stem + (isAr ? 'emos' : 'amos');
+    if (idx === 3) return infinitive.replace(/r$/, '') + 'd';
+    if (idx === 4) return stem + (isAr ? 'en' : 'an');
+  }
+  return null;
+}
+
+function cleanVerbForms(card) {
+  const vf = card.verb_forms;
+  if (!vf || !Object.keys(vf).length) return;
+  const tenses = ['presente','pretérito','futuro','subjuntivo presente','subjuntivo imperfecto','imperativo'];
+  const personsMap = {
+    'presente':6,'pretérito':6,'futuro':6,'subjuntivo presente':6,'subjuntivo imperfecto':6,'imperativo':5
+  };
+  let anyIrregular = false;
+  for (const t of tenses) {
+    const str = vf[t];
+    if (!str) continue;
+    const forms = str.split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
+    const n = personsMap[t] || forms.length;
+    for (let i = 0; i < n; i++) {
+      const clean = (forms[i] || '—').trim();
+      if (clean === '—') continue;
+      const exp = expectedReg(card.word, t, i);
+      const expList = Array.isArray(exp) ? exp : [exp];
+      if (!expList.some(e => clean.toLowerCase() === e.toLowerCase())) {
+        anyIrregular = true;
+        break;
+      }
+    }
+    if (anyIrregular) break;
+  }
+  if (!anyIrregular) {
+    card.verb_forms = {};
+  }
 }
 
 // ── Data load/sync ────────────────────────────────
@@ -984,6 +1058,7 @@ async function autoGenerate() {
 
     dedupHighlights(card);
     stripConjugationNotes(card);
+    cleanVerbForms(card);
 
     if (exist >= 0) words[exist] = card;
     else words.push(card);
@@ -1325,54 +1400,15 @@ function buildCard(w, idx) {
     const stdPersons = ['yo', 'tú', 'él', 'nosotros', 'vosotros', 'ellos'];
     const impPersons = ['tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
 
-    function expectedRegular(infinitive, k, i, persons) {
-      const isAr = infinitive.endsWith('ar');
-      const isEr = infinitive.endsWith('er');
-      const stem = infinitive.replace(/(ar|er|ir)$/, '');
-
-      if (k === 'presente') {
-        const ends = isAr ? ['o','as','a','amos','áis','an'] : isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
-        return stem + ends[i];
-      }
-      if (k === 'pretérito') {
-        const ends = isAr ? ['é','aste','ó','amos','asteis','aron'] : ['í','iste','ió','imos','isteis','ieron'];
-        return stem + ends[i];
-      }
-      if (k === 'futuro') {
-        const ends = ['é','ás','á','emos','éis','án'];
-        return infinitive + ends[i];
-      }
-      if (k === 'subjuntivo presente') {
-        const ends = isAr ? ['e','es','e','emos','éis','en'] : ['a','as','a','amos','áis','an'];
-        return stem + ends[i];
-      }
-      if (k === 'subjuntivo imperfecto') {
-        // Returns both variants (-ra/-se), check will match either
-        const vr = isAr ? ['ara','aras','ara','áramos','arais','aran'] : ['iera','ieras','iera','iéramos','ierais','ieran'];
-        const vs = isAr ? ['ase','ases','ase','ásemos','aseis','asen'] : ['iese','ieses','iese','iésemos','ieseis','iesen'];
-        return [stem + vr[i], stem + vs[i]];
-      }
-      if (k === 'imperativo') {
-        // persons: tú, usted, nosotros, vosotros, ustedes
-        if (i === 0) return stem + (isAr ? 'a' : 'e');                  // tú
-        if (i === 1) return stem + (isAr ? 'e' : 'a');                   // usted (subj)
-        if (i === 2) return stem + (isAr ? 'emos' : 'amos');              // nosotros (subj)
-        if (i === 3) return infinitive.replace(/r$/, '') + 'd';           // vosotros
-        if (i === 4) return stem + (isAr ? 'en' : 'an');                  // ustedes (subj)
-      }
-      return null;
-    }
-
     function renderTenseGrid(k, forms, persons) {
       const zh = TENSE_ZH[k] || '';
-      // Detect which forms are irregular
       const cellData = [];
       let irregCount = 0;
       for (let i = 0; i < persons.length; i++) {
         const fv = forms[i] || '';
         let clean = fv.replace(/^\*|\*$/g, '').trim();
         if (!clean || clean === '—') clean = '—';
-        const exp = expectedRegular(w.word, k, i, persons);
+        const exp = expectedReg(w.word, k, i, persons);
         const expList = Array.isArray(exp) ? exp : [exp];
         const irreg = exp && clean !== '—' && !expList.some(e => clean.toLowerCase() === e.toLowerCase());
         if (irreg) irregCount++;
