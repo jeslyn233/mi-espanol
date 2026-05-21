@@ -80,7 +80,10 @@ REGLAS ESTRICTAS:
 
 6. **Nuance (3-4个近义词辨析)**
 
-7. **Native expressions (0-2个，可选)**
+7. **Native expressions (0-2个)**：
+   - 地道说法，不是普通例句。两个方向：含原词的俚语/口头禅，或不含原词的同场景地道替代说法
+   - ✅ "Tirar la toalla"（放弃）、"No tener pelos en la lengua"（说话直）
+   - ❌ 普通语法搭配（"Darse cuenta de"→放chunks）、自明短句（"Estoy cansado"→放chunks）
 
 8. **Notes (2-3条)**：
    - 使用场景、常见错误、文化背景
@@ -93,8 +96,10 @@ REGLAS ESTRICTAS:
    - 不规则动词，按以下格式：
    {
      "presente": "yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形",
+     "pretérito imperfecto": "...",
      "pretérito": "...",
      "futuro": "...",
+     "condicional": "...",
      "subjuntivo presente": "...",
      "subjuntivo imperfecto": "...",
      "imperativo": "tú形 / usted形 / nosotros形 / vosotros形 / ustedes形",
