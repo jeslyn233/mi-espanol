@@ -52,11 +52,12 @@ REGLAS ESTRICTAS:
    - Ante la duda, NO resaltar (mejor pecar de menos que de más)
 
 4. **解释规则 (explain)**：
-   - 只在有语法/结构/固定搭配值得说明时才加 explain
-   - explain 简短，只讲结构功能，不讲使用场景
+   - explain 是 chunk 里最重要的教学字段，用来解释该语法块的构成逻辑
+   - 有值得说明的语法/结构/固定搭配就加 explain，简短讲结构功能
+   - 例：tener hambre/sed/frío/calor/sueño → explain: "tener + 名词 表示身体感受，非 ser/estar + adj"
    - 使用场景和注意事项放在 notes 里
    - 没有 highlight 也可以有 explain
-   - explain 字段是可选的，没有就不加
+   - explain 字段可选，但有教学价值的结构不要省略
 
 5. **Related words (4-6个)**：
    - 近义词、反义词、同根词、分词形式、场景搭配词
