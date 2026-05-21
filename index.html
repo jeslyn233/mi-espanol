@@ -369,9 +369,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   padding-bottom: 3px; margin-bottom: 6px; border-bottom: 1px solid var(--border);
 }
 .tense-zh { font-size: 10px; color: var(--text3); font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 4px; }
-.verb-conj-grid { display: flex; flex-direction: column; gap: 1px; }
-.verb-conj-cell { display: flex; gap: 6px; padding: 1px 0; align-items: baseline; }
-.verb-tense-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 2px 16px; padding-left: 12px; }
+.verb-conj-grid { display: flex; flex-direction: column; gap: 3px; }
+.verb-conj-cell { display: flex; gap: 6px; padding: 2px 0; align-items: baseline; }
+.verb-tense-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 200px)); gap: 6px 36px; padding: 6px 0 0 12px; }
 .verb-person {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px;
   color: var(--text3); min-width: 42px; text-align: right; flex-shrink: 0;
@@ -382,6 +382,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .verb-form.empty { color: var(--text3); font-style: normal; }
 .verb-form.irreg { text-decoration: underline; text-decoration-color: #E8A0A8; text-underline-offset: 3px; text-decoration-thickness: 2px; }
 .verb-tense-title .irreg-dot { color: #E8A0A8; font-size: 10px; margin-left: 4px; vertical-align: super; }
+.verb-tense-title .irreg-dot.few { color: #88B4D8; }
 .verb-regular-note {
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
   font-size: 13px; color: var(--text2); padding: 2px 0;
@@ -617,7 +618,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="search-bar">
-          <input type="text" id="search" placeholder="Buscar…" oninput="render()">
+          <input type="text" id="search" placeholder="Buscar…" oninput="render()" onkeydown="if(event.key==='Enter'){this.value='';render();}">
           <span class="search-divider"></span>
           <select id="filterType" onchange="render()" class="light-select">
             <option value="">分类</option>
@@ -653,7 +654,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
   <div id="tab-grammar" style="display:none">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <input type="text" id="grammarSearch" placeholder="搜索标题…" oninput="renderGrammar()" style="width:260px;">
+      <input type="text" id="grammarSearch" placeholder="搜索标题…" oninput="renderGrammar()" onkeydown="if(event.key==='Enter'){this.value='';renderGrammar();}" style="width:260px;">
       <select id="grammarTagFilter" onchange="renderGrammar()" style="width:auto;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
         <option value="">全部标签</option>
       </select>
@@ -1465,7 +1466,8 @@ function buildCard(w, idx) {
         cellData.push({ clean, irreg });
       }
       const mostIrreg = irregCount >= 4;
-      const dot = mostIrreg ? '<span class="irreg-dot">●</span>' : '';
+      const fewIrreg = irregCount >= 1 && irregCount <= 3;
+      const dot = mostIrreg ? '<span class="irreg-dot">●</span>' : (fewIrreg ? '<span class="irreg-dot few">●</span>' : '');
       const tid = 'tense-' + idx + '-' + k.replace(/\s/g, '-');
 
       const zh = TENSE_ZH[k] ? ' ' + TENSE_ZH[k] : '';
@@ -1500,16 +1502,17 @@ function buildCard(w, idx) {
         }
       });
       if (otrosItems.length) {
-        body += `<div class="verb-tense-block"><div class="verb-others">`;
+        body += `<div class="verb-tense-block" style="grid-column:1/-1;display:flex;align-items:center;gap:12px;"><div><div class="verb-tense-title" style="margin-bottom:4px;">Formas no personales</div><div class="verb-others">`;
         otrosItems.forEach(item => {
           const parts = item.split(': ');
           body += `<div class="verb-other-item">${escapeHTML(parts[0])} &nbsp;<span>${escapeHTML(parts[1] || '')}</span></div>`;
         });
-        body += `</div></div>`;
+        body += `</div></div><span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);margin-left:auto;white-space:nowrap;">展开全部</span></div>`;
+      } else {
+        body += `<div class="verb-tense-block" style="grid-column:1/-1;text-align:right;">
+          <span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);">展开全部</span>
+        </div>`;
       }
-      body += `<div style="grid-column:1/-1;text-align:right;padding-top:2px;">
-        <span class="expand-all" onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);">展开全部</span>
-      </div>`;
       body += `</div>`; // close verb-tense-grid
     } else {
       body += `<div class="verb-regular-note">动词变位规则，参见 Gramática 页面</div>`;
@@ -1552,6 +1555,9 @@ function buildCard(w, idx) {
 // ── Interactivity ─────────────────────────────────
 
 function toggle(idx) {
+  // Clear search and re-render full list
+  const s = document.getElementById('search');
+  if (s && s.value) { s.value = ''; render(); }
   const bodyEl = document.getElementById('body-' + idx);
   const chev = document.getElementById('chev-' + idx);
   const wasOpen = bodyEl.classList.contains('open');
