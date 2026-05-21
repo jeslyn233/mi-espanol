@@ -1555,9 +1555,6 @@ function buildCard(w, idx) {
 // ── Interactivity ─────────────────────────────────
 
 function toggle(idx) {
-  // Clear search and re-render full list
-  const s = document.getElementById('search');
-  if (s && s.value) { s.value = ''; render(); }
   const bodyEl = document.getElementById('body-' + idx);
   const chev = document.getElementById('chev-' + idx);
   const wasOpen = bodyEl.classList.contains('open');
