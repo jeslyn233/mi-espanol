@@ -902,19 +902,31 @@ function cleanVerbForms(card) {
   const personsMap = {
     'presente':6,'pretérito imperfecto':6,'pretérito':6,'futuro':6,'condicional':6,'subjuntivo presente':6,'subjuntivo imperfecto':6,'imperativo':5
   };
+  // First pass: detect duplicates (strong signal of AI error for regular verbs)
+  let hasDuplicate = false;
+  for (const t of tenses) {
+    const str = vf[t];
+    if (!str) continue;
+    const forms = normalizeVerbFormStr(str).split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
+    const seen = new Set();
+    for (const f of forms) {
+      const clean = f.trim();
+      if (!clean || clean === '—') continue;
+      if (seen.has(clean.toLowerCase())) { hasDuplicate = true; break; }
+      seen.add(clean.toLowerCase());
+    }
+    if (hasDuplicate) break;
+  }
+  // Second pass: check if any form deviates from regular pattern
   let anyIrregular = false;
   for (const t of tenses) {
     const str = vf[t];
     if (!str) continue;
     const forms = normalizeVerbFormStr(str).split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
     const n = personsMap[t] || forms.length;
-    const seen = new Set();
     for (let i = 0; i < n; i++) {
       const clean = (forms[i] || '—').trim();
       if (clean === '—') continue;
-      // Detect AI errors: same form appearing for different persons (e.g. tú and él both "ducha")
-      if (seen.has(clean.toLowerCase())) { anyIrregular = true; break; }
-      seen.add(clean.toLowerCase());
       const exp = expectedReg(card.word, t, i);
       const expList = Array.isArray(exp) ? exp : [exp];
       if (!expList.some(e => clean.toLowerCase() === e.toLowerCase())) {
@@ -924,33 +936,9 @@ function cleanVerbForms(card) {
     }
     if (anyIrregular) break;
   }
-  // If no true irregularity found, clear verb_forms.
-  // Also clear if the only "irregularities" are probable AI errors
-  // (e.g. all forms match regular pattern but verb is regular).
-  if (!anyIrregular) {
+  // Clear if fully regular, or if AI made obvious errors (duplicates)
+  if (!anyIrregular || hasDuplicate) {
     card.verb_forms = {};
-  } else {
-    // Check if this is a regular verb where AI made mistakes
-    // by verifying all filled tenses are actually regular
-    let allRegular = true;
-    for (const t of tenses) {
-      const str = vf[t];
-      if (!str) continue;
-      const forms = normalizeVerbFormStr(str).split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
-      const n = personsMap[t] || forms.length;
-      for (let i = 0; i < n; i++) {
-        const clean = (forms[i] || '—').trim();
-        if (clean === '—') continue;
-        const exp = expectedReg(card.word, t, i);
-        const expList = Array.isArray(exp) ? exp : [exp];
-        if (!expList.some(e => clean.toLowerCase() === e.toLowerCase())) {
-          allRegular = false;
-          break;
-        }
-      }
-      if (!allRegular) break;
-    }
-    if (allRegular) card.verb_forms = {};
   }
 }
 
@@ -1008,12 +996,25 @@ function saveLocal() {
   try { localStorage.setItem('es_vocab_v14', JSON.stringify(words)); } catch (e) {}
 }
 
+function saveGrammarLocal() {
+  try { localStorage.setItem('es_grammar_v1', JSON.stringify(grammarNotes)); } catch (e) {}
+}
+
 async function syncToSupabase() {
   if (!sb) return;
   for (const w of words) {
     try {
       await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' });
     } catch (e) { console.warn('Sync failed for', w.word); }
+  }
+}
+
+async function syncGrammarToSupabase() {
+  if (!sb) return;
+  for (const n of grammarNotes) {
+    try {
+      await sb.from('grammar').upsert({ title: n.title, data: n }, { onConflict: 'title' });
+    } catch (e) { console.warn('Grammar sync failed for', n.title); }
   }
 }
 
@@ -1793,7 +1794,7 @@ async function doImport() {
     } else if (importMode === 'grammar') {
       if (!data.title) { alert('Falta el campo: title.'); return; }
       grammarNotes.push(data);
-      try { localStorage.setItem('es_grammar_v1', JSON.stringify(grammarNotes)); } catch (e) {}
+      saveGrammarLocal(); syncGrammarToSupabase();
       closeImportModal(); renderGrammar();
       showToast('"' + data.title + '" importado');
     } else {
@@ -1902,10 +1903,12 @@ function renderBlocks(blocks) {
   }).join('');
 }
 
-function deleteGrammarNote(ni) {
+async function deleteGrammarNote(ni) {
   if (!confirm('¿Eliminar esta nota?')) return;
+  const note = grammarNotes[ni];
   grammarNotes.splice(ni, 1);
-  try { localStorage.setItem('es_grammar_v1', JSON.stringify(grammarNotes)); } catch (e) {}
+  saveGrammarLocal();
+  if (sb) { try { await sb.from('grammar').delete().eq('title', note.title); } catch (e) {} }
   renderGrammar();
 }
 
@@ -1920,10 +1923,24 @@ window.onclick = function (e) {
 
 // ── Init ──────────────────────────────────────────
 (async function init() {
-  try {
-    const g = localStorage.getItem('es_grammar_v1');
-    if (g) grammarNotes = JSON.parse(g);
-  } catch (e) {}
+  // Load grammar: try Supabase first, fallback to localStorage
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('grammar').select('data').order('title');
+      if (!error && data && data.length) {
+        grammarNotes = data.map(r => r.data);
+        saveGrammarLocal();
+      }
+    } catch (e) { console.warn('Grammar Supabase load failed'); }
+  }
+  if (!grammarNotes.length) {
+    try {
+      const g = localStorage.getItem('es_grammar_v1');
+      if (g) grammarNotes = JSON.parse(g);
+    } catch (e) {}
+  }
+  // First-time grammar migration: sync local → Supabase
+  if (sb && grammarNotes.length) { syncGrammarToSupabase(); }
   await loadWords();
   resetOverdue();
   document.body.classList.add('locked'); // lock by default
