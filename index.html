@@ -465,14 +465,17 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .gram-tag { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--related-bg); color: var(--related-text); border: 1px solid #E0C8CD; font-weight: 600; }
 .gram-body { display: none; border-top: 1px solid var(--border); padding: 20px; }
 .gram-body.open { display: block; }
-.gb-text { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 13px; color: #3A5068; line-height: 1.6; margin-bottom: 14px; white-space: pre-line; }
+.gb-text { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 13px; color: #2E485B; line-height: 1.6; margin-bottom: 14px; white-space: pre-line; }
 .gb-section { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 15px; font-weight: 700; color: #1A2A3A; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
 .gb-list { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 13px; color: #3A5068; line-height: 1.6; margin-bottom: 14px; padding-left: 4px; }
 .gb-list li { margin-bottom: 4px; list-style: none; display: flex; gap: 8px; }
 .gb-list li::before { content: attr(data-n); color: var(--accent); font-weight: 700; min-width: 16px; }
 .gb-note { background: var(--accent-bg); border-radius: var(--radius-sm); padding: 12px 14px; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: var(--accent-text); line-height: 1.6; margin-bottom: 14px; white-space: pre-line; }
 .gb-examples { margin-bottom: 14px; }
-.gb-example { font-size: 13px; color: var(--text2); font-style: italic; padding: 10px 14px; border-left: 2px solid var(--border2); margin-bottom: 10px; font-family: 'Georgia', serif; line-height: 1.8; }
+.gb-example { font-size: 13px; color: var(--text2); font-style: italic; padding: 8px 12px; border-left: 2px solid var(--border2); margin-bottom: 6px; font-family: 'Georgia', serif; line-height: 1.7; }
+.gb-subsection { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 14px; font-weight: 700; color: #2C3E50; margin: 18px 0 8px; }
+.gb-subsection::before { content: '┌ '; color: var(--accent); font-weight: 400; }
+.gb-subsection::after  { content: ' ┘'; color: var(--accent); font-weight: 400; }
 .gb-table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; margin-bottom: 14px; }
 .gb-table th { background: var(--accent-bg); color: var(--accent-text); padding: 7px 10px; text-align: left; font-weight: 600; border: 1px solid #B0C8E0; }
 .gb-table td { padding: 6px 10px; border: 1px solid var(--border); color: var(--text); vertical-align: top; }
@@ -1740,7 +1743,7 @@ function openImportModal(mode) {
   const hints = {
     word: ['Importar palabra', 'Pega aquí el JSON de la palabra.'],
     restore: ['Restaurar datos', 'Pega aquí el JSON completo (formato exportación).'],
-    grammar: ['导入语法笔记', 'Pega aquí el JSON de la nota de gramática. Tipos de bloque: section, text, note, list, examples, table']
+    grammar: ['导入语法笔记', 'Pega aquí el JSON de la nota de gramática. Tipos de bloque: section, subsection, text, note, list, examples, table']
   };
   document.getElementById('importTitle').textContent = hints[mode][0];
   document.getElementById('importHint').textContent = hints[mode][1];
@@ -1935,6 +1938,7 @@ function renderBlocks(blocks) {
   return blocks.map(b => {
     if (b.type === 'text') return `<div class="gb-text">${b.content}</div>`;
     if (b.type === 'section') return `<div class="gb-section">${b.content}</div>`;
+    if (b.type === 'subsection') return `<div class="gb-subsection">${b.content}</div>`;
     if (b.type === 'note') return `<div class="gb-note">${b.content}</div>`;
     if (b.type === 'list') return `<ul class="gb-list">${b.items.map((item, i) => `<li data-n="${i + 1}.">${item}</li>`).join('')}</ul>`;
     if (b.type === 'examples') return `<div class="gb-examples">${b.items.map(e => `<div class="gb-example">${e}</div>`).join('')}</div>`;
