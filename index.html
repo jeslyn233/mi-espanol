@@ -1895,7 +1895,7 @@ window.onclick = function (e) {
   document.body.classList.add('locked'); // lock by default
   // Ensure default words always up to date in Supabase
   if (sb) {
-    const defaults = getDefaults();
+    const defaults = await getDefaults();
     for (const w of defaults) {
       const idx = words.findIndex(x => x.word === w.word);
       if (idx >= 0) {
