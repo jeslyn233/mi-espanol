@@ -908,9 +908,13 @@ function cleanVerbForms(card) {
     if (!str) continue;
     const forms = normalizeVerbFormStr(str).split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
     const n = personsMap[t] || forms.length;
+    const seen = new Set();
     for (let i = 0; i < n; i++) {
       const clean = (forms[i] || '—').trim();
       if (clean === '—') continue;
+      // Detect AI errors: same form appearing for different persons (e.g. tú and él both "ducha")
+      if (seen.has(clean.toLowerCase())) { anyIrregular = true; break; }
+      seen.add(clean.toLowerCase());
       const exp = expectedReg(card.word, t, i);
       const expList = Array.isArray(exp) ? exp : [exp];
       if (!expList.some(e => clean.toLowerCase() === e.toLowerCase())) {
@@ -920,8 +924,33 @@ function cleanVerbForms(card) {
     }
     if (anyIrregular) break;
   }
+  // If no true irregularity found, clear verb_forms.
+  // Also clear if the only "irregularities" are probable AI errors
+  // (e.g. all forms match regular pattern but verb is regular).
   if (!anyIrregular) {
     card.verb_forms = {};
+  } else {
+    // Check if this is a regular verb where AI made mistakes
+    // by verifying all filled tenses are actually regular
+    let allRegular = true;
+    for (const t of tenses) {
+      const str = vf[t];
+      if (!str) continue;
+      const forms = normalizeVerbFormStr(str).split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
+      const n = personsMap[t] || forms.length;
+      for (let i = 0; i < n; i++) {
+        const clean = (forms[i] || '—').trim();
+        if (clean === '—') continue;
+        const exp = expectedReg(card.word, t, i);
+        const expList = Array.isArray(exp) ? exp : [exp];
+        if (!expList.some(e => clean.toLowerCase() === e.toLowerCase())) {
+          allRegular = false;
+          break;
+        }
+      }
+      if (!allRegular) break;
+    }
+    if (allRegular) card.verb_forms = {};
   }
 }
 
