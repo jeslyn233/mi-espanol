@@ -365,7 +365,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .verb-tense-block:last-child { margin-bottom: 0; }
 .verb-bottom-row { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 6px 56px; }
 .verb-bottom-row > div:first-child { min-height: 0; }
-.verb-expand-cell { display: flex; align-items: center; justify-content: center; }
+.verb-expand-cell { display: flex; align-items: center; justify-content: flex-start; }
 .verb-tense-title {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700;
   color: var(--text2); text-transform: uppercase; letter-spacing: .06em;
@@ -1374,7 +1374,6 @@ function buildCard(w, idx) {
     const TENSE_ZH = { presente:'一般现在', 'pretérito imperfecto':'过去未完成', pretérito:'一般过去', futuro:'一般将来', condicional:'条件式', 'subjuntivo presente':'现在虚拟', 'subjuntivo imperfecto':'过去虚拟', imperativo:'命令' };
     const tenseKeys = TENSE_ORDER.filter(k => w.verb_forms && w.verb_forms[k]);
     const hasIrregular = tenseKeys.length > 0;
-    const irregNote = (w.verb_forms && w.verb_forms._irreg_note) ? `（${escapeHTML(w.verb_forms._irreg_note)}）` : '';
     const otrosItems = (w.verb_forms && w.verb_forms.otros) ? w.verb_forms.otros : [];
 
     const stdPersons = ['yo', 'tú', 'él', 'nosotros', 'vosotros', 'ellos'];
@@ -1415,7 +1414,7 @@ function buildCard(w, idx) {
 
     body += `<div class="section"><div class="verb-toggle" onclick="toggleVerb(${idx})">
       <span class="sec-label" style="margin-bottom:0">Verbo</span>
-      <span class="verb-status${hasIrregular ? '' : ' regular'}">${hasIrregular ? '不规则变位' + irregNote : '规则变位'}</span>
+      <span class="verb-status${hasIrregular ? '' : ' regular'}">${hasIrregular ? '不规则变位' : '规则变位'}</span>
       <span class="verb-toggle-chevron" id="verb-chev-${idx}">▼</span>
     </div><div class="verb-content" id="verb-content-${idx}">`;
 
