@@ -839,9 +839,11 @@ function stripConjugationNotes(card) {
 }
 
 function expectedReg(infinitive, tense, idx, persons) {
-  const isAr = infinitive.endsWith('ar');
-  const isEr = infinitive.endsWith('er');
-  const stem = infinitive.replace(/(ar|er|ir)$/, '');
+  // Strip pronominal "se" suffix (e.g. preguntarse → preguntar)
+  const base = infinitive.replace(/se$/, '');
+  const isAr = base.endsWith('ar');
+  const isEr = base.endsWith('er');
+  const stem = base.replace(/(ar|er|ir)$/, '');
   if (tense === 'presente') {
     const ends = isAr ? ['o','as','a','amos','áis','an'] : isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
     return stem + ends[idx];
