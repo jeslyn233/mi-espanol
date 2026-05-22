@@ -363,6 +363,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .verb-content.open { display: block; }
 .verb-tense-block { margin-bottom: 14px; }
 .verb-tense-block:last-child { margin-bottom: 0; }
+.verb-bottom-row { grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.verb-bottom-row.expand { justify-content: flex-end; }
 .verb-tense-title {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700;
   color: var(--text2); text-transform: uppercase; letter-spacing: .06em;
@@ -1428,14 +1430,14 @@ function buildCard(w, idx) {
       });
       if (otrosItems.length) {
         const oid = 'otros-' + idx;
-        body += `<div class="verb-tense-block"><div class="verb-tense-title" onclick="toggleTense('${oid}')" style="cursor:pointer;">Formas no personales</div><div class="verb-tense-body" id="${oid}" style="display:none;"><div class="verb-others">`;
+        body += `<div class="verb-bottom-row"><div class="verb-tense-title" onclick="toggleTense('${oid}')" style="cursor:pointer;">Formas no personales</div><div class="verb-tense-body" id="${oid}" style="display:none;"><div class="verb-others">`;
         otrosItems.forEach(item => {
           const parts = item.split(': ');
           body += `<div class="verb-other-item">${escapeHTML(parts[0])} &nbsp;<span>${escapeHTML(parts[1] || '')}</span></div>`;
         });
         body += `</div></div></div>`;
       }
-      body += `<div class="verb-tense-block" style="display:flex;align-items:center;justify-content:flex-end;">
+      body += `<div class="verb-bottom-row expand">
         <span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);">展开全部</span>
       </div>`;
       body += `</div>`; // close verb-tense-grid
