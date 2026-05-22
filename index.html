@@ -367,11 +367,12 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700;
   color: var(--text2); text-transform: uppercase; letter-spacing: .06em;
   padding-bottom: 3px; margin-bottom: 6px; border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 .tense-zh { font-size: 10px; color: var(--text3); font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 4px; }
 .verb-conj-grid { display: flex; flex-direction: column; gap: 3px; }
 .verb-conj-cell { display: flex; gap: 6px; padding: 2px 0; align-items: baseline; }
-.verb-tense-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 200px)); gap: 6px 56px; padding: 6px 0 0 12px; }
+.verb-tense-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 6px 56px; padding: 6px 0 0 12px; }
 .verb-person {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px;
   color: var(--text3); min-width: 42px; text-align: right; flex-shrink: 0;
@@ -380,7 +381,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   font-family: 'Georgia', serif; font-size: 14px; font-style: italic; color: var(--text);
 }
 .verb-form.empty { color: var(--text3); font-style: normal; }
-.verb-form.irreg { text-decoration: underline; text-decoration-color: #E8A0A8; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+.verb-form.irreg { text-decoration: underline; text-decoration-color: #E8A0A8; text-underline-offset: 4px; text-decoration-thickness: 1px; }
 .verb-tense-title .irreg-dot { color: #E8A0A8; font-size: 10px; margin-left: 4px; }
 .verb-tense-title .irreg-dot.few { color: #88B4D8; }
 .verb-regular-note {
