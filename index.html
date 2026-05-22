@@ -363,7 +363,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .verb-content.open { display: block; }
 .verb-tense-block { margin-bottom: 14px; }
 .verb-tense-block:last-child { margin-bottom: 0; }
-.verb-bottom-row { grid-column: 1 / -1; display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.verb-bottom-row { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 6px 56px; }
+.verb-bottom-row > div:first-child { min-height: 0; }
+.verb-expand-cell { display: flex; align-items: center; justify-content: center; }
 .verb-tense-title {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700;
   color: var(--text2); text-transform: uppercase; letter-spacing: .06em;
@@ -1439,7 +1441,7 @@ function buildCard(w, idx) {
       } else {
         body += `<div></div>`;
       }
-      body += `<span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);flex-shrink:0;">展开全部</span>`;
+      body += `<div class="verb-expand-cell"><span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);">展开全部</span></div>`;
       body += `</div>`;
       body += `</div>`; // close verb-tense-grid
     } else {
