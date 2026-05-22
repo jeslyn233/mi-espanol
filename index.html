@@ -1900,7 +1900,7 @@ window.onclick = function (e) {
     for (const w of defaults) {
       const idx = words.findIndex(x => x.word === w.word);
       if (idx >= 0) {
-        words[idx] = w;
+        continue; // don't overwrite existing words
       } else {
         words.push(w);
       }
