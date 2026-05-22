@@ -1924,22 +1924,27 @@ window.onclick = function (e) {
 // ── Init ──────────────────────────────────────────
 (async function init() {
   // Load grammar: try Supabase first, fallback to localStorage
+  // Load grammar: merge Supabase + localStorage (Supabase wins on same title)
+  const gMap = new Map();
   if (sb) {
     try {
       const { data, error } = await sb.from('grammar').select('data').order('title');
       if (!error && data && data.length) {
-        grammarNotes = data.map(r => r.data);
-        saveGrammarLocal();
+        for (const r of data) gMap.set(r.data.title, r.data);
       }
     } catch (e) { console.warn('Grammar Supabase load failed'); }
   }
-  if (!grammarNotes.length) {
-    try {
-      const g = localStorage.getItem('es_grammar_v1');
-      if (g) grammarNotes = JSON.parse(g);
-    } catch (e) {}
-  }
-  // First-time grammar migration: sync local → Supabase
+  try {
+    const g = localStorage.getItem('es_grammar_v1');
+    if (g) {
+      for (const n of JSON.parse(g)) {
+        if (!gMap.has(n.title)) gMap.set(n.title, n);
+      }
+    }
+  } catch (e) {}
+  grammarNotes = [...gMap.values()];
+  saveGrammarLocal();
+  // Sync merged result to Supabase
   if (sb && grammarNotes.length) { syncGrammarToSupabase(); }
   await loadWords();
   resetOverdue();
