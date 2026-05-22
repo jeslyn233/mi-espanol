@@ -33,11 +33,14 @@ REGLAS ESTRICTAS:
   "verb_forms": {}
 }
 
-1.5 **Tags (3-5个)**：
-   - 必含一个语域标签：书面/口语/中性
-   - 必含一个情感色彩：正面/负面/中性（如果适用）
-   - 其余为使用场景分类（工作/社交/日常生活/旅行等）
-   - 例：aumentar → ["书面", "中性", "工作", "数据"]；renunciar → ["口语", "负面", "工作", "决定"]
+1.5 **Tags (3-5个)**，必须覆盖以下三个维度：
+   - 语域（必含）：书面/口语/通用
+   - 情感色彩（必含）：根据词本身的语义判断。拿不准就用 正面/负面/中性，能细分时可参考以下方向：
+     正面 — 温暖/鼓励/赞美/感激/亲密 等
+     负面 — 批评/抱怨/贬低/厌恶/焦虑 等
+     特殊 — 讽刺/委婉/戏谑/冷淡 等
+   - 使用场景（1-3个）：工作/社交/日常生活/旅行/身体/心理/数据/决定 等
+   - 例：agotado → ["口语", "负面", "身体", "日常生活"]；renunciar → ["通用", "负面", "工作"]；abrazar → ["通用", "温暖", "社交", "日常生活"]
    - 不要重复 type 已有的信息（v 已经表明是动词，tags 就不用标"动词"）
 
 2. **Chunks（数量根据词灵活决定）**：
@@ -51,6 +54,7 @@ REGLAS ESTRICTAS:
    - ⚠️ REGLA Nº1 (LA MÁS IMPORTANTE): Cada estructura fija se resalta UNA SOLA VEZ en el chunk más representativo. En los demás chunks de la misma palabra, aunque aparezca la misma estructura, NO se resalta. Ejemplo: si ya resaltaste "renunciar a" en "renunciar a algo", NO lo resaltes en "renunciar a un derecho" ni en "No pienso renunciar a...".
    - Solo se resalta: verbo+preposición fija, verbo+conjunción fija, o perífrasis verbal. Ejemplos:
      ✅ "aprovechar para" / "aprovechar que" / "renunciar a" / "tener que"
+   - ⚠️ Si el resaltado incluye un sustantivo con artículo definido fijo (el/la/los/las), el artículo debe ir dentro del highlight. Ej: "el derecho" no "derecho", "la razón" no "razón".
    - NO se resalta:
      ❌ verbo + sustantivo cualquiera (coger una flor, tener tiempo)
      ❌ nombre + de + nombre (hora de la comida, día de trabajo)
@@ -95,16 +99,16 @@ REGLAS ESTRICTAS:
 9. **Verb forms**：
    - 规则动词（renunciar, hablar, comer, vivir 等）：{}
    - ⚠️ Antes de llenar verb_forms, verifica SIEMPRE: ¿este verbo sigue TODAS las conjugaciones regulares sin ninguna excepción? Si sí, DEBE ser {}.
-   - 不规则动词，按以下格式：
+   - 不规则动词，按以下格式（仅写变位形式，不带人称代词，用「 / 」分隔）：
    {
-     "presente": "yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形",
-     "pretérito imperfecto": "...",
-     "pretérito": "...",
-     "futuro": "...",
-     "condicional": "...",
-     "subjuntivo presente": "...",
-     "subjuntivo imperfecto": "...",
-     "imperativo": "tú形 / usted形 / nosotros形 / vosotros形 / ustedes形",
+     "presente": "tengo / tienes / tiene / tenemos / tenéis / tienen",
+     "pretérito imperfecto": "iba / ibas / iba / íbamos / ibais / iban",
+     "pretérito": "tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",
+     "futuro": "tendré / tendrás / tendrá / tendremos / tendréis / tendrán",
+     "condicional": "tendría / tendrías / tendría / tendríamos / tendríais / tendrían",
+     "subjuntivo presente": "tenga / tengas / tenga / tengamos / tengáis / tengan",
+     "subjuntivo imperfecto": "tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",
+     "imperativo": "ten / tenga / tengamos / tened / tengan",
      "otros": ["Participio pasado: 过去分词", "Gerundio: 副动词"],
      "_irreg_note": "简短说明（仅拼写改音动词填写，其余不填）"
    }
