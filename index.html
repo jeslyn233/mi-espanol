@@ -1717,6 +1717,7 @@ async function deleteWord(idx) {
 }
 
 let editIdx = -1;
+let editGrammarIdx = -1;
 
 function editWord(idx) {
   editIdx = idx;
@@ -1729,6 +1730,7 @@ function editWord(idx) {
 function closeEditModal() {
   document.getElementById('editModal').classList.remove('open');
   editIdx = -1;
+  editGrammarIdx = -1;
 }
 
 async function saveEdit() {
@@ -1736,6 +1738,16 @@ async function saveEdit() {
   if (!raw) { alert('El contenido está vacío.'); return; }
   let card;
   try { card = JSON.parse(raw); } catch (e) { alert('JSON inválido: ' + e.message); return; }
+  // Grammar edit
+  if (editGrammarIdx >= 0) {
+    if (!card.title) { alert('Falta el campo "title".'); return; }
+    grammarNotes[editGrammarIdx] = card;
+    saveGrammarLocal(); syncGrammarToSupabase();
+    closeEditModal();
+    renderGrammar();
+    return;
+  }
+  // Word edit
   if (!card.word) { alert('Falta el campo "word".'); return; }
   words[editIdx] = card;
   saveLocal();
@@ -1744,6 +1756,14 @@ async function saveEdit() {
   }
   closeEditModal();
   render();
+}
+
+function openEditGrammar(idx) {
+  editGrammarIdx = idx;
+  const n = grammarNotes[idx];
+  document.getElementById('editTitle').textContent = 'Editar — ' + n.title;
+  document.getElementById('editText').value = JSON.stringify(n, null, 2);
+  document.getElementById('editModal').classList.add('open');
 }
 
 function openImportModal(mode) {
@@ -1888,7 +1908,7 @@ function renderGrammar() {
       ${note.tag ? `<span class="gram-tag">${escapeHTML(note.tag)}</span>` : ''}
       <span class="chevron" id="gchev-${id}">▼</span>
     </div><div class="gram-body" id="gbody-${id}">${renderBlocks(note.blocks)}
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);"><button class="danger" onclick="deleteGrammarNote(${ni})">Eliminar nota</button></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);"><button class="edit" onclick="openEditGrammar(${ni})">Editar JSON</button><button class="danger" onclick="deleteGrammarNote(${ni})">Eliminar nota</button></div>
     </div>`;
     list.appendChild(card);
   });
