@@ -678,6 +678,10 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
         <option value="">全部标签</option>
       </select>
       <button class="primary gram-import-btn" onclick="openImportModal('grammar')">+ 导入 JSON</button>
+      <select id="grammarSort" onchange="renderGrammar()" style="width:auto;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);margin-left:auto;">
+        <option value="time">时间</option>
+        <option value="alpha">A-Z</option>
+      </select>
     </div>
     <div class="grammar-list" id="grammarList">
       <div class="gram-card">
@@ -1812,6 +1816,7 @@ async function doImport() {
       showToast('"' + data.word + '" importado');
     } else if (importMode === 'grammar') {
       if (!data.title) { alert('Falta el campo: title.'); return; }
+      data.createdAt = data.createdAt || new Date().toISOString();
       grammarNotes.push(data);
       saveGrammarLocal(); syncGrammarToSupabase();
       closeImportModal(); renderGrammar();
@@ -1864,6 +1869,14 @@ function renderGrammar() {
     if (tagFilter && n.tag !== tagFilter) return false;
     if (search && !(n.title || '').toLowerCase().includes(search) && !(n.tag || '').toLowerCase().includes(search)) return false;
     return true;
+  });
+  const sortBy = document.getElementById('grammarSort').value;
+  filtered.sort((a, b) => {
+    if (sortBy === 'alpha') return (a.title || '').localeCompare(b.title || '', 'es', { sensitivity: 'base' });
+    // time: newest first
+    const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return tb - ta;
   });
   filtered.forEach((note, fi) => {
     const ni = grammarNotes.indexOf(note);
