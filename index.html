@@ -654,6 +654,12 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
             <option value="">频次</option>
             <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
           </select>
+          <span class="search-divider"></span>
+          <select id="filterForm" onchange="render()" class="light-select">
+            <option value="">形式</option>
+            <option value="word">单词</option>
+            <option value="phrase">词组</option>
+          </select>
         </div>
       </div>
       <div class="toolbar-right">
@@ -1234,6 +1240,7 @@ function render() {
   const type = document.getElementById('filterType').value;
   const level = document.getElementById('filterLevel').value;
   const freq = document.getElementById('filterFreq').value;
+  const form = document.getElementById('filterForm').value;
   const today = new Date().toISOString().slice(0, 10);
 
   const filtered = words.filter(w => {
@@ -1243,6 +1250,8 @@ function render() {
     else if (type && wtype !== type) return false;
     if (level && w.level !== level) return false;
     if (freq && w.frequency !== freq) return false;
+    if (form === 'word' && w.word.includes(' ')) return false;
+    if (form === 'phrase' && !w.word.includes(' ')) return false;
     // Review filter
     if (reviewFilter === 'reviewed') {
       if (!w.review || w.review.last_reviewed !== today) return false;
