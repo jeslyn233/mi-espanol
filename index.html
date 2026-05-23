@@ -673,7 +673,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
   <div id="tab-grammar" style="display:none">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <div class="search-bar" style="max-width:400px;">
+      <div class="search-bar" style="max-width:260px;">
         <input type="text" id="grammarSearch" placeholder="Buscar gramática…" oninput="renderGrammar()" onfocus="if(this.value){this.value='';renderGrammar();}">
         <span class="search-divider"></span>
         <select id="grammarTagFilter" class="light-select" onchange="renderGrammar()">
@@ -681,7 +681,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
         </select>
       </div>
       <button class="primary gram-import-btn" onclick="openImportModal('grammar')">+ 导入 JSON</button>
-      <select id="grammarSort" onchange="renderGrammar()" style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
+      <select id="grammarSort" onchange="renderGrammar()" style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);margin-left:auto;">
         <option value="time">Nuevo</option>
         <option value="alpha">A-Z</option>
       </select>
