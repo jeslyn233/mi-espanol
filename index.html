@@ -1818,7 +1818,7 @@ async function doImport() {
       closeImportModal(); render();
       showToast('Datos restaurados');
     }
-  } catch (e) { alert('Error: JSON no válido.'); }
+  } catch (e) { alert('Error: ' + e.message); console.error(e); }
 }
 
 async function exportData() {
