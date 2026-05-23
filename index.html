@@ -1896,11 +1896,11 @@ function renderGrammar() {
   const sortBy = document.getElementById('grammarSort').value;
   filtered.sort((a, b) => {
     if (sortBy === 'alpha') return (a.title || '').localeCompare(b.title || '', 'es', { sensitivity: 'base' });
-    // time: newest first
     const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
     const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return tb - ta;
   });
+  console.log('renderGrammar sort:', sortBy, filtered.map(n => n.title));
   filtered.forEach((note, fi) => {
     const ni = grammarNotes.indexOf(note);
     const id = 'dyn-' + ni;
