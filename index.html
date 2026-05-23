@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 :root {
-  --bg: #FDFCF8;
+  --bg: #F5F9FC;
   --surface: #FFFFFF;
   --surface2: #F0EDE6;
   --border: #E8E5DF;
@@ -27,12 +27,16 @@
   --chunk-badge-text: #4A708B;
   --related-bg: #F4EAED;
   --related-text: #6B4A50;
-  --tag-bg: #EAE7E0;
-  --tag-text: #6B6860;
+  --cool-bg: #F1F5F9;
+  --cool-bg2: #E2E8F0;
+  --cool-text: #475569;
+  --tag-bg: #E5E7EB;
+  --tag-text: #374151;
   --radius: 12px;
   --radius-sm: 8px;
   --shadow: 0 1px 3px rgba(0,0,0,.06);
 }
+html { scrollbar-gutter: stable; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Georgia', 'Times New Roman', serif;
@@ -41,12 +45,22 @@ body {
 }
 .container { max-width: 780px; margin: 0 auto; padding-right: 36px; }
 
-header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; }
+header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; display: flex; align-items: flex-end; justify-content: space-between; }
 header h1 { font-size: 1.6rem; font-weight: normal; letter-spacing: -0.02em; }
 header p { font-size: .875rem; color: var(--text2); margin-top: 4px; font-family: 'DM Sans', system-ui, sans-serif; }
+.header-right { flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+.lock-btn { font-size: 18px; background: none; border: none; cursor: pointer; padding: 4px; line-height: 1; }
+.lock-input { font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; padding: 4px 8px; border: 1px solid var(--border2); border-radius: 4px; width: 100px; display: none; }
+.lock-input.show { display: inline-block; }
+.lock-msg { font-size: 11px; color: var(--text3); font-family: 'DM Sans', system-ui, sans-serif; display: none; }
+.locked .gen-box,
+.locked .more-menu,
+.locked .card-actions,
+.locked .gram-import-btn,
+.locked .review-area { display: none !important; }
 
-.nav { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
-.nav-btn { flex: 1; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; padding: 8px 12px; border: none; border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; transition: all .15s; }
+.nav { display: flex; gap: 4px; margin-bottom: 1.5rem; background: var(--cool-bg); border-radius: var(--radius-sm); padding: 4px; border: 1px solid var(--border); }
+.nav-btn { flex: 1; font-family: 'Georgia', 'Times New Roman', serif; font-size: 14px; padding: 8px 12px; border: none; border-radius: 6px; background: transparent; color: var(--text2); cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
 .nav-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 
 input[type=text], select, textarea {
@@ -64,11 +78,13 @@ button {
   display: inline-flex; align-items: center; gap: 5px;
 }
 button:hover { background: var(--surface2); }
-button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-button.primary:hover { background: #2E4E70; }
+button.primary { background: #D9E0E7; color: #475569; border-color: #CBD5E1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1); }
+button.primary:hover { background: #CDD5DE; border-color: #BAC3CF; }
 button.primary:disabled { opacity: .5; cursor: not-allowed; }
 button.danger { color: #b91c1c; }
 button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
+button.edit { color: var(--text2); }
+button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 .az-bar {
   position: fixed; right: 6px; top: 50%; transform: translateY(-50%);
@@ -84,12 +100,72 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .az-bar a:hover { background: var(--accent-bg); color: var(--accent); }
 .az-bar a.has-words { color: var(--text2); }
 
-.fab-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
-.toolbar { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
-#search { flex: 1; min-width: 150px; }
+.fab-row { display: flex; gap: 8px; margin-bottom: 1rem; align-items: center; }
+.more-menu { position: relative; flex-shrink: 0; }
+.more-btn { font-size: 16px; padding: 8px 10px; letter-spacing: 1px; }
+.more-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: 0 4px 16px rgba(0,0,0,.1); z-index: 60; min-width: 140px; flex-direction: column; padding: 4px; }
+.more-dropdown.open { display: flex; }
+.more-dropdown button { width: 100%; justify-content: flex-start; border: none; border-radius: 6px; font-size: 13px; padding: 8px 12px; }
+.toolbar { display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+.toolbar-left { flex: 1; min-width: 0; }
+.toolbar-right { flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
+.flashcard-btn {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: none; cursor: pointer; flex-shrink: 0;
+  background: #D9E0E7;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flashcard-btn:hover { filter: brightness(1.05); }
+.flashcard-btn:active { transform: scale(0.95); transition: transform 0.1s ease; }
+.flashcard-btn.active {
+  background: #FFE8EC;
+  box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -1px 1px rgba(255,150,170,0.15);
+  transform: none;
+}
+.flashcard-btn.active:hover { filter: brightness(1.03); }
+.flashcard-btn.active:active { transform: scale(0.95); }
+/* Flashcard mode: hide Chinese on collapsed cards only */
+.flashcard-mode .card:not(.open) .core-meaning { opacity: 0; transition: opacity 0.2s; }
+.flashcard-mode .card:not(.open) .card-head:hover .core-meaning { opacity: 1; }
+.flashcard-mode .card.open .core-meaning { opacity: 1 !important; }
+.search-bar {
+  display: flex; align-items: center; background: #FFFFFF;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  overflow: hidden; flex: 1; min-width: 0;
+}
+.search-bar input {
+  border: none; flex: 1; min-width: 0; background: transparent;
+  padding: 8px 12px; outline: none; font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 14px; color: var(--text);
+}
+.search-bar input::placeholder { color: var(--text3); }
+.search-divider { width: 1px; height: 22px; background: #E2E8F0; flex-shrink: 0; }
+.light-select {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px;
+  padding: 8px 6px; border: none; background: transparent;
+  color: var(--text2); cursor: pointer; outline: none;
+  -webkit-appearance: none; appearance: none; border-radius: 0;
+  width: 64px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23AAA29D'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center;
+  padding-right: 18px;
+}
+.light-select:hover { background: var(--cool-bg); }
+.light-select:focus { color: var(--text); }
+.task-tabs { display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; }
+.task-tab {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px;
+  padding: 5px 12px; border: none; background: transparent; border-radius: 6px;
+  cursor: pointer; color: var(--text2); transition: all .15s; white-space: nowrap;
+}
+.task-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.task-tab:hover:not(.active) { color: var(--text); }
+.task-num { font-weight: 600; margin-left: 1px; }
+#search { flex: 1; min-width: 120px; }
 .count { font-size: 13px; color: var(--text3); margin-bottom: 10px; font-family: 'DM Sans', system-ui, sans-serif; }
 
-.gen-box { display: flex; gap: 6px; align-items: center; margin-bottom: .5rem; }
+.gen-box { display: flex; gap: 6px; align-items: center; }
 .gen-box input { width: 180px; }
 .gen-spin { display: none; animation: spin .8s linear infinite; font-size: 14px; }
 .gen-spin.active { display: inline-block; }
@@ -104,9 +180,9 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .letter-heading span { font-size: 18px; color: var(--text2); font-weight: normal; letter-spacing: 0; }
 
 .card {
-  background: var(--surface); border: 1px solid var(--border);
+  background: #FFFFFF; border: 1px solid var(--border);
   border-radius: var(--radius); overflow: hidden;
-  box-shadow: var(--shadow); margin-bottom: 8px;
+  box-shadow: 0 4px 12px rgba(15,23,42,0.03); margin-bottom: 8px;
   transition: box-shadow .2s, border-color .2s; scroll-margin-top: 20px;
 }
 .card.highlight { box-shadow: 0 0 0 2px var(--accent); border-color: var(--accent); }
@@ -115,7 +191,8 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   display: flex; align-items: center; padding: 11px 16px;
   cursor: pointer; user-select: none; transition: background .12s;
 }
-.card-head:hover { background: var(--surface2); }
+.card-head:hover { background: #F8FAFC; }
+.card.open .card-head { background: #F8FAFC; }
 
 .head-left { width: 40%; display: flex; align-items: baseline; flex-shrink: 0; overflow: hidden; }
 .word-main {
@@ -132,7 +209,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   padding: 2px 7px; border-radius: 999px; white-space: nowrap;
 }
 .badge-level { background: var(--accent-bg); color: var(--accent-text); }
-.badge-freq { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); font-size: 10px; }
+.badge-freq { background: #E5E7EB; color: #374151; border: 1px solid #D1D5DB; font-size: 10px; }
 .core-meaning {
   font-size: 13px; color: var(--text2);
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
@@ -147,6 +224,32 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 
 .section { margin-bottom: 18px; }
 .section:last-child { margin-bottom: 0; }
+
+.gender-tabs { display: flex; gap: 12px; margin-bottom: 10px; }
+.gender-tab {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px;
+  padding: 6px 16px; border: none; border-radius: 999px;
+  background: #F8F1F3; color: #57534E; cursor: pointer;
+  transition: opacity .15s; display: inline-flex; align-items: center; gap: 6px;
+}
+.gender-tab:hover { opacity: 0.7; }
+.gender-tab.active { color: #57534E; font-weight: 600; opacity: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.gender-tab-badge {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 600;
+  min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px;
+  background: #E2E8F0; color: #475569;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.gender-divider { border-bottom: 1px solid #EAEAEA; margin-bottom: 16px; }
+.gender-panel { display: none; }
+.gender-panel.active { display: block; margin-bottom: 18px; }
+
+.gender-meanings { margin-bottom: 18px; }
+.gender-item { display: flex; align-items: baseline; gap: 8px; padding: 4px 0; font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; }
+.gender-item:first-child { padding-top: 0; }
+.gender-item:last-child { padding-bottom: 0; }
+.gender-badge { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--accent-bg); color: var(--accent-text); flex-shrink: 0; }
+.gender-text { color: var(--text); font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 14px; line-height: 1.6; }
 .sec-label {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 8.5px; font-weight: 700;
   color: var(--text3); text-transform: uppercase; letter-spacing: .14em;
@@ -157,7 +260,7 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .chip {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px;
   padding: 3px 10px; border-radius: 999px;
-  background: var(--tag-bg); color: var(--tag-text); border: 1px solid var(--border);
+  background: var(--tag-bg); color: var(--tag-text); border: 1px solid #D1D5DB;
 }
 .chip.clickable { cursor: pointer; }
 .chip.clickable:hover { opacity: .7; }
@@ -174,15 +277,15 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .chunk-item {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-sm); cursor: pointer;
-  transition: background .12s; overflow: hidden;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out; overflow: hidden;
 }
-.chunk-item:hover { background: #fdfcf9; }
+.chunk-item:hover { background: var(--surface); border-color: #FFD6DC; box-shadow: 0 0 8px rgba(255,214,220,0.5); }
 .chunk-main { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; gap: 10px; }
 .chunk-text {
   font-family: 'Georgia', serif; font-size: 18px; font-weight: 500; font-style: italic;
   color: var(--text); line-height: 1.5; flex: 1;
 }
-.chunk-hl { background: var(--hl-bg); border-radius: 3px; padding: 0 2px; }
+.chunk-hl { background: var(--hl-bg); border-radius: 4px; padding: 0 4px; }
 .chunk-hint { font-size: 11px; color: var(--text3); flex-shrink: 0; opacity: 0.5; }
 .chunk-badge {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 600;
@@ -205,15 +308,15 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 
 .nuance-list { display: flex; flex-direction: column; gap: 5px; }
 .nuance-item {
-  display: flex; align-items: baseline; gap: 8px;
-  padding: 5px 0; font-family: 'DM Sans', system-ui, sans-serif;
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 6px 0; font-family: 'DM Sans', system-ui, sans-serif;
 }
 .nuance-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
 .nuance-word {
   font-family: 'Georgia', serif; font-size: 16px; font-style: italic;
   color: var(--text); min-width: 100px;
 }
-.nuance-desc { color: var(--text2); font-size: 14px; font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; flex: 1; }
+.nuance-desc { color: var(--text2); font-size: 14px; font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; flex: 1; letter-spacing: 0.02em; }
 
 .related-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .related-pill {
@@ -233,16 +336,16 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 }
 .native-zh { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 12px; color: var(--text2); }
 
-.note-list { background: var(--notes-bg); border-radius: var(--radius-sm); padding: 2px 12px; max-width: 92%; }
+.note-list { background: var(--notes-bg); border-radius: var(--radius-sm); padding: 10px 14px; max-width: 92%; }
 .note-item {
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 13px;
-  padding: 8px 0; color: #3A5068; line-height: 1.6;
+  padding: 10px 0; color: #3A5068; line-height: 1.6;
   border-bottom: 1px solid #D5DEE8;
 }
-.note-item:first-child { padding-top: 10px; }
-.note-item:last-child { border-bottom: none; padding-bottom: 10px; }
-.note-p { margin: 0; }
-.note-p + .note-p { margin-top: 8px; }
+.note-item:first-child { padding-top: 0; }
+.note-item:last-child { border-bottom: none; padding-bottom: 0; }
+.note-p { margin: 0 0 6px 0; }
+.note-p:last-child { margin-bottom: 0; }
 
 .verb-toggle {
   display: flex; align-items: center; gap: 6px;
@@ -260,13 +363,19 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .verb-content.open { display: block; }
 .verb-tense-block { margin-bottom: 14px; }
 .verb-tense-block:last-child { margin-bottom: 0; }
+.verb-bottom-row { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 6px 56px; }
+.verb-bottom-row > div:first-child { min-height: 0; }
+.verb-expand-cell { display: flex; align-items: center; justify-content: flex-end; }
 .verb-tense-title {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px; font-weight: 700;
   color: var(--text2); text-transform: uppercase; letter-spacing: .06em;
   padding-bottom: 3px; margin-bottom: 6px; border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
-.verb-conj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px 20px; }
+.tense-zh { font-size: 10px; color: var(--text3); font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 4px; }
+.verb-conj-grid { display: flex; flex-direction: column; gap: 3px; }
 .verb-conj-cell { display: flex; gap: 6px; padding: 2px 0; align-items: baseline; }
+.verb-tense-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 6px 56px; padding: 6px 0 0 12px; }
 .verb-person {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px;
   color: var(--text3); min-width: 42px; text-align: right; flex-shrink: 0;
@@ -275,20 +384,39 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   font-family: 'Georgia', serif; font-size: 14px; font-style: italic; color: var(--text);
 }
 .verb-form.empty { color: var(--text3); font-style: normal; }
+.verb-form.irreg { text-decoration: underline; text-decoration-color: #E8A0A8; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.verb-tense-title .irreg-dot { color: #E8A0A8; font-size: 10px; margin-left: 4px; }
+.verb-tense-title .irreg-dot.few { color: #88B4D8; }
 .verb-regular-note {
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
   font-size: 13px; color: var(--text2); padding: 2px 0;
 }
 .verb-others { margin-top: 8px; }
 .verb-other-item {
-  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
-  font-size: 13px; padding: 2px 0; color: var(--text2);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 11px; padding: 5px 0; color: var(--text3);
 }
 .verb-other-item span {
   font-family: 'Georgia', serif; font-size: 14px; font-style: italic; color: var(--text);
 }
 
-.card-actions { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.card-actions { display: flex; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); align-items: center; }
+.review-area { display: flex; align-items: center; gap: 8px; margin-left: auto; margin-right: 24px; }
+.review-dots { display: flex; gap: 5px; align-items: center; }
+.review-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.review-dot.pink { background: #FBCFE8; }
+.review-dot.purple { background: #DDD6FE; }
+.review-dot.blue { background: #BAE6FD; }
+.review-dot.gray { background: #E2E8F0; }
+.review-dot.none { visibility: hidden; }
+.review-check {
+  width: 18px; height: 18px; border: 2px solid #CBD5E1; border-radius: 4px;
+  cursor: pointer; flex-shrink: 0; transition: all .15s; background: transparent;
+  display: flex; align-items: center; justify-content: center;
+}
+.review-check:hover { border-color: #94A3B8; background: #F1F5F9; }
+.review-check.done { background: #BAE6FD; border-color: #7CB8D8; }
+.review-check.done::after { content: '✓'; font-size: 11px; color: #3A6A8A; font-weight: 700; }
 .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; }
 
 .toast {
@@ -317,28 +445,41 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 .form-group input, .form-group select, .form-group textarea { width: 100%; }
 .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
 .import-area { width: 100%; min-height: 120px; font-family: monospace; font-size: 12px; }
+.drop-zone {
+  border: 2px dashed var(--border); border-radius: 8px;
+  padding: 14px; text-align: center; cursor: pointer;
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; color: var(--text3);
+  margin-bottom: 12px; transition: border-color .2s;
+}
+.drop-zone.drag-over { border-color: var(--accent-text); color: var(--accent-text); }
 .hint { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; color: var(--text3); }
 
 /* Grammar */
 .grammar-list { display: flex; flex-direction: column; gap: 8px; }
 .gram-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
 .gram-head { display: flex; align-items: center; gap: 10px; padding: 13px 16px; cursor: pointer; user-select: none; transition: background .12s; }
-.gram-head:hover { background: var(--surface2); }
-.gram-title { font-size: 16px; font-weight: normal; flex: 1; font-family: 'DM Sans', system-ui, sans-serif; }
+.gram-head:hover { background: #F8FAFC; }
+.gram-title { font-family: 'Georgia', serif; font-size: 16px; font-weight: 500; font-style: italic; color: #4D4242; flex: 1; }
+.gram-title-hl { background: var(--hl-bg); border-radius: 3px; padding: 0 2px; animation: hlFade 2s ease-out forwards; }
+@keyframes hlFade { 0% { background: #F9E3E8; } 70% { background: #F9E3E8; } 100% { background: transparent; } }
 .gram-tag { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; padding: 2px 8px; border-radius: 999px; background: var(--related-bg); color: var(--related-text); border: 1px solid #E0C8CD; font-weight: 600; }
 .gram-body { display: none; border-top: 1px solid var(--border); padding: 20px; }
 .gram-body.open { display: block; }
-.gb-text { font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; color: var(--text); line-height: 1.7; margin-bottom: 14px; }
-.gb-list { font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; color: var(--text); line-height: 1.8; margin-bottom: 14px; padding-left: 4px; }
+.gb-text { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 15px; color: #2E485B; line-height: 1.65; margin-bottom: 12px; white-space: pre-line; }
+.gb-section { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 15px; font-weight: 700; color: #1A2A3A; margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 2px solid var(--accent); }
+.gb-list { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 13px; color: #3A5068; line-height: 1.6; margin-bottom: 18px; padding-left: 4px; }
 .gb-list li { margin-bottom: 4px; list-style: none; display: flex; gap: 8px; }
 .gb-list li::before { content: attr(data-n); color: var(--accent); font-weight: 700; min-width: 16px; }
-.gb-note { background: var(--accent-bg); border-radius: var(--radius-sm); padding: 12px 14px; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: var(--accent-text); line-height: 1.6; margin-bottom: 14px; }
-.gb-examples { margin-bottom: 14px; }
-.gb-example { font-size: 14px; color: var(--text2); font-style: italic; padding: 8px 12px; border-left: 2px solid var(--border2); margin-bottom: 6px; font-family: 'DM Sans', system-ui, sans-serif; line-height: 1.6; }
-.gb-table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; margin-bottom: 14px; }
+.gb-note { background: var(--accent-bg); border-radius: var(--radius-sm); padding: 12px 14px; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: var(--accent-text); line-height: 1.6; margin-bottom: 18px; white-space: pre-line; }
+.gb-examples { margin-bottom: 18px; }
+.gb-example { font-size: 15px; color: var(--text2); font-style: italic; padding: 7px 12px; margin-bottom: 4px; font-family: 'Georgia', serif; line-height: 1.7; position: relative; }
+.gb-example::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 2px; height: 60%; background: var(--border2); border-radius: 1px; }
+.gb-subsection { font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif; font-size: 14px; font-weight: 700; color: #2C3E50; margin: 24px 0 12px; }
+.gb-subsection::before { content: ''; display: inline-block; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); width: 8px; height: 8px; margin-right: 4px; vertical-align: text-top; }
+.gb-subsection::after  { content: ''; display: inline-block; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); width: 8px; height: 8px; margin-left: 4px; vertical-align: text-bottom; }
+.gb-table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; margin-bottom: 18px; }
 .gb-table th { background: var(--accent-bg); color: var(--accent-text); padding: 7px 10px; text-align: left; font-weight: 600; border: 1px solid #B0C8E0; }
 .gb-table td { padding: 6px 10px; border: 1px solid var(--border); color: var(--text); vertical-align: top; }
-.gb-table tr:nth-child(even) td { background: var(--surface2); }
 .tense-section { margin-bottom: 24px; }
 .tense-section:last-child { margin-bottom: 0; }
 .tense-title { font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
@@ -365,16 +506,28 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 
   /* Header */
   header h1 { font-size: 1.3rem; }
+  .lock-input { width: 80px; font-size: 11px; }
 
   /* Toolbar */
   .fab-row { gap: 4px; }
   .fab-row button { font-size: 11px; padding: 6px 8px; white-space: nowrap; }
+.more-btn { font-size: 14px; padding: 6px 8px; }
+.more-dropdown { min-width: 120px; right: -4px; }
   .gen-box { flex: 1; min-width: 0; }
   .gen-box input { width: 120px; font-size: 12px; }
   .gen-box button { font-size: 11px; padding: 6px 10px; }
   .gen-box input { width: 100%; min-width: 0; }
-  .toolbar { flex-direction: column; }
-  #search { width: 100%; }
+  .toolbar { flex-direction: column; gap: 8px; }
+  .toolbar-left { width: 100%; }
+  .toolbar-right { width: 100%; display: flex; align-items: center; gap: 8px; }
+  .search-bar { width: 100%; }
+  .search-bar input { font-size: 13px; padding: 7px 10px; }
+  .task-tabs { flex: 1; display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; }
+  .task-tab { flex: 1; font-size: 11px; padding: 6px 4px; white-space: nowrap; text-align: center; }
+  .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
+  .search-divider { height: 18px; }
+  .flashcard-btn { width: 24px; height: 24px; flex-shrink: 0; }
+  #search { min-width: 80px; }
 
   /* Card */
   .card-head { padding: 10px 12px; }
@@ -382,11 +535,14 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .word-main { font-size: 16px; }
   .core-meaning { display: none; }
   .core-meaning-mobile { display: block; font-family: '京华老宋体','Noto Serif SC','STSong','SimSun',serif; font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-  .nuance-item { flex-direction: column; gap: 2px; align-items: flex-start; }
-  .nuance-dot { margin-top: 0; }
-  .nuance-word { min-width: 0; }
-  .native-item { flex-direction: column; gap: 2px; }
-  .native-item::before { display: none; }
+  .nuance-item { flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+  .nuance-dot { margin-top: 0; flex-shrink: 0; }
+  .nuance-word { min-width: 0; flex-shrink: 0; font-size: 14px; }
+  .nuance-desc { flex-basis: 100%; padding-left: 20px; font-size: 13px; line-height: 1.7; margin-top: 2px; letter-spacing: 0.02em; }
+  .native-item { flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+  .native-item::before { font-size: 14px; margin-top: 2px; }
+  .native-text { margin-bottom: 0; min-width: 80px; }
+  .native-zh { flex-basis: 100%; padding-left: 14px; font-size: 12px; line-height: 1.6; }
   .card-body { padding: 12px; }
 
   /* Chunks */
@@ -395,6 +551,13 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .chunk-zh { padding: 0 10px 8px; }
   .chunk-explain { padding: 5px 10px 8px; }
 
+  /* Gender tabs */
+  .gender-tab { font-size: 12px; padding: 5px 14px; }
+
+  /* Gender meanings */
+  .gender-meanings { padding: 10px 12px; }
+  .gender-item { font-size: 13px; }
+
   /* Nuance */
   .nuance-word { font-size: 14px; min-width: 70px; }
 
@@ -402,16 +565,33 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
   .native-text { font-size: 13px; min-width: 80px; }
 
   /* Notes */
-  .note-list { max-width: 100%; padding: 2px 8px; }
+  .note-list { max-width: 100%; padding: 8px 10px; }
 
   /* Verb */
+  .review-dot { width: 9px; height: 9px; }
+  .review-check { width: 16px; height: 16px; }
   .verb-conj-grid { grid-template-columns: repeat(2, 1fr); gap: 2px 12px; }
   .verb-form { font-size: 13px; }
   .verb-person { font-size: 10px; min-width: 32px; }
 
   /* Grammar */
+  .gram-title { font-size: 14px; }
+  .gram-body { padding: 14px; }
+  .gb-text, .gb-list { font-size: 12px; line-height: 1.8; }
+  .gb-section { font-size: 14px; }
+  .gb-subsection { font-size: 13px; }
+  .gb-note { font-size: 12px; line-height: 1.8; }
+  .gb-example { font-size: 13px; }
+  .gb-table { font-size: 11px; }
+  .gb-table td, .gb-table th { padding: 4px 6px; line-height: 1.7; }
+  #grammarSearch { width: 100px !important; font-size: 12px; }
+  #grammarTagFilter { font-size: 11px; padding: 4px 6px; }
+  .gram-import-btn { font-size: 11px; padding: 6px 10px; }
   .conj-grid { grid-template-columns: 1fr; }
   .non-personal { grid-template-columns: 1fr; }
+
+  /* Verb tense grid mobile: stack to 1 column */
+  .verb-tense-grid { grid-template-columns: 1fr; }
 
   /* Modal */
   .modal { padding: 16px; margin: .5rem; }
@@ -423,12 +603,19 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
 <body>
 <div class="container">
   <header>
-    <h1>Mi español</h1>
-    <p>Vocabulario y gramática — generación automática con IA</p>
+    <div>
+      <h1>Mi español</h1>
+      <p>Vocabulario y gramática — generación automática con IA</p>
+    </div>
+    <div class="header-right">
+      <span class="lock-msg" id="lockMsg"></span>
+      <input type="password" class="lock-input" id="lockInput" placeholder="密码" onkeydown="if(event.key==='Enter')unlock()">
+      <button class="lock-btn" id="lockBtn" onclick="toggleLock()" title="编辑权限">🔒</button>
+    </div>
   </header>
   <div class="nav">
-    <button class="nav-btn active" onclick="showTab('vocab')">Vocabulario</button>
-    <button class="nav-btn" onclick="showTab('grammar')">Gramática</button>
+    <button class="nav-btn active" onclick="showTab('vocab')"><span style="margin-right:4px;">📇</span>Vocabulario</button>
+    <button class="nav-btn" onclick="showTab('grammar')"><span style="margin-right:4px;">📝</span>Gramática</button>
   </div>
 
   <div id="tab-vocab">
@@ -438,33 +625,60 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
         <button class="primary" id="genBtn" onclick="autoGenerate()"><span class="gen-spin" id="genSpin">⟳</span> AI 生成</button>
         <span style="color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;margin:0 4px;">o</span>
         <button onclick="openImportModal('word')">粘贴 JSON</button>
+        <div class="more-menu">
+          <button class="more-btn" onclick="toggleMoreMenu(event)" title="Más opciones">⋯</button>
+          <div class="more-dropdown" id="moreDropdown">
+            <button onclick="exportData()">Exportar</button>
+            <button onclick="openImportModal('restore')">Restaurar</button>
+          </div>
+        </div>
       </div>
-      <button onclick="exportData()">Exportar</button>
-      <button onclick="openImportModal('restore')">Restaurar</button>
     </div>
     <div class="toolbar">
-      <input type="text" id="search" placeholder="Buscar…" oninput="render()">
-      <select id="filterType" onchange="render()">
-        <option value="">Todas las categorías</option>
-        <option value="n">n — nombre</option><option value="v">v — verbo</option>
-        <option value="adj">adj — adjetivo</option><option value="adv">adv — adverbio</option>
-        <option value="prep">prep — preposición</option><option value="conj">conj — conjunción</option>
-        <option value="pron">pron — pronombre</option><option value="interj">interj — interjección</option>
-      </select>
-      <select id="filterLevel" onchange="render()">
-        <option value="">Todos los niveles</option>
-        <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
-      </select>
-      <select id="filterFreq" onchange="render()">
-        <option value="">Todas las frecuencias</option>
-        <option value="A">A — daily</option><option value="B">B — high</option><option value="C">C — medium</option><option value="D">D — low</option>
-      </select>
+      <div class="toolbar-left">
+        <div class="search-bar">
+          <input type="text" id="search" placeholder="Buscar…" oninput="render()" onfocus="if(this.value){this.value='';render();}">
+          <span class="search-divider"></span>
+          <select id="filterType" onchange="render()" class="light-select">
+            <option value="">分类</option>
+            <option value="n">nombre</option><option value="v">verbo</option>
+            <option value="adj">adjetivo</option><option value="adv">adverbio</option>
+            <option value="prep">preposición</option><option value="conj">conjunción</option>
+            <option value="pron">pronombre</option><option value="interj">interjección</option>
+          </select>
+          <span class="search-divider"></span>
+          <select id="filterLevel" onchange="render()" class="light-select">
+            <option value="">等级</option>
+            <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
+          </select>
+          <span class="search-divider"></span>
+          <select id="filterFreq" onchange="render()" class="light-select">
+            <option value="">频次</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+          </select>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <div class="task-tabs">
+          <button class="task-tab active" onclick="setReviewFilter('all')">全部 <span class="task-num" id="taskAll">0</span></button>
+          <button class="task-tab" onclick="setReviewFilter('reviewed')">已复习 <span class="task-num" id="taskReviewed">0</span></button>
+          <button class="task-tab" onclick="setReviewFilter('unreviewed')">未复习 <span class="task-num" id="taskUnreviewed">0</span></button>
+        </div>
+        <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
+      </div>
     </div>
     <div id="count" class="count"></div>
     <div id="wordList"></div>
   </div>
 
   <div id="tab-grammar" style="display:none">
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <input type="text" id="grammarSearch" placeholder="搜索标题…" oninput="renderGrammar()" onfocus="if(this.value){this.value='';renderGrammar();}" style="width:260px;">
+      <select id="grammarTagFilter" onchange="renderGrammar()" style="width:auto;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
+        <option value="">全部标签</option>
+      </select>
+      <button class="primary gram-import-btn" onclick="openImportModal('grammar')">+ 导入 JSON</button>
+    </div>
     <div class="grammar-list" id="grammarList">
       <div class="gram-card">
         <div class="gram-head" onclick="toggleGram('builtin-conj')">
@@ -542,9 +756,22 @@ button.danger:hover { background: #fdecea; border-color: #f5c2c2; }
     <h2 id="importTitle">Importar</h2>
     <p id="importHint" style="font-family:'DM Sans',system-ui,sans-serif;font-size:13px;color:#5A524D;margin-bottom:12px;"></p>
     <textarea class="import-area" id="importText"></textarea>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">或拖拽 JSON 文件到此处（支持单词、语法、备份）</div>
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileSelect(event)">
     <div class="form-actions">
       <button onclick="closeImportModal()">Cancelar</button>
       <button class="primary" onclick="doImport()">Importar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h2 id="editTitle">Editar</h2>
+    <textarea class="import-area" id="editText" style="min-height:320px;"></textarea>
+    <div class="form-actions">
+      <button onclick="closeEditModal()">Cancelar</button>
+      <button class="primary" onclick="saveEdit()">Guardar</button>
     </div>
   </div>
 </div>
@@ -567,6 +794,10 @@ let words = [];
 let grammarNotes = [];
 let importMode = 'word';
 let lastScrollY = 0;
+let reviewFilter = 'all';
+let flashcardMode = false;
+let isLocked = true;
+const EDIT_PASSWORD = '1994';
 
 // ── Helpers ───────────────────────────────────────
 function normalizeFirst(w) {
@@ -584,6 +815,164 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function dedupHighlights(card) {
+  if (!card.chunks || !card.chunks.length) return;
+  const seen = new Set();
+  for (const ch of card.chunks) {
+    const h = (ch.highlight || '').trim();
+    if (!h) continue;
+    const key = h.toLowerCase();
+    if (seen.has(key)) { ch.highlight = ''; }
+    else { seen.add(key); }
+  }
+}
+
+function stripConjugationNotes(card) {
+  if (!card.notes || !card.notes.length) return;
+  const conjKeywords = ['现在时', '过去时', '将来时', '虚拟式', '命令式', '过去分词', '副动词',
+    'presente', 'pretérito', 'futuro', 'subjuntivo', 'imperativo', 'participio', 'gerundio',
+    'tengo', 'tienes', 'tuviera', 'conjugación', '变位', '规则动词', '不规则动词',
+    '遵循', 'ir 动词', 'er 动词', 'ar 动词'];
+  card.notes = card.notes.filter(n => {
+    const lower = n.toLowerCase();
+    const hits = conjKeywords.filter(k => lower.includes(k.toLowerCase()));
+    return hits.length < 3;
+  });
+  // Also remove notes that are purely conjugation boilerplate or duplicate other fields
+  card.notes = card.notes.filter(n => {
+    const t = n.trim();
+    if (/规则动词/.test(t) && /变位/.test(t)) return false;
+    if (/不规则动词/.test(t) && /变位/.test(t)) return false;
+    if (/变位遵循/.test(t)) return false;
+    if (/es un verbo regular/.test(t.toLowerCase()) && /conjugación/.test(t.toLowerCase())) return false;
+    // "反义词：xxx" belongs in related_words, not notas
+    if (/反义词/.test(t)) return false;
+    // "近义词：xxx" belongs in nuance
+    if (/近义词/.test(t)) return false;
+    return true;
+  });
+}
+
+function expectedReg(infinitive, tense, idx, persons) {
+  // Strip pronominal "se" suffix (e.g. preguntarse → preguntar)
+  const base = infinitive.replace(/se$/, '');
+  const isAr = base.endsWith('ar');
+  const isEr = base.endsWith('er');
+  const stem = base.replace(/(ar|er|ir)$/, '');
+  if (tense === 'presente') {
+    const ends = isAr ? ['o','as','a','amos','áis','an'] : isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
+    return stem + ends[idx];
+  }
+  if (tense === 'pretérito imperfecto') {
+    const ends = isAr ? ['aba','abas','aba','ábamos','abais','aban'] : ['ía','ías','ía','íamos','íais','ían'];
+    return stem + ends[idx];
+  }
+  if (tense === 'pretérito') {
+    const ends = isAr ? ['é','aste','ó','amos','asteis','aron'] : ['í','iste','ió','imos','isteis','ieron'];
+    return stem + ends[idx];
+  }
+  if (tense === 'futuro') {
+    return infinitive + ['é','ás','á','emos','éis','án'][idx];
+  }
+  if (tense === 'condicional') {
+    return infinitive + ['ía','ías','ía','íamos','íais','ían'][idx];
+  }
+  if (tense === 'subjuntivo presente') {
+    const ends = isAr ? ['e','es','e','emos','éis','en'] : ['a','as','a','amos','áis','an'];
+    return stem + ends[idx];
+  }
+  if (tense === 'subjuntivo imperfecto') {
+    const vr = isAr ? ['ara','aras','ara','áramos','arais','aran'] : ['iera','ieras','iera','iéramos','ierais','ieran'];
+    const vs = isAr ? ['ase','ases','ase','ásemos','aseis','asen'] : ['iese','ieses','iese','iésemos','ieseis','iesen'];
+    return [stem + vr[idx], stem + vs[idx]];
+  }
+  if (tense === 'imperativo') {
+    if (idx === 0) return stem + (isAr ? 'a' : 'e');
+    if (idx === 1) return stem + (isAr ? 'e' : 'a');
+    if (idx === 2) return stem + (isAr ? 'emos' : 'amos');
+    if (idx === 3) return infinitive.replace(/r$/, '') + 'd';
+    if (idx === 4) return stem + (isAr ? 'en' : 'an');
+  }
+  return null;
+}
+
+function normalizeVerbFormStr(str) {
+  if (!str || typeof str !== 'string') return '';
+  let s = str.trim();
+  // Replace commas, semicolons, Chinese commas/semicolons, and newlines with " / "
+  s = s.replace(/[,;，；\n\r]+/g, ' / ');
+  // Collapse multiple spaces
+  s = s.replace(/\s+/g, ' ');
+  // Strip person labels and reflexive pronouns (yo, tú, me, te, se, nos, os, etc.)
+  const personRE = /^(yo|tú|él|ella|usted|nosotros|nosotras|vosotros|vosotras|ellos|ellas|ustedes|me|te|se|nos|os)\s+/i;
+  const parts = s.split('/').map(p => {
+    return p.trim().replace(personRE, '');
+  });
+  return parts.join(' / ');
+}
+
+function cleanVerbForms(card) {
+  const vf = card.verb_forms;
+  if (!vf || !Object.keys(vf).length) return;
+  const tenses = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
+  const personsMap = {
+    'presente':6,'pretérito imperfecto':6,'pretérito':6,'futuro':6,'condicional':6,'subjuntivo presente':6,'subjuntivo imperfecto':6,'imperativo':5
+  };
+  // First pass: detect duplicates (strong signal of AI error for regular verbs)
+  let hasDuplicate = false;
+  for (const t of tenses) {
+    const str = vf[t];
+    if (!str) continue;
+    const forms = normalizeVerbFormStr(str).split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
+    const seen = new Set();
+    for (const f of forms) {
+      const clean = f.trim();
+      if (!clean || clean === '—') continue;
+      if (seen.has(clean.toLowerCase())) { hasDuplicate = true; break; }
+      seen.add(clean.toLowerCase());
+    }
+    if (hasDuplicate) break;
+  }
+  // Second pass: check if any form deviates from regular pattern
+  let anyIrregular = false;
+  for (const t of tenses) {
+    const str = vf[t];
+    if (!str) continue;
+    const forms = normalizeVerbFormStr(str).split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
+    const n = personsMap[t] || forms.length;
+    for (let i = 0; i < n; i++) {
+      const clean = (forms[i] || '—').trim();
+      if (clean === '—') continue;
+      const exp = expectedReg(card.word, t, i);
+      const expList = Array.isArray(exp) ? exp : [exp];
+      if (!expList.some(e => clean.toLowerCase() === e.toLowerCase())) {
+        anyIrregular = true;
+        break;
+      }
+    }
+    if (anyIrregular) break;
+  }
+  // Clear if fully regular, or if AI made obvious errors (duplicates)
+  if (!anyIrregular || hasDuplicate) {
+    card.verb_forms = {};
+  }
+}
+
+function cleanRelatedWords(card) {
+  if (!card.related_words || !card.related_words.length) return;
+  // Remove self-reference
+  card.related_words = card.related_words.filter(rw => rw.toLowerCase() !== card.word.toLowerCase());
+  if (!card.related_words.length) return;
+  if (!(card.type || '').startsWith('v')) return;
+  // For verbs: if many items share the infinitive stem, they're probably conjugations
+  const stem = card.word.toLowerCase().replace(/(ar|er|ir)$/, '');
+  const prefix = stem.slice(0, 3);
+  const suspects = card.related_words.filter(rw => rw.toLowerCase().startsWith(prefix));
+  if (suspects.length >= 3) {
+    card.related_words = card.related_words.filter(rw => !rw.toLowerCase().startsWith(prefix));
+  }
 }
 
 // ── Data load/sync ────────────────────────────────
@@ -605,116 +994,28 @@ async function loadWords() {
     if (s) { words = JSON.parse(s); }
   } catch (e) {}
   // 3. Defaults (if still empty)
-  if (!words.length) { words = getDefaults(); saveLocal(); }
+  if (!words.length) { words = await getDefaults(); saveLocal(); }
   // 4. Sync local → Supabase (first-time migration)
   if (sb && words.length) { await syncToSupabase(); }
 }
 
-function getDefaults() {
+async function getDefaults() {
+  try {
+    const resp = await fetch('defaults.json');
+    if (resp.ok) return await resp.json();
+  } catch (e) { console.warn('Failed to load defaults.json, using fallback'); }
+  // Fallback — 防止 defaults.json 未部署时页面空白
   return [
-    {
-      "word": "agotado", "type": "adj", "level": "B1", "core_meaning": "筋疲力尽的；耗尽的；售罄的", "frequency": "A",
-      "tags": ["情绪", "状态", "高频口语"],
-      "situations": ["加班到晚上十点完全不想说话", "社交一整天之后彻底没电了", "想买的演唱会门票售罄了", "搬家完瘫在沙发上动不了"],
-      "chunks": [
-        { "text": "estar agotado/a", "zh": "筋疲力尽（表达状态）", "highlight": "", "note": "A1", "explain": "estar + adj. 表示状态（非本质），形容词与主语性数一致。" },
-        { "text": "físicamente agotado", "zh": "身体被掏空（高频搭配）", "highlight": "", "note": "A2" },
-	        { "text": "Estoy tan agotado que no puedo ni pensar.", "zh": "我累到脑子都不转了。（场景半成品）", "highlight": "", "note": "B1", "explain": "estar tan + adj. + que... 表示「如此……以至于……」" },
-	        { "text": "Hoy estoy agotada, mañana te llamo.", "zh": "今天累坏了，明天打给你。（独立高频句）", "highlight": "", "note": "A2" },
-        { "text": "completamente agotado", "zh": "彻底累垮了", "highlight": "", "note": "A2" },
-        { "text": "Las entradas ya están agotadas.", "zh": "票已经卖完了。", "highlight": "", "note": "B1" },
-        { "text": "Estoy agotado, ya no puedo más.", "zh": "我累坏了，不行了。", "highlight": "", "note": "A2" }
-      ],
-      "nuance": [
-        { "word": "cansado", "desc": "一般疲惫，程度较轻，日常高频" },
-        { "word": "extenuado", "desc": "极度疲劳，比 agotado 更正式、程度更深" },
-        { "word": "sin energía", "desc": "没能量了，偏口语，可以直接说" }
-      ],
-      "related_words": ["cansado", "extenuado", "sin energía", "estresado", "agotador"],
-      "native_expressions": [
-        { "text": "Estoy muerto/a.", "zh": "我累死了。（更口语、更地道）" },
-        { "text": "No puedo más.", "zh": "我不行了，到极限了。" }
-      ],
-      "notes": [
-        "不用 ser agotado，要用 estar agotado——因为疲惫是一种状态，不是本质属性",
-        "cansado 是「累了」，agotado 是「彻底耗尽了」，程度差一个档次。\n跟朋友说 Estoy agotado 会让人觉得你今天真的被榨干了。"
-      ],
-      "verb_forms": {}
-    },
-    {
-      "word": "aprovechar", "type": "v", "level": "B1", "core_meaning": "充分利用；抓住机会", "frequency": "A",
-      "tags": ["工作学习", "高频口语", "劝说"],
-      "situations": ["周末前计划好要做什么充分利用两天时间", "机票打折赶紧下单买了", "午休一小时跑去健身房不浪费"],
-      "chunks": [
-        { "text": "aprovechar + sustantivo", "zh": "充分利用某物（核心语法块）", "highlight": "", "note": "A2", "explain": "aprovechar 直接接名词，不加前置词。" },
-	        { "text": "aprovechar la oportunidad", "zh": "抓住机会（高频搭配）", "highlight": "", "note": "A2" },
-	        { "text": "Voy a aprovechar para descansar.", "zh": "我要趁机休息一下。", "highlight": "aprovechar para", "note": "A2", "explain": "aprovechar para + inf. 固定结构，表示「趁机做某事」。" },
-        { "text": "Aprovecha que tienes tiempo libre.", "zh": "趁你有空，好好利用。", "highlight": "Aprovecha que", "note": "A2", "explain": "aprovechar que + indicativo 固定结构，表示「趁着……」。后面接陈述式。" },
-        { "text": "Hay que aprovechar esta oportunidad.", "zh": "得抓住这个机会。", "highlight": "", "note": "B1" },
-        { "text": "Aprovecho el fin de semana para estudiar.", "zh": "我利用周末来学习。", "highlight": "", "note": "A2" },
-        { "text": "aprovechar el tiempo al máximo", "zh": "把时间利用到极致", "highlight": "", "note": "B1" }
-      ],
-      "nuance": [
-        { "word": "usar", "desc": "单纯的「使用」，不强调利用效率" },
-        { "word": "sacar partido", "desc": "设法从某事中获益，比 aprovechar 更口语" },
-        { "word": "desperdiciar", "desc": "浪费（aprovechar 的反义词）" }
-      ],
-      "related_words": ["sacar partido", "utilizar", "desperdiciar", "malgastar", "aprovechado"],
-      "native_expressions": [
-        { "text": "¡Aprovéchalo!", "zh": "好好利用它！别浪费！" },
-	        { "text": "Sácale partido.", "zh": "充分利用它。母语高频替代说法。" },
-        { "text": "El tiempo vuela, aprovéchalo.", "zh": "时间飞逝，好好利用。" }
-      ],
-      "notes": [
-        "aprovechar 直接接名词（aprovechar el tiempo），不需要加 de。\n但某些固定搭配里会出现 de，比如 aprovecharse de alguien（占某人便宜），意思就不一样了。",
-        "aprovechar para + 动词原形 = 趁机做某事，这是最实用的句型。"
-      ],
-      "verb_forms": {}
-    },
-    {
-      "word": "tener", "type": "v", "level": "A1", "core_meaning": "有；拥有；感到", "frequency": "A",
-      "tags": ["基础动词", "高频", "不规则"],
-      "situations": ["表达拥有某物或某种关系", "描述身体感受如饿渴冷热困", "说明年龄或时间安排", "表示必须做某事的义务"],
-      "chunks": [
-        { "text": "Tengo hambre.", "zh": "我饿了。", "highlight": "", "note": "A1", "explain": "tener + 名词 表示身体感受（hambre/sed/frío/calor/sueño），不是 ser/estar + adj。" },
-        { "text": "¿Tienes tiempo mañana?", "zh": "你明天有时间吗？", "highlight": "", "note": "A1" },
-        { "text": "Tiene 25 años.", "zh": "他/她 25 岁。", "highlight": "", "note": "A1" },
-        { "text": "tener suerte", "zh": "运气好（高频搭配）", "highlight": "", "note": "A2" },
-	        { "text": "tener razón", "zh": "说得对/有道理（高频搭配）", "highlight": "", "note": "A2" },
-	        { "text": "tener que + infinitivo", "zh": "必须做某事", "highlight": "", "note": "A2", "explain": "tener que + inf. 固定结构，表示「必须」（客观需要）。" },
-        { "text": "No tengo ganas de salir hoy.", "zh": "我今天不想出门。", "highlight": "", "note": "A2" },
-        { "text": "Ten paciencia, todo va a salir bien.", "zh": "耐心点，一切都会好的。", "highlight": "", "note": "B1" }
-      ],
-      "nuance": [
-        { "word": "haber", "desc": "作为「有」时是无人称（hay），不表示拥有" },
-        { "word": "poseer", "desc": "「拥有」的正式说法，多用于法律/书面" },
-        { "word": "contar con", "desc": "「拥有/具备」，强调可依靠的资源" }
-      ],
-      "related_words": ["haber", "poseer", "contar con", "carecer", "tener que"],
-      "native_expressions": [
-        { "text": "No tiene ni un pelo de tonto.", "zh": "他/她一点都不傻。（字面：没有一根傻头发）" },
-        { "text": "Tener los pies en la tierra.", "zh": "脚踏实地。" },
-	        { "text": "No tener pelos en la lengua.", "zh": "说话直来直去不拐弯抹角。" }
-      ],
-      "notes": [
-        "西班牙语用 tener 表达很多「感受」类的东西（tener hambre / sed / frío / calor / sueño / miedo）。\n英语用 be + adj，千万别翻译成 ser/estar + adj。",
-        "tener que + inf. = 必须（客观需要）；deber + inf. = 应该（道义责任）。\n语气不同，别混用。"
-      ],
-      "verb_forms": {
-        "presente": "tengo / tienes / tiene / tenemos / tenéis / tienen",
-        "pretérito": "tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",
-        "subjuntivo presente": "tenga / tengas / tenga / tengamos / tengáis / tengan",
-        "subjuntivo imperfecto": "tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",
-        "futuro": "tendré / tendrás / tendrá / tendremos / tendréis / tendrán",
-	        "imperativo": "ten / tenga / tengamos / tened / tengan",
-	        "otros": []
-      }
-    }
+    {"word":"tener","type":"v","level":"A1","core_meaning":"有；拥有；感到","frequency":"A","tags":["通用","中性","日常"],"situations":["表达拥有某物或某种关系","描述身体感受如饿渴冷热困","说明年龄或时间安排"],"chunks":[{"text":"Tengo hambre.","zh":"我饿了。","highlight":"","note":"A1","explain":"tener + 名词 表示身体感受，不是 ser/estar + adj。"},{"text":"tener que + infinitivo","zh":"必须做某事","highlight":"tener que","note":"A2","explain":"tener que + inf. 固定结构，表示「必须」（客观需要）。"},{"text":"No tengo ganas de salir hoy.","zh":"我今天不想出门。","highlight":"","note":"A2"}],"nuance":[{"word":"haber","desc":"无人称（hay），不表示拥有"},{"word":"poseer","desc":"「拥有」的正式说法，多用于法律/书面"}],"related_words":["haber","poseer","contar con","carecer"],"native_expressions":[],"notes":["西班牙语用 tener 表达很多感受类的东西（hambre/sed/frío/calor/sueño/miedo），英语用 be+adj，千万别翻译成 ser/estar+adj。"],"verb_forms":{"presente":"tengo / tienes / tiene / tenemos / tenéis / tienen","pretérito":"tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron","futuro":"tendré / tendrás / tendrá / tendremos / tendréis / tendrán","imperativo":"ten / tenga / tengamos / tened / tengan","subjuntivo presente":"tenga / tengas / tenga / tengamos / tengáis / tengan","subjuntivo imperfecto":"tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran","otros":[]}}
   ];
 }
 
 function saveLocal() {
   try { localStorage.setItem('es_vocab_v14', JSON.stringify(words)); } catch (e) {}
+}
+
+function saveGrammarLocal() {
+  try { localStorage.setItem('es_grammar_v1', JSON.stringify(grammarNotes)); } catch (e) {}
 }
 
 async function syncToSupabase() {
@@ -723,6 +1024,15 @@ async function syncToSupabase() {
     try {
       await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' });
     } catch (e) { console.warn('Sync failed for', w.word); }
+  }
+}
+
+async function syncGrammarToSupabase() {
+  if (!sb) return;
+  for (const n of grammarNotes) {
+    try {
+      await sb.from('grammar').upsert({ title: n.title, data: n }, { onConflict: 'title' });
+    } catch (e) { console.warn('Grammar sync failed for', n.title); }
   }
 }
 
@@ -772,6 +1082,11 @@ async function autoGenerate() {
     const card = JSON.parse(content);
     if (!card.word) throw new Error('JSON generado sin campo word');
 
+    dedupHighlights(card);
+    stripConjugationNotes(card);
+    cleanVerbForms(card);
+    cleanRelatedWords(card);
+
     if (exist >= 0) words[exist] = card;
     else words.push(card);
 
@@ -807,9 +1122,14 @@ const AI_SYSTEM_PROMPT = `Eres profesor de español ELE. Genera una tarjeta de v
 ESTRUCTURA:
 {
   "word": "palabra",
-  "type": "n|v|adj|adv",
+  "type": "m|f|m/f|n|v|adj|adv",
   "level": "A1|A2|B1|B2",
-  "core_meaning": "中文释义，简短",
+  "core_meaning": "中文释义，简短（m/f词用；分隔两性释义）",
+  "gender_meanings": [{"gender":"m","meaning":"阳性释义"},{"gender":"f","meaning":"阴性释义"}],
+  "gender_data": {"m":{"situations":["..."],"chunks":[...],"nuance":[...],"related_words":[...],"native_expressions":[...],"notes":[...]},"f":{...}},
+
+
+
   "frequency": "A|B|C",
   "tags": ["标签"],
   "situations": ["生活化中文场景短语"],
@@ -824,17 +1144,74 @@ ESTRUCTURA:
 }
 
 REGLAS:
+- type: 名词直接标阴阳性即可，无需前缀。纯阳性→"m"，纯阴性→"f"，阴阳性意思不同→"m/f"，两性通用意思相同→"n"。其余词性不变(v/adj/adv等)。m/f词必须填gender_meanings和gender_data字段，core_meaning用；分隔两性释义如"首都；资本"。gender_data按性别分别提供situations和chunks，两套数据严格隔离。
+- tags: 3-5个。必含语域(书面/口语/中性)+情感色彩(正面/负面/中性)，其余为场景分类(工作/社交/日常)。例: aumentar→["书面","中性","工作","数据"]；renunciar→["口语","负面","工作","决定"]。不要重复type已有信息(v已表动词，tags不标"动词")。
 - situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种敷衍的抽象描述。基础词(如tener)实在难写具体场景时允许适度概括，但仍要具体到用法类别。场景中不要夹杂西语单词，纯中文。
-- chunks: 不限制数量，从以下4个方向全面抓取。高亮默认规则:不确定时一律不高亮，宁可缺不可滥。规则A:同一搭配严格只标最长句中的第一次，后续禁止。规则B:能接动词时至少1-2个chunk展示动词原形用法。4个方向：(1)【核心语法块】目标词+固定介词/后接结构 如"renunciar a..." (2)【灵魂高频搭配】母语日常最常绑定的名词/动词组合 如"renunciar al trabajo" (3)【场景半成品】口语高频方便替换的半固定句式 如"No pienso renunciar a..." (4)【独立高频句】最基础最高频的独立整句 如"¡No renuncies!"
-- explain: 简短讲语法结构功能，可选字段
-- notes: 按不同话题分成数组项(每个话题一项=一条横线)。同一话题内补充说明用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"]
+- chunks: 数量根据词灵活决定。4个方向都要覆盖，4条偏少，高频词建议5-8条。⚠️高亮铁律第1条：每个固定结构只在最有代表性的那个chunk标高亮一次，其余chunk即使含同一结构也禁止再标。例：在"renunciar a algo"标了"renunciar a"，那"renunciar a un derecho""No pienso renunciar a..."都不准再标。只高亮「动词+固定介词/连词」或「习语级固定搭配」——如"aprovechar para""renunciar a""tener que"。禁止高亮：❌动词+随便一个名词(coger una flor, tener tiempo) ❌名词+de+名词普通所属(hora de la comida) ❌短句即是自明结构 ❌无语法钩子的高频搭配(tener razón) ❌同一搭配跨chunk重复高亮。高亮的目的是标记「不学就不会用的语法钩子」，不确定一律不高亮(宁缺毋滥)。规则B:能接动词时至少1-2个chunk展示动词原形用法。⚠️同一语义类别+同一句型的合并为一条，用「/」分隔。例：tener hambre/sed/frío/calor/sueño（身体感受）合并；tener razón/suerte/prisa（状态/属性）另开一条；tener miedo也另开。禁止不同语义类别全塞一条，也禁止同类别拆多条凑数。4个方向：(1)【核心语法块】目标词+固定介词/后接结构 如"renunciar a..." (2)【灵魂高频搭配】母语日常最常绑定的名词/动词组合 如"renunciar al trabajo" (3)【场景半成品】口语高频方便替换的半固定句式 如"No pienso renunciar a..." (4)【独立高频句】最基础最高频的独立整句 如"¡No renuncies!"
+- explain: 格式：结构 + 空格 + 说明，如"tener + 名词 表示身体感受，非 ser/estar"。只解释中文母语者容易踩坑的语法点。✅西语特有结构、固定前置词、特殊用法。❌时态描述、自明废话。拿不准一律不加。
+- notes: 每个词必须有1-2条，不要留空。按话题分成数组项。同一话题内补充用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"] 🚫禁止：①变位表 ②"反义词"(放related_words) ③"近义词"(放nuance)。
 - native_expressions: 2-3个。绝对禁止重复chunks内容。zh只写中文解释，不要标注分类。两个方向：(1)含原词的高阶俚语/口头禅 (2)不含原词但同场景的母语地道说法 如"Tirar la toalla"
-- verb_forms: 规则动词={}；不规则按{"presente":"yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形","pretérito":"...","futuro":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú形 / usted形 / nosotros形 / vosotros形 / ustedes形"}。将来时如果词根不规则也按6人称写入"futuro":"yo形 / ..."。只有无法对应6人称的才放"otros"
+- related_words: 4-6个独立词汇（近义词、反义词、同根词、场景搭配词）。只收高频词，拒绝生僻词。⚠️禁止：①与chunks/native_expressions重复 ②放同一个词的变位形式(tengo/tiene/tuvo/tendré等) ③放语法结构(tener que)。正确例：tener的related_words→["haber","poseer","carecer","contar con"]。若目标词有常见不规则分词，必须包含。
+- verb_forms: 规则动词(renunciar,hablar,comer,vivir等)={}。不规则按{"presente":"...","pretérito imperfecto":"...","pretérito":"...","futuro":"...","condicional":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú / usted / nosotros / vosotros / ustedes","otros":["Participio pasado: 过去分词","Gerundio: 副动词"],"_irreg_note":"仅拼写改音动词填，如'拼写变化：g→j在a/o前'"}。将来时词根不规则也填"futuro"。必须检查过去分词和副动词是否不规则，不规则则写入otros。不规则人称前端会自动检测高亮，无需额外标记。⚠️拼写改音动词(-ger,-gir,-car,-gar,-zar,-guir)的verb_forms绝对不能是{}，必须填有变化的时态。如coger必须填presente和subjuntivo presente。不是可选的。
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 西语: word,chunks.text,related_words,native_expressions.text
 SOLO RESPONDE CON EL JSON.`;
 
 // ── Card Rendering ────────────────────────────────
+
+// ── Review / Spaced Repetition ────────────────────
+const DOT_CONFIGS = [
+  ['pink','pink','pink'], ['purple','pink','pink'], ['purple','purple','pink'],
+  ['purple','purple','purple'], ['blue','purple','purple'], ['blue','blue','purple'],
+  ['blue','blue','blue'], ['gray','blue','blue'], ['gray','gray','blue'],
+  ['gray','gray','gray'], ['gray','gray',null], ['gray',null,null], [null,null,null]
+];
+const INTERVALS = [1,1,2,2,4,4,7,7,15,15,30,30];
+
+function renderReviewDots(stage) {
+  const s = Math.min(stage || 0, 12);
+  const cfg = DOT_CONFIGS[s] || DOT_CONFIGS[0];
+  return cfg.map(c => `<span class="review-dot${c ? ' ' + c : ' none'}"></span>`).join('');
+}
+
+function markReviewed(e, idx) {
+  e.stopPropagation();
+  const w = words[idx];
+  if (!w) return;
+  const today = new Date().toISOString().slice(0, 10);
+  if (w.review && w.review.last_reviewed === today) return; // already reviewed today
+  const stage = (w.review ? w.review.stage : 0);
+  const newStage = Math.min(stage + 1, 12);
+  const nextDays = INTERVALS[Math.min(newStage, 11)] || 30;
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + nextDays);
+  w.review = {
+    stage: newStage,
+    last_reviewed: today,
+    next_review: nextDate.toISOString().slice(0, 10)
+  };
+  saveLocal();
+  if (sb) {
+    try { sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch(e) {}
+  }
+  render();
+}
+
+function resetOverdue() {
+  const today = new Date().toISOString().slice(0, 10);
+  let changed = false;
+  words.forEach(w => {
+    if (!w.review) return;
+    if (w.review.next_review < today && w.review.last_reviewed < today) {
+      w.review.stage = 0;
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      w.review.next_review = tomorrow.toISOString().slice(0, 10);
+      changed = true;
+    }
+  });
+  if (changed) { saveLocal(); }
+}
 
 function renderChunkText(text, highlight) {
   if (!highlight) return escapeHTML(text);
@@ -852,15 +1229,37 @@ function render() {
   const type = document.getElementById('filterType').value;
   const level = document.getElementById('filterLevel').value;
   const freq = document.getElementById('filterFreq').value;
+  const today = new Date().toISOString().slice(0, 10);
 
   const filtered = words.filter(w => {
     if (q && !w.word.toLowerCase().includes(q) && !(w.core_meaning || '').toLowerCase().includes(q)) return false;
-    const wtype = (w.type || '').split('(')[0].trim();
-    if (type && wtype !== type) return false;
+    const wtype = (w.type || '').trim();
+    if (type === 'n') { if (!['m','f','m/f','n'].includes(wtype)) return false; }
+    else if (type && wtype !== type) return false;
     if (level && w.level !== level) return false;
     if (freq && w.frequency !== freq) return false;
+    // Review filter
+    if (reviewFilter === 'reviewed') {
+      if (!w.review || w.review.last_reviewed !== today) return false;
+    } else if (reviewFilter === 'unreviewed') {
+      const nextRev = w.review ? w.review.next_review : '0000-00-00';
+      if (w.review && w.review.last_reviewed === today) return false;
+      if (nextRev > today) return false;
+    }
     return true;
   }).sort((a, b) => a.word.localeCompare(b.word, 'es', { sensitivity: 'base' }));
+
+  // Update task tab counts
+  const totalN = words.length;
+  const reviewedN = words.filter(w => w.review && w.review.last_reviewed === today).length;
+  const unreviewedN = words.filter(w => {
+    const nextRev = w.review ? w.review.next_review : '0000-00-00';
+    if (w.review && w.review.last_reviewed === today) return false;
+    return nextRev <= today;
+  }).length;
+  document.getElementById('taskAll').textContent = totalN;
+  document.getElementById('taskReviewed').textContent = reviewedN;
+  document.getElementById('taskUnreviewed').textContent = unreviewedN;
 
   document.getElementById('count').textContent = filtered.length + ' palabra' + (filtered.length !== 1 ? 's' : '');
 
@@ -893,64 +1292,135 @@ function buildCard(w, idx) {
 
   body += `<div class="core-meaning-mobile">${escapeHTML(w.core_meaning || '')}</div>`;
 
-  if (w.situations && w.situations.length) {
-    body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${w.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
-  }
+  const hasGenderTabs = w.gender_meanings && w.gender_meanings.length > 1;
 
-  if (w.chunks && w.chunks.length) {
-    body += `<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">`;
-    w.chunks.forEach((ch, ci) => {
-      body += `<div class="chunk-item" onclick="toggleChunk(${idx},${ci})">
-        <div class="chunk-main">
-          <span class="chunk-text">${renderChunkText(ch.text, ch.highlight || '')}</span>
-          ${ch.explain ? '<span class="chunk-hint">✦</span>' : ''}
-          ${ch.note ? `<span class="chunk-badge">${escapeHTML(ch.note)}</span>` : ''}
-        </div>
-        <div class="chunk-zh" id="chunk-zh-${idx}-${ci}">${escapeHTML(ch.zh || '')}</div>
-        ${ch.explain ? `<div class="chunk-explain" id="chunk-explain-${idx}-${ci}">${escapeHTML(ch.explain)}</div>` : ''}
-      </div>`;
+  if (hasGenderTabs) {
+    // Gender tabs
+    body += `<div class="gender-tabs" id="gtabs-${idx}">`;
+    w.gender_meanings.forEach((gm, i) => {
+      body += `<div class="gender-tab${i===0?' active':''}" id="gtab-${idx}-${gm.gender}" onclick="switchGender(event,${idx},'${gm.gender}')">${escapeHTML(gm.gender)} ${escapeHTML(gm.meaning)}</div>`;
     });
-    body += `</div></div>`;
-  }
+    body += `</div><div class="gender-divider"></div>`;
 
-  if (w.nuance && w.nuance.length) {
-    body += `<div class="section"><div class="sec-label">Matices</div><div class="nuance-list">`;
-    w.nuance.forEach((n, ni) => {
-      const dotColor = NUANCE_DOTS[ni % NUANCE_DOTS.length];
-      body += `<div class="nuance-item"><span class="nuance-dot" style="background:${dotColor}"></span><span class="nuance-word">${escapeHTML(n.word)}</span><span class="nuance-desc">${escapeHTML(n.desc)}</span></div>`;
+    // Gender panels with ALL content per gender
+    w.gender_meanings.forEach((gm, i) => {
+      const gd = (w.gender_data && w.gender_data[gm.gender]) ? w.gender_data[gm.gender] : {};
+      const gSits = gd.situations || [];
+      const gChs = gd.chunks || [];
+      const gNuance = gd.nuance && gd.nuance.length ? gd.nuance : (w.nuance || []);
+      const gRelated = gd.related_words && gd.related_words.length ? gd.related_words : (w.related_words || []);
+      const gNative = gd.native_expressions && gd.native_expressions.length ? gd.native_expressions : (w.native_expressions || []);
+      const gNotes = gd.notes && gd.notes.length ? gd.notes : (w.notes || []);
+      body += `<div class="gender-panel gender-panel-${gm.gender}${i===0?' active':''}" id="gpanel-${idx}-${gm.gender}">`;
+      if (gSits.length) {
+        body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${gSits.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
+      }
+      if (gChs.length) {
+        body += `<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">`;
+        gChs.forEach((ch, ci) => {
+          body += `<div class="chunk-item" onclick="toggleChunk(${idx},'${gm.gender}',${ci})">
+            <div class="chunk-main">
+              <span class="chunk-text">${renderChunkText(ch.text, ch.highlight || '')}</span>
+              ${ch.explain ? '<span class="chunk-hint">✦</span>' : ''}
+              ${ch.note ? `<span class="chunk-badge">${escapeHTML(ch.note)}</span>` : ''}
+            </div>
+            <div class="chunk-zh" id="chunk-zh-${idx}-${gm.gender}-${ci}">${escapeHTML(ch.zh || '')}</div>
+            ${ch.explain ? `<div class="chunk-explain" id="chunk-explain-${idx}-${gm.gender}-${ci}">${escapeHTML(ch.explain)}</div>` : ''}
+          </div>`;
+        });
+        body += `</div></div>`;
+      }
+      if (gNuance.length) {
+        body += `<div class="section"><div class="sec-label">Matices</div><div class="nuance-list">`;
+        gNuance.forEach((n, ni) => {
+          const dotColor = NUANCE_DOTS[ni % NUANCE_DOTS.length];
+          body += `<div class="nuance-item"><span class="nuance-dot" style="background:${dotColor}"></span><span class="nuance-word">${escapeHTML(n.word)}</span><span class="nuance-desc">${escapeHTML(n.desc)}</span></div>`;
+        });
+        body += `</div></div>`;
+      }
+      if (gRelated.length) {
+        body += `<div class="section"><div class="sec-label">Relacionadas</div><div class="related-row">`;
+        gRelated.forEach(rw => {
+          body += `<span class="related-pill clickable" onclick="event.stopPropagation();jumpToWord('${rw.replace(/'/g, "\\'")}')">${escapeHTML(rw)}</span>`;
+        });
+        body += `</div></div>`;
+      }
+      if (gNative.length) {
+        body += `<div class="section"><div class="sec-label">Expresiones nativas</div><div class="native-list">`;
+        gNative.forEach(ne => {
+          body += `<div class="native-item"><span class="native-text">${escapeHTML(ne.text)}</span><span class="native-zh">${escapeHTML(ne.zh)}</span></div>`;
+        });
+        body += `</div></div>`;
+      }
+      if (gNotes.length) {
+        body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
+        gNotes.forEach(n => {
+          const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
+          const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
+          body += `<div class="note-item">${html}</div>`;
+        });
+        body += `</div></div>`;
+      }
+      body += `</div>`;
     });
-    body += `</div></div>`;
-  }
-
-  if (w.related_words && w.related_words.length) {
-    body += `<div class="section"><div class="sec-label">Relacionadas</div><div class="related-row">`;
-    w.related_words.forEach(rw => {
-      body += `<span class="related-pill clickable" onclick="event.stopPropagation();jumpToWord('${rw.replace(/'/g, "\\'")}')">${escapeHTML(rw)}</span>`;
-    });
-    body += `</div></div>`;
-  }
-
-  if (w.native_expressions && w.native_expressions.length) {
-    body += `<div class="section"><div class="sec-label">Expresiones nativas</div><div class="native-list">`;
-    w.native_expressions.forEach(ne => {
-      body += `<div class="native-item"><span class="native-text">${escapeHTML(ne.text)}</span><span class="native-zh">${escapeHTML(ne.zh)}</span></div>`;
-    });
-    body += `</div></div>`;
-  }
-
-  if (w.notes && w.notes.length) {
-    body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
-    w.notes.forEach(n => {
-      const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
-      const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
-      body += `<div class="note-item">${html}</div>`;
-    });
-    body += `</div></div>`;
+  } else {
+    // No gender tabs: render everything flat as before
+    if (w.situations && w.situations.length) {
+      body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${w.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
+    }
+    if (w.chunks && w.chunks.length) {
+      body += `<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">`;
+      w.chunks.forEach((ch, ci) => {
+        body += `<div class="chunk-item" onclick="toggleChunk(${idx},'',${ci})">
+          <div class="chunk-main">
+            <span class="chunk-text">${renderChunkText(ch.text, ch.highlight || '')}</span>
+            ${ch.explain ? '<span class="chunk-hint">✦</span>' : ''}
+            ${ch.note ? `<span class="chunk-badge">${escapeHTML(ch.note)}</span>` : ''}
+          </div>
+          <div class="chunk-zh" id="chunk-zh-${idx}--${ci}">${escapeHTML(ch.zh || '')}</div>
+          ${ch.explain ? `<div class="chunk-explain" id="chunk-explain-${idx}--${ci}">${escapeHTML(ch.explain)}</div>` : ''}
+        </div>`;
+      });
+      body += `</div></div>`;
+    }
+    if (w.nuance && w.nuance.length) {
+      body += `<div class="section"><div class="sec-label">Matices</div><div class="nuance-list">`;
+      w.nuance.forEach((n, ni) => {
+        const dotColor = NUANCE_DOTS[ni % NUANCE_DOTS.length];
+        body += `<div class="nuance-item"><span class="nuance-dot" style="background:${dotColor}"></span><span class="nuance-word">${escapeHTML(n.word)}</span><span class="nuance-desc">${escapeHTML(n.desc)}</span></div>`;
+      });
+      body += `</div></div>`;
+    }
+    if (w.related_words && w.related_words.length) {
+      body += `<div class="section"><div class="sec-label">Relacionadas</div><div class="related-row">`;
+      w.related_words.forEach(rw => {
+        body += `<span class="related-pill clickable" onclick="event.stopPropagation();jumpToWord('${rw.replace(/'/g, "\\'")}')">${escapeHTML(rw)}</span>`;
+      });
+      body += `</div></div>`;
+    }
+    if (w.native_expressions && w.native_expressions.length) {
+      body += `<div class="section"><div class="sec-label">Expresiones nativas</div><div class="native-list">`;
+      w.native_expressions.forEach(ne => {
+        body += `<div class="native-item"><span class="native-text">${escapeHTML(ne.text)}</span><span class="native-zh">${escapeHTML(ne.zh)}</span></div>`;
+      });
+      body += `</div></div>`;
+    }
+    if (w.notes && w.notes.length) {
+      body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
+      w.notes.forEach(n => {
+        const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
+        const html = paras.map(s => `<p class="note-p">${s}</p>`).join('');
+        body += `<div class="note-item">${html}</div>`;
+      });
+      body += `</div></div>`;
+    }
   }
 
   const isVerb = (w.type || '').startsWith('v');
   if (isVerb) {
-    const tenseKeys = w.verb_forms ? Object.keys(w.verb_forms).filter(k => k !== 'otros') : [];
+    const TENSE_ORDER = ['presente','futuro','pretérito','pretérito imperfecto','subjuntivo presente','subjuntivo imperfecto','condicional','imperativo'];
+    const TENSE_ZH = { presente:'一般现在', 'pretérito imperfecto':'过去未完成', pretérito:'一般过去', futuro:'一般将来', condicional:'条件式', 'subjuntivo presente':'现在虚拟', 'subjuntivo imperfecto':'过去虚拟', imperativo:'命令' };
+    const tenseKeys = TENSE_ORDER.filter(k => w.verb_forms && w.verb_forms[k]);
     const hasIrregular = tenseKeys.length > 0;
     const otrosItems = (w.verb_forms && w.verb_forms.otros) ? w.verb_forms.otros : [];
 
@@ -958,15 +1428,35 @@ function buildCard(w, idx) {
     const impPersons = ['tú', 'usted', 'nosotros', 'vosotros', 'ustedes'];
 
     function renderTenseGrid(k, forms, persons) {
-      let h = `<div class="verb-tense-block"><div class="verb-tense-title">${escapeHTML(k)}</div><div class="verb-conj-grid">`;
+      const cellData = [];
+      let irregCount = 0;
       for (let i = 0; i < persons.length; i++) {
         const fv = forms[i] || '';
-        h += `<div class="verb-conj-cell"><span class="verb-person">${persons[i]}</span><span class="verb-form${fv === '—' || !fv ? ' empty' : ''}">${escapeHTML(fv || '—')}</span></div>`;
+        let clean = fv.replace(/^\*|\*$/g, '').trim();
+        if (!clean || clean === '—') clean = '—';
+        const exp = expectedReg(w.word, k, i, persons);
+        const expList = Array.isArray(exp) ? exp : [exp];
+        const irreg = exp && clean !== '—' && !expList.some(e => clean.toLowerCase() === e.toLowerCase());
+        if (irreg) irregCount++;
+        cellData.push({ clean, irreg });
       }
-      // Fill empty cells to complete the grid row
+      const mostIrreg = irregCount >= 4;
+      const fewIrreg = irregCount >= 1 && irregCount <= 3;
+      const dot = mostIrreg ? '<span class="irreg-dot">●</span>' : (fewIrreg ? '<span class="irreg-dot few">●</span>' : '');
+      const tid = 'tense-' + idx + '-' + k.replace(/\s/g, '-');
+
+      const zh = TENSE_ZH[k] ? ' ' + TENSE_ZH[k] : '';
+      let h = `<div class="verb-tense-block"><div class="verb-tense-title" onclick="toggleTense('${tid}')" style="cursor:pointer;">${escapeHTML(k)}<span style="font-family:'京华老宋体','Noto Serif SC',serif;font-size:11px;color:var(--text3);margin-left:4px;">${escapeHTML(zh)}</span>${dot}</div>`;
+      h += `<div class="verb-tense-body" id="${tid}" style="display:none;"><div class="verb-conj-grid">`;
+      for (let i = 0; i < persons.length; i++) {
+        const { clean, irreg } = cellData[i];
+        const showIrreg = irreg && !mostIrreg;
+        const cls = clean === '—' ? ' empty' : (showIrreg ? ' irreg' : '');
+        h += `<div class="verb-conj-cell"><span class="verb-person">${persons[i]}</span><span class="verb-form${cls}">${escapeHTML(clean)}</span></div>`;
+      }
       const rem = persons.length % 3;
       if (rem) { for (let j = 0; j < 3 - rem; j++) h += `<div class="verb-conj-cell"></div>`; }
-      h += `</div></div>`;
+      h += `</div></div></div>`;
       return h;
     }
 
@@ -977,22 +1467,30 @@ function buildCard(w, idx) {
     </div><div class="verb-content" id="verb-content-${idx}">`;
 
     if (hasIrregular) {
+      body += `<div class="verb-tense-grid">`;
       tenseKeys.forEach(k => {
-        const forms = w.verb_forms[k].split('/').map(f => f.trim());
+        const forms = normalizeVerbFormStr(w.verb_forms[k]).split('/').map(f => f.trim());
         if (k === 'imperativo') {
           body += renderTenseGrid(k, forms, impPersons);
         } else {
           body += renderTenseGrid(k, forms, stdPersons);
         }
       });
+      body += `<div class="verb-bottom-row">`;
       if (otrosItems.length) {
-        body += `<div class="verb-others">`;
+        const oid = 'otros-' + idx;
+        body += `<div><div class="verb-tense-title" onclick="toggleTense('${oid}')" style="cursor:pointer;">Formas no personales</div><div class="verb-tense-body" id="${oid}" style="display:none;"><div class="verb-others">`;
         otrosItems.forEach(item => {
           const parts = item.split(': ');
-          body += `<div class="verb-other-item">${escapeHTML(parts[0])}: <span>${escapeHTML(parts[1] || '')}</span></div>`;
+          body += `<div class="verb-other-item">${escapeHTML(parts[0])} &nbsp;<span>${escapeHTML(parts[1] || '')}</span></div>`;
         });
-        body += `</div>`;
+        body += `</div></div></div>`;
+      } else {
+        body += `<div></div>`;
       }
+      body += `<div class="verb-expand-cell"><span onclick="toggleAllTenses(${idx})" id="expand-${idx}" style="cursor:pointer;font-family:'DM Sans',system-ui,sans-serif;font-size:11px;color:var(--text3);">展开全部</span></div>`;
+      body += `</div>`;
+      body += `</div>`; // close verb-tense-grid
     } else {
       body += `<div class="verb-regular-note">动词变位规则，参见 Gramática 页面</div>`;
     }
@@ -1004,7 +1502,18 @@ function buildCard(w, idx) {
     body += `<div class="section"><div class="sec-label">Etiquetas</div><div class="chip-row">${w.tags.map(t => `<span class="chip">${escapeHTML(t)}</span>`).join('')}</div></div>`;
   }
 
-  body += `<div class="card-actions"><button class="danger" onclick="event.stopPropagation();deleteWord(${idx})">Eliminar</button></div>`;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const reviewedToday = w.review && w.review.last_reviewed === todayStr;
+  const dotsHTML = renderReviewDots(w.review ? w.review.stage : 0);
+  const checkClass = reviewedToday ? ' done' : '';
+  body += `<div class="card-actions">
+    <button class="edit" onclick="event.stopPropagation();editWord(${idx})">Editar</button>
+    <button class="danger" onclick="event.stopPropagation();deleteWord(${idx})">Eliminar</button>
+    <div class="review-area" onclick="event.stopPropagation()">
+      <div class="review-dots">${dotsHTML}</div>
+      <div class="review-check${checkClass}" onclick="markReviewed(event,${idx})" title="Marcar como repasado"></div>
+    </div>
+  </div>`;
 
   return `<div class="card" id="card-${idx}">
     <div class="card-head" onclick="toggle(${idx})">
@@ -1026,16 +1535,42 @@ function toggle(idx) {
   const bodyEl = document.getElementById('body-' + idx);
   const chev = document.getElementById('chev-' + idx);
   const wasOpen = bodyEl.classList.contains('open');
+  const card = document.getElementById('card-' + idx);
+  const topBefore = card ? card.getBoundingClientRect().top : 0;
   document.querySelectorAll('.card-body.open').forEach(b => b.classList.remove('open'));
   document.querySelectorAll('.chevron.open').forEach(c => c.classList.remove('open'));
   if (!wasOpen) { bodyEl.classList.add('open'); chev.classList.add('open'); }
+  // Restore scroll position so the card head stays in view
+  if (!wasOpen && card) {
+    const topAfter = card.getBoundingClientRect().top;
+    window.scrollBy({ top: topAfter - topBefore, behavior: 'instant' });
+  }
 }
 
-function toggleChunk(wordIdx, chunkIdx) {
-  const zh = document.getElementById('chunk-zh-' + wordIdx + '-' + chunkIdx);
+function toggleChunk(wordIdx, gender, chunkIdx) {
+  const prefix = 'chunk-zh-' + wordIdx + '-' + (gender || '') + '-';
+  const zh = document.getElementById(prefix + chunkIdx);
   if (zh) zh.classList.toggle('show');
-  const ex = document.getElementById('chunk-explain-' + wordIdx + '-' + chunkIdx);
+  const ex = document.getElementById('chunk-explain-' + wordIdx + '-' + (gender || '') + '-' + chunkIdx);
   if (ex) ex.classList.toggle('show');
+}
+
+function switchGender(e, idx, gender) {
+  e.stopPropagation();
+  const word = words[idx];
+  if (!word || !word.gender_meanings) return;
+  // Toggle tabs
+  const tabContainer = document.getElementById('gtabs-' + idx);
+  if (tabContainer) {
+    tabContainer.querySelectorAll('.gender-tab').forEach(t => t.classList.remove('active'));
+    const activeTab = document.getElementById('gtab-' + idx + '-' + gender);
+    if (activeTab) activeTab.classList.add('active');
+  }
+  // Toggle panels
+  word.gender_meanings.forEach(gm => {
+    const panel = document.getElementById('gpanel-' + idx + '-' + gm.gender);
+    if (panel) panel.classList.toggle('active', gm.gender === gender);
+  });
 }
 
 function toggleVerb(idx) {
@@ -1043,9 +1578,37 @@ function toggleVerb(idx) {
   document.getElementById('verb-chev-' + idx).classList.toggle('open');
 }
 
+function toggleTense(tid) {
+  const body = document.getElementById(tid);
+  if (!body) return;
+  body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleAllTenses(idx) {
+  const grid = document.getElementById('verb-content-' + idx).querySelector('.verb-tense-grid');
+  if (!grid) return;
+  const bodies = grid.querySelectorAll('.verb-tense-body');
+  const el = document.getElementById('expand-' + idx);
+  const allOpen = [...bodies].every(b => b.style.display === 'block');
+  bodies.forEach(b => { b.style.display = allOpen ? 'none' : 'block'; });
+  // Also toggle otros block
+  const otros = document.getElementById('otros-' + idx);
+  if (otros) otros.style.display = allOpen ? 'none' : 'block';
+  el.textContent = allOpen ? '展开全部' : '收起全部';
+}
+
 function toggleGram(id) {
-  document.getElementById('gbody-' + id).classList.toggle('open');
-  document.getElementById('gchev-' + id).classList.toggle('open');
+  const body = document.getElementById('gbody-' + id);
+  const wasOpen = body.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.gram-body.open').forEach(b => b.classList.remove('open'));
+  document.querySelectorAll('.chevron.open').forEach(c => c.classList.remove('open'));
+  // Open clicked one if it wasn't already open
+  if (!wasOpen) {
+    body.classList.add('open');
+    const chev = document.getElementById('gchev-' + id);
+    if (chev) chev.classList.add('open');
+  }
 }
 
 function showTab(t) {
@@ -1055,6 +1618,62 @@ function showTab(t) {
   document.querySelectorAll('.nav-btn').forEach((b, i) => {
     b.classList.toggle('active', (t === 'vocab' && i === 0) || (t === 'grammar' && i === 1));
   });
+}
+
+function setReviewFilter(f) {
+  reviewFilter = f;
+  document.querySelectorAll('.task-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.task-tab').forEach(t => {
+    if (t.textContent.startsWith(f === 'all' ? '全部' : f === 'reviewed' ? '已复习' : '未复习')) t.classList.add('active');
+  });
+  render();
+}
+
+function toggleLock() {
+  if (isLocked) {
+    document.getElementById('lockInput').classList.toggle('show');
+    if (document.getElementById('lockInput').classList.contains('show')) {
+      document.getElementById('lockInput').focus();
+    }
+  } else {
+    lockUI();
+  }
+}
+function unlock() {
+  const input = document.getElementById('lockInput');
+  if (input.value === EDIT_PASSWORD) {
+    isLocked = false;
+    document.body.classList.remove('locked');
+    document.getElementById('lockBtn').textContent = '🔓';
+    document.getElementById('lockInput').classList.remove('show');
+    document.getElementById('lockMsg').style.display = 'none';
+    input.value = '';
+    render();
+  } else {
+    document.getElementById('lockMsg').textContent = '密码错误';
+    document.getElementById('lockMsg').style.display = 'inline';
+    setTimeout(() => { document.getElementById('lockMsg').style.display = 'none'; }, 2000);
+    input.value = '';
+  }
+}
+function lockUI() {
+  isLocked = true;
+  document.body.classList.add('locked');
+  document.getElementById('lockBtn').textContent = '🔒';
+  document.getElementById('lockInput').classList.remove('show');
+  document.getElementById('lockInput').value = '';
+  render();
+}
+function toggleFlashcard() {
+  flashcardMode = !flashcardMode;
+  const btn = document.getElementById('flashcardBtn');
+  if (flashcardMode) {
+    btn.classList.add('active');
+    document.body.classList.add('flashcard-mode');
+  } else {
+    btn.classList.remove('active');
+    document.body.classList.remove('flashcard-mode');
+  }
 }
 
 function jumpToWord(wordStr) {
@@ -1093,25 +1712,93 @@ async function deleteWord(idx) {
   requestAnimationFrame(() => window.scrollTo({ top: lastScrollY, behavior: 'instant' }));
 }
 
+let editIdx = -1;
+
+function editWord(idx) {
+  editIdx = idx;
+  const w = words[idx];
+  document.getElementById('editTitle').textContent = 'Editar — ' + w.word;
+  document.getElementById('editText').value = JSON.stringify(w, null, 2);
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editIdx = -1;
+}
+
+async function saveEdit() {
+  const raw = document.getElementById('editText').value.trim();
+  if (!raw) { alert('El contenido está vacío.'); return; }
+  let card;
+  try { card = JSON.parse(raw); } catch (e) { alert('JSON inválido: ' + e.message); return; }
+  if (!card.word) { alert('Falta el campo "word".'); return; }
+  words[editIdx] = card;
+  saveLocal();
+  if (sb) {
+    try { await sb.from('words').upsert({ word: card.word, data: card }, { onConflict: 'word' }); } catch (e) {}
+  }
+  closeEditModal();
+  render();
+}
+
 function openImportModal(mode) {
   importMode = mode;
-  document.getElementById('importText').value = '';
   const hints = {
     word: ['Importar palabra', 'Pega aquí el JSON de la palabra.'],
-    restore: ['Restaurar datos', 'Pega aquí el JSON completo (formato exportación).']
+    restore: ['Restaurar datos', 'Pega aquí el JSON completo (formato exportación).'],
+    grammar: ['导入语法笔记', 'Pega aquí el JSON de la nota de gramática. Tipos de bloque: section, subsection, text, note, list, examples, table']
   };
   document.getElementById('importTitle').textContent = hints[mode][0];
   document.getElementById('importHint').textContent = hints[mode][1];
+  document.getElementById('importText').value = '';
   document.getElementById('importModal').classList.add('open');
 }
 function closeImportModal() { document.getElementById('importModal').classList.remove('open'); }
 
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    document.getElementById('importText').value = ev.target.result;
+  };
+  reader.readAsText(file);
+}
+
+// Drag & drop for import modal
+(function setupDropZone() {
+  const dz = document.getElementById('dropZone');
+  if (!dz) return;
+  ['dragenter','dragover'].forEach(ev => {
+    dz.addEventListener(ev, function(e) { e.preventDefault(); dz.classList.add('drag-over'); });
+  });
+  ['dragleave','drop'].forEach(ev => {
+    dz.addEventListener(ev, function(e) { e.preventDefault(); dz.classList.remove('drag-over'); });
+  });
+  dz.addEventListener('drop', function(e) {
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      document.getElementById('importText').value = ev.target.result;
+    };
+    reader.readAsText(file);
+  });
+})();
+
 async function doImport() {
   let raw = document.getElementById('importText').value.trim();
   if (!raw) { alert('Pega el contenido primero.'); return; }
-  raw = raw.replace(/[""]/g, '"').replace(/['']/g, "'");
+  let data;
   try {
-    const data = JSON.parse(raw);
+    data = JSON.parse(raw);
+  } catch (_first) {
+    // Si falla, intenta corregir comillas tipográficas usadas como delimitadores JSON
+    raw = raw.replace(/[“”„‟″‶]/g, '"').replace(/[‘’‚‛′‵]/g, "'");
+    try { data = JSON.parse(raw); } catch (e) { alert('JSON inválido: ' + e.message); return; }
+  }
+  try {
     if (importMode === 'word') {
       if (!data.word) { alert('Falta el campo: word.'); return; }
       const ex = words.findIndex(w => w.word === data.word);
@@ -1123,6 +1810,12 @@ async function doImport() {
       }
       closeImportModal(); render();
       showToast('"' + data.word + '" importado');
+    } else if (importMode === 'grammar') {
+      if (!data.title) { alert('Falta el campo: title.'); return; }
+      grammarNotes.push(data);
+      saveGrammarLocal(); syncGrammarToSupabase();
+      closeImportModal(); renderGrammar();
+      showToast('"' + data.title + '" importado');
     } else {
       if (!data.words) { alert('Formato inválido.'); return; }
       if (!confirm('Esto reemplazará todos tus datos. ¿Continuar?')) return;
@@ -1131,7 +1824,7 @@ async function doImport() {
       closeImportModal(); render();
       showToast('Datos restaurados');
     }
-  } catch (e) { alert('Error: JSON no válido.'); }
+  } catch (e) { alert('Error: ' + e.message); console.error(e); }
 }
 
 async function exportData() {
@@ -1147,15 +1840,38 @@ async function exportData() {
 
 // ── Grammar ───────────────────────────────────────
 
+function highlightTitle(title, q) {
+  if (!q) return escapeHTML(title);
+  const idx = title.toLowerCase().indexOf(q);
+  if (idx < 0) return escapeHTML(title);
+  return escapeHTML(title.slice(0, idx)) + '<span class="gram-title-hl">' + escapeHTML(title.slice(idx, idx + q.length)) + '</span>' + escapeHTML(title.slice(idx + q.length));
+}
+
 function renderGrammar() {
   const list = document.getElementById('grammarList');
   list.querySelectorAll('.gram-card.dynamic').forEach(el => el.remove());
-  grammarNotes.forEach((note, ni) => {
+  const search = (document.getElementById('grammarSearch').value || '').toLowerCase();
+  const tagFilter = document.getElementById('grammarTagFilter').value;
+  // Populate tag dropdown (collect from dynamic notes + built-in cards)
+  const tagSelect = document.getElementById('grammarTagFilter');
+  const currentVal = tagSelect.value;
+  const dynTags = grammarNotes.map(n => n.tag).filter(Boolean);
+  const builtinTags = [...list.querySelectorAll('.gram-card:not(.dynamic) .gram-tag')].map(el => el.textContent.trim()).filter(Boolean);
+  const tags = [...new Set([...dynTags, ...builtinTags])].sort();
+  tagSelect.innerHTML = '<option value="">全部标签</option>' + tags.map(t => `<option value="${escapeHTML(t)}">${escapeHTML(t)}</option>`).join('');
+  tagSelect.value = tags.includes(currentVal) ? currentVal : '';
+  const filtered = grammarNotes.filter(n => {
+    if (tagFilter && n.tag !== tagFilter) return false;
+    if (search && !(n.title || '').toLowerCase().includes(search) && !(n.tag || '').toLowerCase().includes(search)) return false;
+    return true;
+  });
+  filtered.forEach((note, fi) => {
+    const ni = grammarNotes.indexOf(note);
     const id = 'dyn-' + ni;
     const card = document.createElement('div');
     card.className = 'gram-card dynamic';
     card.innerHTML = `<div class="gram-head" onclick="toggleGram('${id}')">
-      <span class="gram-title">${escapeHTML(note.title)}</span>
+      <span class="gram-title">${highlightTitle(note.title, search)}</span>
       ${note.tag ? `<span class="gram-tag">${escapeHTML(note.tag)}</span>` : ''}
       <span class="chevron" id="gchev-${id}">▼</span>
     </div><div class="gram-body" id="gbody-${id}">${renderBlocks(note.blocks)}
@@ -1163,12 +1879,39 @@ function renderGrammar() {
     </div>`;
     list.appendChild(card);
   });
+  // Handle built-in cards: show/hide + highlight title based on search
+  const builtinCards = list.querySelectorAll('.gram-card:not(.dynamic)');
+  builtinCards.forEach(card => {
+    const titleEl = card.querySelector('.gram-title');
+    const tagEl = card.querySelector('.gram-tag');
+    if (!titleEl) return;
+    const origTitle = titleEl.getAttribute('data-orig-title') || titleEl.textContent;
+    if (!titleEl.getAttribute('data-orig-title')) {
+      titleEl.setAttribute('data-orig-title', origTitle);
+    }
+    let show = true;
+    if (tagFilter) {
+      const tag = tagEl ? tagEl.textContent.trim() : '';
+      show = tag === tagFilter;
+    }
+    if (show && search) {
+      show = origTitle.toLowerCase().includes(search);
+    }
+    if (show) {
+      card.style.display = '';
+      titleEl.innerHTML = search ? highlightTitle(origTitle, search) : origTitle;
+    } else {
+      card.style.display = 'none';
+    }
+  });
 }
 
 function renderBlocks(blocks) {
   if (!blocks || !blocks.length) return '';
   return blocks.map(b => {
     if (b.type === 'text') return `<div class="gb-text">${b.content}</div>`;
+    if (b.type === 'section') return `<div class="gb-section">${b.content}</div>`;
+    if (b.type === 'subsection') return `<div class="gb-subsection">${b.content}</div>`;
     if (b.type === 'note') return `<div class="gb-note">${b.content}</div>`;
     if (b.type === 'list') return `<ul class="gb-list">${b.items.map((item, i) => `<li data-n="${i + 1}.">${item}</li>`).join('')}</ul>`;
     if (b.type === 'examples') return `<div class="gb-examples">${b.items.map(e => `<div class="gb-example">${e}</div>`).join('')}</div>`;
@@ -1181,31 +1924,59 @@ function renderBlocks(blocks) {
   }).join('');
 }
 
-function deleteGrammarNote(ni) {
+async function deleteGrammarNote(ni) {
   if (!confirm('¿Eliminar esta nota?')) return;
+  const note = grammarNotes[ni];
   grammarNotes.splice(ni, 1);
-  try { localStorage.setItem('es_grammar_v1', JSON.stringify(grammarNotes)); } catch (e) {}
+  saveGrammarLocal();
+  if (sb) { try { await sb.from('grammar').delete().eq('title', note.title); } catch (e) {} }
   renderGrammar();
 }
 
+function toggleMoreMenu(e) {
+  e.stopPropagation();
+  document.getElementById('moreDropdown').classList.toggle('open');
+}
 window.onclick = function (e) {
   if (e.target === document.getElementById('importModal')) closeImportModal();
+  if (!e.target.closest('.more-menu')) document.getElementById('moreDropdown').classList.remove('open');
 };
 
 // ── Init ──────────────────────────────────────────
 (async function init() {
+  // Load grammar: try Supabase first, fallback to localStorage
+  // Load grammar: merge Supabase + localStorage (Supabase wins on same title)
+  const gMap = new Map();
+  if (sb) {
+    try {
+      const { data, error } = await sb.from('grammar').select('data').order('title');
+      if (!error && data && data.length) {
+        for (const r of data) gMap.set(r.data.title, r.data);
+      }
+    } catch (e) { console.warn('Grammar Supabase load failed'); }
+  }
   try {
     const g = localStorage.getItem('es_grammar_v1');
-    if (g) grammarNotes = JSON.parse(g);
+    if (g) {
+      for (const n of JSON.parse(g)) {
+        if (!gMap.has(n.title)) gMap.set(n.title, n);
+      }
+    }
   } catch (e) {}
+  grammarNotes = [...gMap.values()];
+  saveGrammarLocal();
+  // Sync merged result to Supabase
+  if (sb && grammarNotes.length) { syncGrammarToSupabase(); }
   await loadWords();
+  resetOverdue();
+  document.body.classList.add('locked'); // lock by default
   // Ensure default words always up to date in Supabase
   if (sb) {
-    const defaults = getDefaults();
+    const defaults = await getDefaults();
     for (const w of defaults) {
       const idx = words.findIndex(x => x.word === w.word);
       if (idx >= 0) {
-        words[idx] = w;
+        continue; // don't overwrite existing words
       } else {
         words.push(w);
       }
