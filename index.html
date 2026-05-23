@@ -1790,9 +1790,14 @@ function handleFileSelect(e) {
 async function doImport() {
   let raw = document.getElementById('importText').value.trim();
   if (!raw) { alert('Pega el contenido primero.'); return; }
-  raw = raw.replace(/[“”„‟″‶]/g, '"').replace(/[‘’‚‛′‵]/g, "'");
+  let data;
   try {
-    const data = JSON.parse(raw);
+    data = JSON.parse(raw);
+  } catch (_first) {
+    raw = raw.replace(/[“”„‟″‶]/g, '"').replace(/[‘’‚‛′‵]/g, "'");
+    try { data = JSON.parse(raw); } catch (e) { alert('JSON inválido: ' + e.message); return; }
+  }
+  try {
     if (importMode === 'word') {
       if (!data.word) { alert('Falta el campo: word.'); return; }
       const ex = words.findIndex(w => w.word === data.word);
