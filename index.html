@@ -673,7 +673,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
   <div id="tab-grammar" style="display:none">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <div class="search-bar" style="max-width:400px;">
+      <div class="search-bar" style="max-width:260px;">
         <input type="text" id="grammarSearch" placeholder="Buscar gramática…" oninput="renderGrammar()" onfocus="if(this.value){this.value='';renderGrammar();}">
         <span class="search-divider"></span>
         <select id="grammarTagFilter" class="light-select" onchange="renderGrammar()">
@@ -681,7 +681,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
         </select>
       </div>
       <button class="primary gram-import-btn" onclick="openImportModal('grammar')">+ 导入 JSON</button>
-      <select id="grammarSort" onchange="renderGrammar()" style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
+      <select id="grammarSort" onchange="renderGrammar()" style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);margin-left:auto;">
         <option value="time">Nuevo</option>
         <option value="alpha">A-Z</option>
       </select>
@@ -1876,6 +1876,7 @@ function highlightTitle(title, q) {
 }
 
 function renderGrammar() {
+  console.log('renderGrammar called');
   const list = document.getElementById('grammarList');
   list.querySelectorAll('.gram-card.dynamic').forEach(el => el.remove());
   const search = (document.getElementById('grammarSearch').value || '').toLowerCase();
@@ -1896,11 +1897,11 @@ function renderGrammar() {
   const sortBy = document.getElementById('grammarSort').value;
   filtered.sort((a, b) => {
     if (sortBy === 'alpha') return (a.title || '').localeCompare(b.title || '', 'es', { sensitivity: 'base' });
-    // time: newest first
     const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
     const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return tb - ta;
   });
+  console.log('renderGrammar sort:', sortBy, filtered.map(n => n.title));
   filtered.forEach((note, fi) => {
     const ni = grammarNotes.indexOf(note);
     const id = 'dyn-' + ni;
@@ -2022,6 +2023,7 @@ window.onclick = function (e) {
   }
   render();
   renderGrammar();
+  document.getElementById('grammarSort').addEventListener('change', renderGrammar);
   showTab('vocab');
 })();
 </script>
