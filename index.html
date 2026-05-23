@@ -673,13 +673,16 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
   <div id="tab-grammar" style="display:none">
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <input type="text" id="grammarSearch" placeholder="搜索标题…" oninput="renderGrammar()" onfocus="if(this.value){this.value='';renderGrammar();}" style="width:260px;">
-      <select id="grammarTagFilter" onchange="renderGrammar()" style="width:auto;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
-        <option value="">全部标签</option>
-      </select>
+      <div class="search-bar" style="max-width:400px;">
+        <input type="text" id="grammarSearch" placeholder="Buscar gramática…" oninput="renderGrammar()" onfocus="if(this.value){this.value='';renderGrammar();}">
+        <span class="search-divider"></span>
+        <select id="grammarTagFilter" class="light-select" onchange="renderGrammar()">
+          <option value="">标签</option>
+        </select>
+      </div>
       <button class="primary gram-import-btn" onclick="openImportModal('grammar')">+ 导入 JSON</button>
-      <select id="grammarSort" onchange="renderGrammar()" style="width:auto;font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);margin-left:auto;">
-        <option value="time">时间</option>
+      <select id="grammarSort" onchange="renderGrammar()" style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
+        <option value="time">Nuevo</option>
         <option value="alpha">A-Z</option>
       </select>
     </div>
@@ -1883,7 +1886,7 @@ function renderGrammar() {
   const dynTags = grammarNotes.map(n => n.tag).filter(Boolean);
   const builtinTags = [...list.querySelectorAll('.gram-card:not(.dynamic) .gram-tag')].map(el => el.textContent.trim()).filter(Boolean);
   const tags = [...new Set([...dynTags, ...builtinTags])].sort();
-  tagSelect.innerHTML = '<option value="">全部标签</option>' + tags.map(t => `<option value="${escapeHTML(t)}">${escapeHTML(t)}</option>`).join('');
+  tagSelect.innerHTML = '<option value="">标签</option>' + tags.map(t => `<option value="${escapeHTML(t)}">${escapeHTML(t)}</option>`).join('');
   tagSelect.value = tags.includes(currentVal) ? currentVal : '';
   const filtered = grammarNotes.filter(n => {
     if (tagFilter && n.tag !== tagFilter) return false;
