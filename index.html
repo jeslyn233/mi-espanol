@@ -1876,6 +1876,7 @@ function highlightTitle(title, q) {
 }
 
 function renderGrammar() {
+  console.log('renderGrammar called');
   const list = document.getElementById('grammarList');
   list.querySelectorAll('.gram-card.dynamic').forEach(el => el.remove());
   const search = (document.getElementById('grammarSearch').value || '').toLowerCase();
@@ -2022,6 +2023,7 @@ window.onclick = function (e) {
   }
   render();
   renderGrammar();
+  document.getElementById('grammarSort').addEventListener('change', renderGrammar);
   showTab('vocab');
 })();
 </script>
