@@ -1794,6 +1794,7 @@ async function doImport() {
   try {
     data = JSON.parse(raw);
   } catch (_first) {
+    // Si falla, intenta corregir comillas tipográficas usadas como delimitadores JSON
     raw = raw.replace(/[“”„‟″‶]/g, '"').replace(/[‘’‚‛′‵]/g, "'");
     try { data = JSON.parse(raw); } catch (e) { alert('JSON inválido: ' + e.message); return; }
   }
