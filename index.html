@@ -1136,13 +1136,17 @@ async function autoGenerate() {
     const card = JSON.parse(content);
     if (!card.word) throw new Error('JSON generado sin campo word');
 
-    console.log('AI returned verb_forms for', card.word, ':', JSON.stringify(card.verb_forms));
+    const vfBefore = JSON.stringify(card.verb_forms);
 
     dedupHighlights(card);
     stripConjugationNotes(card);
     cleanVerbForms(card);
 
-    console.log('After cleanVerbForms:', JSON.stringify(card.verb_forms));
+    const vfAfter = JSON.stringify(card.verb_forms);
+    if (card.type && card.type.startsWith('v') && !card.word.includes(' ')) {
+      const vfInfo = vfBefore === '{}' ? 'AI未返回变位' : (vfBefore !== '{}' && vfAfter === '{}' ? 'cleanVerbForms清掉了变位' : '变位已保留');
+      showToast('verb_forms: ' + vfInfo + ' | before:' + vfBefore.slice(0,60) + ' | after:' + vfAfter.slice(0,60));
+    }
     cleanRelatedWords(card);
 
     if (exist >= 0) words[exist] = card;
