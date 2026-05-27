@@ -901,9 +901,7 @@ function stripConjugationNotes(card) {
     if (/不规则动词/.test(t) && /变位/.test(t)) return false;
     if (/变位遵循/.test(t)) return false;
     if (/es un verbo regular/.test(t.toLowerCase()) && /conjugación/.test(t.toLowerCase())) return false;
-    // "反义词：xxx" belongs in related_words, not notas
     if (/反义词/.test(t)) return false;
-    // "近义词：xxx" belongs in nuance
     if (/近义词/.test(t)) return false;
     return true;
   });
