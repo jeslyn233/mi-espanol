@@ -1669,7 +1669,7 @@ function buildCard(w, idx) {
 
     body += `<div class="section"><div class="verb-toggle" onclick="toggleVerb(${idx})">
       <span class="sec-label" style="margin-bottom:0">Verbo</span>
-      ${hasIrregular ? '<span class="verb-status">不规则变位</span>' : ''}
+      <span class="verb-status${hasIrregular ? '' : ' regular'}">${hasIrregular ? '不规则变位' : '规则变位'}</span>
       <span class="verb-toggle-chevron" id="verb-chev-${idx}">▼</span>
     </div><div class="verb-content" id="verb-content-${idx}">`;
 
@@ -1699,7 +1699,7 @@ function buildCard(w, idx) {
       body += `</div>`;
       body += `</div>`; // close verb-tense-grid
     } else {
-      body += `<div class="verb-regular-note">暂无变位数据</div>`;
+      body += `<div class="verb-regular-note">动词变位规则，参见 Gramática 页面</div>`;
     }
 
     body += `</div></div>`;
