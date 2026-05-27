@@ -896,6 +896,7 @@ function stripConjugationNotes(card) {
 }
 
 function expectedReg(infinitive, tense, idx, persons) {
+  if (infinitive.includes(' ')) return null; // phrase, not a single verb
   // Strip pronominal "se" suffix (e.g. preguntarse → preguntar)
   const base = infinitive.replace(/se$/, '');
   const isAr = base.endsWith('ar');
@@ -986,6 +987,7 @@ function cleanVerbForms(card) {
       const clean = (forms[i] || '—').trim();
       if (clean === '—') continue;
       const exp = expectedReg(card.word, t, i);
+      if (exp == null) { anyIrregular = true; break; }
       const expList = Array.isArray(exp) ? exp : [exp];
       if (!expList.some(e => clean.toLowerCase() === e.toLowerCase())) {
         anyIrregular = true;
@@ -1481,7 +1483,7 @@ function buildCard(w, idx) {
     }
   }
 
-  const isVerb = (w.type || '').startsWith('v');
+  const isVerb = (w.type || '').startsWith('v') && !w.word.includes(' ');
   if (isVerb) {
     const TENSE_ORDER = ['presente','futuro','pretérito','pretérito imperfecto','subjuntivo presente','subjuntivo imperfecto','condicional','imperativo'];
     const TENSE_ZH = { presente:'一般现在', 'pretérito imperfecto':'过去未完成', pretérito:'一般过去', futuro:'一般将来', condicional:'条件式', 'subjuntivo presente':'现在虚拟', 'subjuntivo imperfecto':'过去虚拟', imperativo:'命令' };
