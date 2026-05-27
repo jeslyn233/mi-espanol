@@ -946,7 +946,7 @@ function normalizeVerbFormStr(str) {
   // Collapse multiple spaces
   s = s.replace(/\s+/g, ' ');
   // Strip person labels and reflexive pronouns (yo, tú, me, te, se, nos, os, etc.)
-  const personRE = /^(yo|tú|él|ella|usted|nosotros|nosotras|vosotros|vosotras|ellos|ellas|ustedes|me|te|se|nos|os)\s+/i;
+  const personRE = /^(yo|tú|él|ella|usted|nosotros|nosotras|vosotros|vosotras|ellos|ellas|ustedes|me|te|se|nos|os):?\s*/i;
   const parts = s.split('/').map(p => {
     return p.trim().replace(personRE, '');
   });
