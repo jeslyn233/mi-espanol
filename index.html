@@ -1352,18 +1352,23 @@ function buildCard(w, idx) {
   const pd = w.pronominal_data;
 
   if (hasPron) {
-    body += `<div class="pronominal-tabs" id="ptabs-${idx}">
-      <div class="pronominal-tab active" id="ptab-${idx}-base" onclick="switchPronominal(event,${idx},false)">${escapeHTML(w.word)}</div>
-      <div class="pronominal-tab" id="ptab-${idx}-pron" onclick="switchPronominal(event,${idx},true)">${escapeHTML(w.pronominal)}</div>
+    body += `<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:10px;">
+      <div class="pronominal-tabs" id="ptabs-${idx}" style="margin-bottom:0;flex-shrink:0;">
+        <div class="pronominal-tab active" id="ptab-${idx}-base" onclick="switchPronominal(event,${idx},false)">${escapeHTML(w.word)}</div>
+        <div class="pronominal-tab" id="ptab-${idx}-pron" onclick="switchPronominal(event,${idx},true)">${escapeHTML(w.pronominal)}</div>
+      </div>
+      <span class="core-meaning-top" id="pron-zh-${idx}" data-base-zh="${escapeHTML(w.core_meaning || '')}" data-pron-zh="${escapeHTML(pd.core_meaning || '')}" style="border:none;margin:0;padding:0;">${escapeHTML(w.core_meaning || '')}</span>
     </div><div class="gender-divider"></div>`;
     // Base panel
     body += `<div class="pronominal-panel active" id="ppanel-${idx}-base">`;
   }
 
-  body += `<div class="core-meaning-top">${escapeHTML(w.core_meaning || '（中文释义待补充）')}</div>`;
-  body += `<div class="core-meaning-mobile">${escapeHTML(w.english || w.core_meaning || '')}</div>`;
-
   const hasGenderTabs = w.gender_meanings && w.gender_meanings.length > 1;
+
+  if (!hasGenderTabs && !hasPron) {
+    body += `<div class="core-meaning-top">${escapeHTML(w.core_meaning || '（中文释义待补充）')}</div>`;
+  }
+  body += `<div class="core-meaning-mobile">${escapeHTML(w.english || w.core_meaning || '')}</div>`;
 
   if (hasGenderTabs) {
     // Gender tabs
@@ -1491,7 +1496,6 @@ function buildCard(w, idx) {
     body += `</div>`; // close ppanel-base
     // Pronominal panel
     body += `<div class="pronominal-panel" id="ppanel-${idx}-pron" style="display:none">`;
-    body += `<div class="core-meaning-top">${escapeHTML(pd.core_meaning || '（中文释义待补充）')}</div>`;
     body += `<div class="core-meaning-mobile">${escapeHTML(pd.english || pd.core_meaning || '')}</div>`;
     if (pd.situations && pd.situations.length) {
       body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${pd.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
@@ -1746,6 +1750,11 @@ function switchPronominal(e, idx, showPron) {
   const pronPanel = document.getElementById('ppanel-' + idx + '-pron');
   if (basePanel) { basePanel.style.display = showPron ? 'none' : ''; basePanel.classList.toggle('active', !showPron); }
   if (pronPanel) { pronPanel.style.display = showPron ? '' : 'none'; pronPanel.classList.toggle('active', showPron); }
+  // Swap Chinese meaning
+  const zh = document.getElementById('pron-zh-' + idx);
+  if (zh) {
+    zh.textContent = showPron ? (zh.getAttribute('data-pron-zh') || '') : (zh.getAttribute('data-base-zh') || '');
+  }
 }
 
 function switchGender(e, idx, gender) {
