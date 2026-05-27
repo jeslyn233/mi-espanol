@@ -248,7 +248,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .core-meaning-mobile { display: none; }
 .core-meaning-top {
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
-  font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px;
+  font-size: 14px; color: var(--text2); margin-bottom: 16px; padding-bottom: 12px;
   border-bottom: 1px solid var(--border); line-height: 1.5;
   padding-left: 4px;
 }
@@ -952,6 +952,75 @@ function expectedReg(infinitive, tense, idx, persons) {
   return null;
 }
 
+// Stem-changing verb patterns: infinitive → change type
+const STEM_PATTERNS = {
+  'dormir':'o:ue','poder':'o:ue','volver':'o:ue','contar':'o:ue','mover':'o:ue','morir':'o:ue',
+  'probar':'o:ue','soler':'o:ue','sonar':'o:ue','soñar':'o:ue','doler':'o:ue','encontrar':'o:ue',
+  'mostrar':'o:ue','recordar':'o:ue','resolver':'o:ue','torcer':'o:ue','colgar':'o:ue',
+  'rogar':'o:ue','tostar':'o:ue','forzar':'o:ue','morder':'o:ue','cocer':'o:ue','demostrar':'o:ue',
+  'devolver':'o:ue','envolver':'o:ue','llover':'o:ue','almorzar':'o:ue','aprobar':'o:ue',
+  'pensar':'e:ie','querer':'e:ie','sentir':'e:ie','empezar':'e:ie','entender':'e:ie',
+  'preferir':'e:ie','cerrar':'e:ie','comenzar':'e:ie','defender':'e:ie','despertar':'e:ie',
+  'divertir':'e:ie','mentir':'e:ie','negar':'e:ie','perder':'e:ie','sentar':'e:ie',
+  'tender':'e:ie','venir':'e:ie','calentar':'e:ie','convertir':'e:ie','encender':'e:ie',
+  'gobernar':'e:ie','hervir':'e:ie','sugerir':'e:ie','temblar':'e:ie','atravesar':'e:ie',
+  'confesar':'e:ie','fregar':'e:ie','helar':'e:ie','invertir':'e:ie','merendar':'e:ie',
+  'recomendar':'e:ie','sembrar':'e:ie','tropezar':'e:ie','manifestar':'e:ie','requerir':'e:ie',
+  'pedir':'e:i','servir':'e:i','repetir':'e:i','vestir':'e:i','seguir':'e:i',
+  'conseguir':'e:i','despedir':'e:i','elegir':'e:i','impedir':'e:i','medir':'e:i',
+  'perseguir':'e:i','rendir':'e:i','reñir':'e:i','sonreír':'e:i','competir':'e:i',
+  'corregir':'e:i','derretir':'e:i','freír':'e:i','gemir':'e:i',
+  'jugar':'u:ue',
+};
+function autoGenerateVerbForms(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  const pat = STEM_PATTERNS[key];
+  if (!pat) return null;
+  const [from, to] = pat.split(':');
+  const base = key.replace(/(ar|er|ir)$/, '');
+  const isAr = key.endsWith('ar'), isEr = key.endsWith('er');
+  const vi = base.lastIndexOf(from);
+  if (vi < 0) return null;
+  const s1 = base.slice(0, vi), s2 = base.slice(vi + 1);
+  const stemR = s1 + to + s2; // changed stem (e.g. duerm-)
+  const vf = {};
+  // Helper: build tense string
+  function t(ends, useChanged) {
+    return ends.map((e, i) => (useChanged && i !== 3 ? stemR : base) + e).join(' / ');
+  }
+  // Presente
+  const pe = isAr ? ['o','as','a','amos','áis','an'] : isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
+  vf.presente = t(pe, true);
+  // Pretérito
+  const pre = isAr ? ['é','aste','ó','amos','asteis','aron'] : ['í','iste','ió','imos','isteis','ieron'];
+  if (!isAr && (from === 'e' || from === 'o')) {
+    const d = from === 'o' ? 'u' : 'i';
+    const stemR2 = s1 + d + s2;
+    vf.pretérito = pre.map((e, i) => (i === 2 || i === 5 ? stemR2 : base) + e).join(' / ');
+  } else {
+    vf.pretérito = t(pre, false);
+  }
+  // Imperfecto
+  const imp = isAr ? ['aba','abas','aba','ábamos','abais','aban'] : ['ía','ías','ía','íamos','íais','ían'];
+  vf['pretérito imperfecto'] = imp.map(e => base + e).join(' / ');
+  // Futuro
+  vf.futuro = ['é','ás','á','emos','éis','án'].map(e => key + e).join(' / ');
+  // Condicional
+  vf.condicional = ['ía','ías','ía','íamos','íais','ían'].map(e => key + e).join(' / ');
+  // Subjuntivo presente
+  const se = isAr ? ['e','es','e','emos','éis','en'] : ['a','as','a','amos','áis','an'];
+  vf['subjuntivo presente'] = t(se, true);
+  // Subjuntivo imperfecto
+  const si = isAr ? ['ara','aras','ara','áramos','arais','aran'] : ['iera','ieras','iera','iéramos','ierais','ieran'];
+  vf['subjuntivo imperfecto'] = si.map(e => base + e).join(' / ');
+  // Imperativo
+  const im = isAr ? ['a','e','emos','ad','en'] : ['e','a','amos','ed','an'];
+  vf.imperativo = im.map((e, i) => (i >= 2 || !isAr && i === 0 ? base : stemR) + e).join(' / ');
+  // Nota
+  vf._irreg_note = '词干元音' + from + '→' + to;
+  return vf;
+}
+
 function normalizeVerbFormStr(str) {
   if (!str || typeof str !== 'string') return '';
   let s = str.trim();
@@ -1117,6 +1186,10 @@ async function autoGenerate() {
     dedupHighlights(card);
     stripConjugationNotes(card);
     cleanVerbForms(card);
+    if (!card.verb_forms || Object.keys(card.verb_forms).length === 0) {
+      const autoVF = autoGenerateVerbForms(card.word);
+      if (autoVF) card.verb_forms = autoVF;
+    }
     cleanRelatedWords(card);
 
     if (exist >= 0) words[exist] = card;
