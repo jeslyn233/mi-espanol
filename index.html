@@ -231,7 +231,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .badge-freq { background: #E5E7EB; color: #374151; border: 1px solid #D1D5DB; font-size: 10px; }
 .core-meaning {
   font-size: 13px; color: var(--text2);
-  font-family: 'DM Sans', 'Georgia', system-ui, sans-serif;
+  font-family: 'Georgia', serif;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .core-meaning-mobile { display: none; }
@@ -1198,7 +1198,7 @@ REGLAS:
 - notes: 每个词必须有1-2条，不要留空。按话题分成数组项。同一话题内补充用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"] 🚫禁止：①变位表 ②"反义词"(放related_words) ③"近义词"(放nuance)。
 - native_expressions: 2-3个。绝对禁止重复chunks内容。zh只写中文解释，不要标注分类。两个方向：(1)含原词的高阶俚语/口头禅 (2)不含原词但同场景的母语地道说法 如"Tirar la toalla"
 - related_words: 4-6个独立词汇（近义词、反义词、同根词、场景搭配词）。只收高频词，拒绝生僻词。⚠️禁止：①与chunks/native_expressions重复 ②放同一个词的变位形式(tengo/tiene/tuvo/tendré等) ③放语法结构(tener que)。正确例：tener的related_words→["haber","poseer","carecer","contar con"]。若目标词有常见不规则分词，必须包含。
-- verb_forms: 规则动词(renunciar,hablar,comer,vivir等)={}。不规则按{"presente":"...","pretérito imperfecto":"...","pretérito":"...","futuro":"...","condicional":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú / usted / nosotros / vosotros / ustedes","otros":["Participio pasado: 过去分词","Gerundio: 副动词"],"_irreg_note":"仅拼写改音动词填，如'拼写变化：g→j在a/o前'"}。将来时词根不规则也填"futuro"。必须检查过去分词和副动词是否不规则，不规则则写入otros。不规则人称前端会自动检测高亮，无需额外标记。⚠️拼写改音动词(-ger,-gir,-car,-gar,-zar,-guir)的verb_forms绝对不能是{}，必须填有变化的时态。如coger必须填presente和subjuntivo presente。不是可选的。
+- verb_forms: 完全规则动词(hablar,comer,vivir等)={}。⚠️以下类型绝对不是规则动词，必须填变化时态：①词干元音变化 o→ue(dormir→duermo,poder→puedo,volver→vuelvo), e→ie(pensar→pienso,querer→quiero,sentir→siento), e→i(pedir→pido,servir→sirvo,vestir→visto), u→ue(jugar→juego) ②拼写改音 -ger/-gir(coger→cojo), -car(tocar→toqué), -gar(pagar→pagué), -zar(empezar→empecé), -guir(seguir→sigo) ③完全不规则(tener,ser,ir,hacer,decir,venir,salir,poner,saber,querer,poder,caber,valer,haber,estar,dar,ver,traer,caer,oír,huir,construir等)。格式：{"presente":"...","pretérito imperfecto":"...","pretérito":"...","futuro":"...","condicional":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú / usted / nosotros / vosotros / ustedes","otros":["Participio pasado: 过去分词","Gerundio: 副动词"],"_irreg_note":"填变化类型如'词干元音o→ue'"}。将来时词根不规则也填"futuro"。必须检查过去分词和副动词是否不规则，不规则则写入otros。不规则人称前端自动检测高亮。
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 英语: english
 - 西语: word,chunks.text,related_words,native_expressions.text
@@ -1880,6 +1880,15 @@ async function saveEdit() {
   }
   closeEditModal();
   render();
+  // Stay on the edited word
+  setTimeout(() => {
+    const cardEl = document.getElementById('card-' + editIdx);
+    if (cardEl) {
+      document.getElementById('body-' + editIdx).classList.add('open');
+      document.getElementById('chev-' + editIdx).classList.add('open');
+      cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 100);
 }
 
 function openEditGrammar(idx) {
