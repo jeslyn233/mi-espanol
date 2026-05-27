@@ -99,6 +99,14 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 }
 .az-bar a:hover { background: var(--accent-bg); color: var(--accent); }
 .az-bar a.has-words { color: var(--text2); }
+.az-bar .az-top, .az-bar .az-shuffle {
+  font-size: 11px; width: 18px; height: 16px; color: var(--text3);
+  text-decoration: none; display: flex; align-items: center; justify-content: center;
+  border-radius: 3px; transition: all .1s; cursor: pointer;
+}
+.az-bar .az-top:hover, .az-bar .az-shuffle:hover { background: var(--accent-bg); color: var(--accent); }
+.az-bar .az-shuffle.active { background: #EDE4F5; color: #7B5EA7; }
+.az-bar .az-sep { width: 16px; height: 1px; background: var(--border); margin: 2px 0; }
 
 .fab-row { display: flex; gap: 8px; margin-bottom: 1rem; align-items: center; }
 .more-menu { position: relative; flex-shrink: 0; }
@@ -125,10 +133,31 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 }
 .flashcard-btn.active:hover { filter: brightness(1.03); }
 .flashcard-btn.active:active { transform: scale(0.95); }
-/* Flashcard mode: hide Chinese on collapsed cards only */
+/* Flashcard mode: hide English on collapsed cards only */
 .flashcard-mode .card:not(.open) .core-meaning { opacity: 0; transition: opacity 0.2s; }
 .flashcard-mode .card:not(.open) .card-head:hover .core-meaning { opacity: 1; }
 .flashcard-mode .card.open .core-meaning { opacity: 1 !important; }
+/* Purple button */
+.purple-btn {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: none; cursor: pointer; flex-shrink: 0;
+  background: #D9E0E7;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.purple-btn:hover { filter: brightness(1.05); }
+.purple-btn:active { transform: scale(0.95); transition: transform 0.1s ease; }
+.purple-btn.active {
+  background: #EDE4F5;
+  box-shadow: inset 0 2px 3px rgba(255,255,255,0.6), inset 0 -1px 1px rgba(180,150,210,0.15);
+  transform: none;
+}
+.purple-btn.active:hover { filter: brightness(1.03); }
+.purple-btn.active:active { transform: scale(0.95); }
+/* Purple mode: hide Spanish on collapsed cards only */
+.purple-mode .card:not(.open) .word-main { opacity: 0; transition: opacity 0.2s; }
+.purple-mode .card:not(.open) .card-head:hover .word-main { opacity: 1; }
+.purple-mode .card.open .word-main { opacity: 1 !important; }
 .search-bar {
   display: flex; align-items: center; background: #FFFFFF;
   border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -212,10 +241,16 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .badge-freq { background: #E5E7EB; color: #374151; border: 1px solid #D1D5DB; font-size: 10px; }
 .core-meaning {
   font-size: 13px; color: var(--text2);
-  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-family: 'DM Sans', 'Georgia', system-ui, sans-serif;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .core-meaning-mobile { display: none; }
+.core-meaning-top {
+  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-size: 16px; color: var(--text); margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border); line-height: 1.5;
+}
+.core-meaning-top-missing { color: var(--text3); font-style: italic; }
 .chevron { font-size: 11px; color: var(--text3); transition: transform .2s; flex-shrink: 0; margin-left: auto; }
 .chevron.open { transform: rotate(180deg); }
 
@@ -501,6 +536,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   /* A-Z bar — shrink */
   .az-bar { right: 2px; padding: 3px 1px; }
   .az-bar a { font-size: 8px; width: 14px; height: 12px; }
+  .az-bar .az-top, .az-bar .az-shuffle { font-size: 9px; width: 14px; height: 14px; }
+  .az-bar .az-sep { width: 12px; }
 
   /* Header */
   header h1 { font-size: 1.3rem; }
@@ -532,7 +569,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .head-left { width: 35%; }
   .word-main { font-size: 16px; }
   .core-meaning { display: none; }
-  .core-meaning-mobile { display: block; font-family: '京华老宋体','Noto Serif SC','STSong','SimSun',serif; font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .core-meaning-mobile { display: block; font-family: 'DM Sans','Georgia',system-ui,sans-serif; font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .core-meaning-top { font-size: 15px; margin-bottom: 12px; padding-bottom: 8px; }
   .nuance-item { flex-wrap: wrap; gap: 6px 12px; align-items: center; }
   .nuance-dot { margin-top: 0; flex-shrink: 0; }
   .nuance-word { min-width: 0; flex-shrink: 0; font-size: 14px; }
@@ -669,6 +707,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
           <button class="task-tab" onclick="setReviewFilter('unreviewed')">未复习 <span class="task-num" id="taskUnreviewed">0</span></button>
         </div>
         <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
+        <button class="purple-btn" id="purpleBtn" onclick="togglePurpleMode()" title="仅显示英文"></button>
       </div>
     </div>
     <div id="count" class="count"></div>
@@ -807,6 +846,8 @@ let importMode = 'word';
 let lastScrollY = 0;
 let reviewFilter = 'all';
 let flashcardMode = false;
+let purpleMode = false;
+let shuffleMode = false;
 let isLocked = true;
 const EDIT_PASSWORD = '1994';
 
@@ -1110,13 +1151,17 @@ async function autoGenerate() {
     input.value = '';
     showToast('✓ ' + card.word + ' creado');
 
-    // Expand new card
+    // Expand and scroll to new card
     const idx = words.findIndex(w => w.word === card.word);
     setTimeout(() => {
       const bodyEl = document.getElementById('body-' + idx);
       const chev = document.getElementById('chev-' + idx);
+      const cardEl = document.getElementById('card-' + idx);
       if (bodyEl) { bodyEl.classList.add('open'); }
       if (chev) { chev.classList.add('open'); }
+      if (cardEl) { cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+      if (cardEl) { cardEl.classList.add('highlight'); }
+      setTimeout(() => { if (cardEl) cardEl.classList.remove('highlight'); }, 1800);
     }, 300);
 
   } catch (e) {
@@ -1135,6 +1180,7 @@ ESTRUCTURA:
   "word": "palabra",
   "type": "m|f|m/f|n|v|adj|adv",
   "level": "A1|A2|B1|B2",
+  "english": "English equivalent or short gloss",
   "core_meaning": "中文释义，简短（m/f词用；分隔两性释义）",
   "gender_meanings": [{"gender":"m","meaning":"阳性释义"},{"gender":"f","meaning":"阴性释义"}],
   "gender_data": {"m":{"situations":["..."],"chunks":[...],"nuance":[...],"related_words":[...],"native_expressions":[...],"notes":[...]},"f":{...}},
@@ -1155,6 +1201,7 @@ ESTRUCTURA:
 }
 
 REGLAS:
+- english: 英文释义/对应词，简短（1-4个英文词）。m/f词用；分隔如"capital; capital (city)"。
 - type: 名词直接标阴阳性即可，无需前缀。纯阳性→"m"，纯阴性→"f"，阴阳性意思不同→"m/f"，两性通用意思相同→"n"。其余词性不变(v/adj/adv等)。m/f词必须填gender_meanings和gender_data字段，core_meaning用；分隔两性释义如"首都；资本"。gender_data按性别分别提供situations和chunks，两套数据严格隔离。
 - tags: 3-5个。必含语域(书面/口语/中性)+情感色彩(正面/负面/中性)，其余为场景分类(工作/社交/日常)。例: aumentar→["书面","中性","工作","数据"]；renunciar→["口语","负面","工作","决定"]。不要重复type已有信息(v已表动词，tags不标"动词")。
 - situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种敷衍的抽象描述。基础词(如tener)实在难写具体场景时允许适度概括，但仍要具体到用法类别。场景中不要夹杂西语单词，纯中文。
@@ -1165,6 +1212,7 @@ REGLAS:
 - related_words: 4-6个独立词汇（近义词、反义词、同根词、场景搭配词）。只收高频词，拒绝生僻词。⚠️禁止：①与chunks/native_expressions重复 ②放同一个词的变位形式(tengo/tiene/tuvo/tendré等) ③放语法结构(tener que)。正确例：tener的related_words→["haber","poseer","carecer","contar con"]。若目标词有常见不规则分词，必须包含。
 - verb_forms: 规则动词(renunciar,hablar,comer,vivir等)={}。不规则按{"presente":"...","pretérito imperfecto":"...","pretérito":"...","futuro":"...","condicional":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú / usted / nosotros / vosotros / ustedes","otros":["Participio pasado: 过去分词","Gerundio: 副动词"],"_irreg_note":"仅拼写改音动词填，如'拼写变化：g→j在a/o前'"}。将来时词根不规则也填"futuro"。必须检查过去分词和副动词是否不规则，不规则则写入otros。不规则人称前端会自动检测高亮，无需额外标记。⚠️拼写改音动词(-ger,-gir,-car,-gar,-zar,-guir)的verb_forms绝对不能是{}，必须填有变化的时态。如coger必须填presente和subjuntivo presente。不是可选的。
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
+- 英语: english
 - 西语: word,chunks.text,related_words,native_expressions.text
 SOLO RESPONDE CON EL JSON.`;
 
@@ -1244,7 +1292,7 @@ function render() {
   const today = new Date().toISOString().slice(0, 10);
 
   const filtered = words.filter(w => {
-    if (q && !w.word.toLowerCase().includes(q) && !(w.core_meaning || '').toLowerCase().includes(q)) return false;
+    if (q && !w.word.toLowerCase().includes(q) && !(w.english || '').toLowerCase().includes(q) && !(w.core_meaning || '').toLowerCase().includes(q)) return false;
     const wtype = (w.type || '').trim();
     if (type === 'n') { if (!['m','f','m/f','n'].includes(wtype)) return false; }
     else if (type && wtype !== type) return false;
@@ -1262,6 +1310,14 @@ function render() {
     }
     return true;
   }).sort((a, b) => a.word.localeCompare(b.word, 'es', { sensitivity: 'base' }));
+
+  // Shuffle mode: randomize order
+  if (shuffleMode) {
+    for (let i = filtered.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+    }
+  }
 
   // Update task tab counts
   const totalN = words.length;
@@ -1291,20 +1347,27 @@ function render() {
   if (!filtered.length) { list.innerHTML = '<div class="empty">No se encontraron palabras</div>'; return; }
 
   let html = '';
-  Object.keys(groups).sort().forEach(letter => {
-    html += `<div class="letter-group" id="letter-${letter}"><div class="letter-heading"><span>${letter}</span></div>`;
-    groups[letter].forEach(w => {
+  if (shuffleMode) {
+    filtered.forEach(w => {
       html += buildCard(w, words.indexOf(w));
     });
-    html += '</div>';
-  });
+  } else {
+    Object.keys(groups).sort().forEach(letter => {
+      html += `<div class="letter-group" id="letter-${letter}"><div class="letter-heading"><span>${letter}</span></div>`;
+      groups[letter].forEach(w => {
+        html += buildCard(w, words.indexOf(w));
+      });
+      html += '</div>';
+    });
+  }
   list.innerHTML = html;
 }
 
 function buildCard(w, idx) {
   let body = '';
 
-  body += `<div class="core-meaning-mobile">${escapeHTML(w.core_meaning || '')}</div>`;
+  body += `<div class="core-meaning-top">${escapeHTML(w.core_meaning || '（中文释义待补充）')}</div>`;
+  body += `<div class="core-meaning-mobile">${escapeHTML(w.english || w.core_meaning || '')}</div>`;
 
   const hasGenderTabs = w.gender_meanings && w.gender_meanings.length > 1;
 
@@ -1535,7 +1598,7 @@ function buildCard(w, idx) {
       <div class="head-right">
         ${w.level ? `<span class="badge badge-level">${escapeHTML(w.level)}</span>` : ''}
         ${w.frequency ? `<span class="badge badge-freq">${escapeHTML(w.frequency)}</span>` : ''}
-        <span class="core-meaning">${escapeHTML(w.core_meaning || '')}</span>
+        <span class="core-meaning">${escapeHTML(w.english || w.core_meaning || '')}</span>
         <span class="chevron" id="chev-${idx}">▼</span>
       </div>
     </div>
@@ -1545,12 +1608,53 @@ function buildCard(w, idx) {
 
 // ── Interactivity ─────────────────────────────────
 
+function resetCardState(idx) {
+  const bodyEl = document.getElementById('body-' + idx);
+  if (!bodyEl) return;
+  // Reset all chunk translations and explanations
+  bodyEl.querySelectorAll('.chunk-zh.show').forEach(el => el.classList.remove('show'));
+  bodyEl.querySelectorAll('.chunk-explain.show').forEach(el => el.classList.remove('show'));
+  // Reset verb tense bodies
+  bodyEl.querySelectorAll('.verb-tense-body').forEach(el => el.style.display = 'none');
+  // Collapse verb content
+  const verbContent = document.getElementById('verb-content-' + idx);
+  if (verbContent) verbContent.classList.remove('open');
+  const verbChev = document.getElementById('verb-chev-' + idx);
+  if (verbChev) verbChev.classList.remove('open');
+  // Reset gender tabs to first tab
+  const tabContainer = document.getElementById('gtabs-' + idx);
+  if (tabContainer) {
+    const firstTab = tabContainer.querySelector('.gender-tab');
+    if (firstTab) {
+      tabContainer.querySelectorAll('.gender-tab').forEach(t => t.classList.remove('active'));
+      firstTab.classList.add('active');
+      // Also switch panels to first gender
+      const gm = firstTab.id.replace('gtab-' + idx + '-', '');
+      const word = words[idx];
+      if (word && word.gender_meanings) {
+        word.gender_meanings.forEach(g => {
+          const panel = document.getElementById('gpanel-' + idx + '-' + g.gender);
+          if (panel) panel.classList.toggle('active', g.gender === gm);
+        });
+      }
+    }
+  }
+  // Reset expand all text
+  const expandEl = document.getElementById('expand-' + idx);
+  if (expandEl) expandEl.textContent = '展开全部';
+}
+
 function toggle(idx) {
   const bodyEl = document.getElementById('body-' + idx);
   const chev = document.getElementById('chev-' + idx);
   const wasOpen = bodyEl.classList.contains('open');
   const card = document.getElementById('card-' + idx);
   const topBefore = card ? card.getBoundingClientRect().top : 0;
+  // Reset state of all currently open cards before closing them
+  document.querySelectorAll('.card-body.open').forEach(b => {
+    const openIdx = b.id.replace('body-', '');
+    resetCardState(parseInt(openIdx));
+  });
   document.querySelectorAll('.card-body.open').forEach(b => b.classList.remove('open'));
   document.querySelectorAll('.chevron.open').forEach(c => c.classList.remove('open'));
   if (!wasOpen) { bodyEl.classList.add('open'); chev.classList.add('open'); }
@@ -1689,6 +1793,17 @@ function toggleFlashcard() {
     document.body.classList.remove('flashcard-mode');
   }
 }
+function togglePurpleMode() {
+  purpleMode = !purpleMode;
+  const btn = document.getElementById('purpleBtn');
+  if (purpleMode) {
+    btn.classList.add('active');
+    document.body.classList.add('purple-mode');
+  } else {
+    btn.classList.remove('active');
+    document.body.classList.remove('purple-mode');
+  }
+}
 
 function jumpToWord(wordStr) {
   const target = words.find(w => w.word.toLowerCase() === wordStr.toLowerCase());
@@ -1705,11 +1820,30 @@ function jumpToWord(wordStr) {
 
 function buildAZBar(letterSet) {
   const bar = document.getElementById('azBar');
-  bar.innerHTML = ALPHABET.map(l =>
-    `<a href="#" class="${letterSet.has(l) ? 'has-words' : ''}" onclick="azClick(event,'${l}')">${l}</a>`
+  const topBtn = `<a href="#" class="az-top" onclick="scrollToSearch(event)" title="回到顶部">▲</a>`;
+  const sep = `<span class="az-sep"></span>`;
+  const letters = ALPHABET.map(l =>
+    `<a href="#" class="${!shuffleMode && letterSet.has(l) ? 'has-words' : ''}" onclick="azClick(event,'${l}')">${l}</a>`
   ).join('');
+  const shuffleBtn = `<a href="#" class="az-shuffle${shuffleMode ? ' active' : ''}" onclick="toggleShuffle(event)" title="乱序排列">⟳</a>`;
+  bar.innerHTML = topBtn + sep + letters + sep + shuffleBtn;
 }
-function azClick(e, l) { e.preventDefault(); const el = document.getElementById('letter-' + l); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+function azClick(e, l) {
+  e.preventDefault();
+  if (shuffleMode) return;
+  const el = document.getElementById('letter-' + l);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function scrollToSearch(e) {
+  e.preventDefault();
+  document.getElementById('search').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('search').focus();
+}
+function toggleShuffle(e) {
+  e.preventDefault();
+  shuffleMode = !shuffleMode;
+  render();
+}
 
 // ── CRUD ──────────────────────────────────────────
 
@@ -1781,7 +1915,7 @@ function openImportModal(mode) {
   const hints = {
     word: ['Importar palabra', 'Pega aquí el JSON de la palabra.'],
     restore: ['Restaurar datos', 'Pega aquí el JSON completo (formato exportación).'],
-    grammar: ['导入语法笔记', 'Pega aquí el JSON de la nota de gramática. Tipos de bloque: section, subsection, text, note, list, examples, table']
+    grammar: ['导入', 'Pega aquí el JSON. Detecta automáticamente: palabra (word), gramática (title) o restauración (words).']
   };
   document.getElementById('importTitle').textContent = hints[mode][0];
   document.getElementById('importHint').textContent = hints[mode][1];
@@ -1833,8 +1967,14 @@ async function doImport() {
     try { data = JSON.parse(raw); } catch (e) { alert('JSON inválido: ' + e.message); return; }
   }
   try {
-    if (importMode === 'word') {
-      if (!data.word) { alert('Falta el campo: word.'); return; }
+    // Auto-detect type based on JSON fields, regardless of importMode
+    if (data.words) {
+      if (!confirm('Esto reemplazará todos tus datos. ¿Continuar?')) return;
+      words = data.words || [];
+      saveLocal(); await syncToSupabase();
+      closeImportModal(); render();
+      showToast('Datos restaurados');
+    } else if (data.word) {
       const ex = words.findIndex(w => w.word === data.word);
       if (ex >= 0) { if (confirm('"' + data.word + '" ya existe. ¿Reemplazar?')) { words[ex] = data; } else return; }
       else words.push(data);
@@ -1844,20 +1984,14 @@ async function doImport() {
       }
       closeImportModal(); render();
       showToast('"' + data.word + '" importado');
-    } else if (importMode === 'grammar') {
-      if (!data.title) { alert('Falta el campo: title.'); return; }
+    } else if (data.title) {
       data.createdAt = data.createdAt || new Date().toISOString();
       grammarNotes.push(data);
       saveGrammarLocal(); syncGrammarToSupabase();
       closeImportModal(); renderGrammar();
       showToast('"' + data.title + '" importado');
     } else {
-      if (!data.words) { alert('Formato inválido.'); return; }
-      if (!confirm('Esto reemplazará todos tus datos. ¿Continuar?')) return;
-      words = data.words || [];
-      saveLocal(); await syncToSupabase();
-      closeImportModal(); render();
-      showToast('Datos restaurados');
+      alert('JSON inválido: necesita campo "word", "title" o "words".');
     }
   } catch (e) { alert('Error: ' + e.message); console.error(e); }
 }
