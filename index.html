@@ -222,6 +222,17 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px;
   color: var(--text3); margin-left: 5px; flex-shrink: 0;
 }
+.pronominal-tabs { display: flex; gap: 12px; margin-bottom: 10px; }
+.pronominal-tab {
+  font-family: 'Georgia', serif; font-size: 13px; font-style: italic;
+  padding: 6px 16px; border: none; border-radius: 999px;
+  background: #F8F1F3; color: #57534E; cursor: pointer;
+  transition: opacity .15s; display: inline-flex; align-items: center; gap: 6px;
+}
+.pronominal-tab:hover { opacity: 0.7; }
+.pronominal-tab.active { color: #57534E; font-weight: 600; opacity: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+.pronominal-panel { display: none; }
+.pronominal-panel.active { display: block; }
 .head-right { flex: 1; display: flex; align-items: center; gap: 8px; min-width: 0; }
 .badge {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 700;
@@ -558,6 +569,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .card-head { padding: 10px 12px; }
   .head-left { width: 35%; }
   .word-main { font-size: 16px; }
+  .pronominal-tab { font-size: 12px; padding: 4px 12px; }
   .core-meaning { display: none; }
   .core-meaning-mobile { display: block; font-family: 'DM Sans','Georgia',system-ui,sans-serif; font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
   .core-meaning-top { font-size: 13px; margin-bottom: 10px; padding-bottom: 6px; }
@@ -1124,9 +1136,13 @@ async function autoGenerate() {
     const card = JSON.parse(content);
     if (!card.word) throw new Error('JSON generado sin campo word');
 
+    console.log('AI returned verb_forms for', card.word, ':', JSON.stringify(card.verb_forms));
+
     dedupHighlights(card);
     stripConjugationNotes(card);
     cleanVerbForms(card);
+
+    console.log('After cleanVerbForms:', JSON.stringify(card.verb_forms));
     cleanRelatedWords(card);
 
     if (exist >= 0) words[exist] = card;
@@ -1177,6 +1193,8 @@ ESTRUCTURA:
 
 
 
+  "pronominal": "自复不定式 或 省略",
+  "pronominal_data": {"core_meaning":"自复用法的中文释义","english":"to xxx (oneself)","situations":["..."],"chunks":[...],"nuance":[...],"related_words":[...],"native_expressions":[...],"notes":[...]}  // 有pronominal时必须填
   "frequency": "A|B|C",
   "tags": ["标签"],
   "situations": ["生活化中文场景短语"],
@@ -1192,6 +1210,7 @@ ESTRUCTURA:
 
 REGLAS:
 - english: 英文释义/对应词，简短。多个释义用" / "分隔，禁止用逗号。动词必须写"to xxx"如"to sleep"。m/f词用" / "分隔如"capital / capital (city)"。
+- pronominal: 若动词有常用自复形式(duchar→ducharse, lavar→lavarse, ir→irse, poner→ponerse等)，填自复不定式，同时必须填pronominal_data。pronominal_data结构与主卡片相同(core_meaning,english,situations,chunks,nuance,related_words,native_expressions,notes)，内容聚焦自复用法。无自复形式则两个字段都省略。
 - type: 名词直接标阴阳性即可，无需前缀。纯阳性→"m"，纯阴性→"f"，阴阳性意思不同→"m/f"，两性通用意思相同→"n"。其余词性不变(v/adj/adv等)。m/f词必须填gender_meanings和gender_data字段，core_meaning用；分隔两性释义如"首都；资本"。gender_data按性别分别提供situations和chunks，两套数据严格隔离。
 - tags: 3-5个。必含语域(书面/口语/中性)+情感色彩(正面/负面/中性)，其余为场景分类(工作/社交/日常)。例: aumentar→["书面","中性","工作","数据"]；renunciar→["口语","负面","工作","决定"]。不要重复type已有信息(v已表动词，tags不标"动词")。
 - situations: 3-4个中文场景。必须短句口语化（只描述场景，不写完整句子），具体贴近生活像是真实经历，便于脑补画面。避免书面和抽象。例: renunciar→["工作压力太大决定辞职","对项目失望选择放手","看到更好机会离开公司"]。禁止写"表达辞职想法""用于辞职场合"这种敷衍的抽象描述。基础词(如tener)实在难写具体场景时允许适度概括，但仍要具体到用法类别。场景中不要夹杂西语单词，纯中文。
@@ -1356,6 +1375,18 @@ function render() {
 function buildCard(w, idx) {
   let body = '';
 
+  const hasPron = !!(w.pronominal && w.pronominal_data);
+  const pd = w.pronominal_data;
+
+  if (hasPron) {
+    body += `<div class="pronominal-tabs" id="ptabs-${idx}">
+      <div class="pronominal-tab active" id="ptab-${idx}-base" onclick="switchPronominal(event,${idx},false)">${escapeHTML(w.word)}</div>
+      <div class="pronominal-tab" id="ptab-${idx}-pron" onclick="switchPronominal(event,${idx},true)">${escapeHTML(w.pronominal)}</div>
+    </div><div class="gender-divider"></div>`;
+    // Base panel
+    body += `<div class="pronominal-panel active" id="ppanel-${idx}-base">`;
+  }
+
   body += `<div class="core-meaning-top">${escapeHTML(w.core_meaning || '（中文释义待补充）')}</div>`;
   body += `<div class="core-meaning-mobile">${escapeHTML(w.english || w.core_meaning || '')}</div>`;
 
@@ -1483,6 +1514,64 @@ function buildCard(w, idx) {
     }
   }
 
+  if (hasPron) {
+    body += `</div>`; // close ppanel-base
+    // Pronominal panel
+    body += `<div class="pronominal-panel" id="ppanel-${idx}-pron" style="display:none">`;
+    body += `<div class="core-meaning-top">${escapeHTML(pd.core_meaning || '（中文释义待补充）')}</div>`;
+    body += `<div class="core-meaning-mobile">${escapeHTML(pd.english || pd.core_meaning || '')}</div>`;
+    if (pd.situations && pd.situations.length) {
+      body += `<div class="section"><div class="sec-label">Situaciones</div><div class="situation-row">${pd.situations.map(s => `<span class="situation">${escapeHTML(s)}</span>`).join('')}</div></div>`;
+    }
+    if (pd.chunks && pd.chunks.length) {
+      body += `<div class="section"><div class="sec-label">Chunks</div><div class="chunk-list">`;
+      pd.chunks.forEach((ch, ci) => {
+        body += `<div class="chunk-item" onclick="toggleChunk(${idx},'pron',${ci})">
+          <div class="chunk-main">
+            <span class="chunk-text">${renderChunkText(ch.text, ch.highlight || '')}</span>
+            ${ch.explain ? '<span class="chunk-hint">✦</span>' : ''}
+            ${ch.note ? `<span class="chunk-badge">${escapeHTML(ch.note)}</span>` : ''}
+          </div>
+          <div class="chunk-zh" id="chunk-zh-${idx}-pron-${ci}">${escapeHTML(ch.zh || '')}</div>
+          ${ch.explain ? `<div class="chunk-explain" id="chunk-explain-${idx}-pron-${ci}">${escapeHTML(ch.explain)}</div>` : ''}
+        </div>`;
+      });
+      body += `</div></div>`;
+    }
+    if (pd.nuance && pd.nuance.length) {
+      body += `<div class="section"><div class="sec-label">Matices</div><div class="nuance-list">`;
+      pd.nuance.forEach((n, ni) => {
+        const dotColor = NUANCE_DOTS[ni % NUANCE_DOTS.length];
+        body += `<div class="nuance-item"><span class="nuance-dot" style="background:${dotColor}"></span><span class="nuance-word">${escapeHTML(n.word)}</span><span class="nuance-desc">${escapeHTML(n.desc)}</span></div>`;
+      });
+      body += `</div></div>`;
+    }
+    if (pd.related_words && pd.related_words.length) {
+      body += `<div class="section"><div class="sec-label">Relacionadas</div><div class="related-row">`;
+      pd.related_words.forEach(rw => {
+        body += `<span class="related-pill clickable" onclick="event.stopPropagation();jumpToWord('${rw.replace(/'/g, "\\'")}')">${escapeHTML(rw)}</span>`;
+      });
+      body += `</div></div>`;
+    }
+    if (pd.native_expressions && pd.native_expressions.length) {
+      body += `<div class="section"><div class="sec-label">Expresiones nativas</div><div class="native-list">`;
+      pd.native_expressions.forEach(ne => {
+        body += `<div class="native-item"><span class="native-text">${escapeHTML(ne.text)}</span><span class="native-zh">${escapeHTML(ne.zh)}</span></div>`;
+      });
+      body += `</div></div>`;
+    }
+    if (pd.notes && pd.notes.length) {
+      body += `<div class="section"><div class="sec-label">Notas</div><div class="note-list">`;
+      pd.notes.forEach(n => {
+        const paras = n.split('\n').map(s => escapeHTML(s.trim())).filter(s => s);
+        const phtml = paras.map(s => `<p class="note-p">${s}</p>`).join('');
+        body += `<div class="note-item">${phtml}</div>`;
+      });
+      body += `</div></div>`;
+    }
+    body += `</div>`; // close ppanel-pron
+  }
+
   const isVerb = (w.type || '').startsWith('v') && !w.word.includes(' ');
   if (isVerb) {
     const TENSE_ORDER = ['presente','futuro','pretérito','pretérito imperfecto','subjuntivo presente','subjuntivo imperfecto','condicional','imperativo'];
@@ -1584,7 +1673,7 @@ function buildCard(w, idx) {
 
   return `<div class="card" id="card-${idx}">
     <div class="card-head" onclick="toggle(${idx})">
-      <div class="head-left"><span class="word-main">${escapeHTML(w.word)}</span>${w.type ? `<span class="type-tag">${escapeHTML(w.type)}</span>` : ''}</div>
+      <div class="head-left"><span class="word-main">${escapeHTML(w.word)}</span>${w.type ? `<span class="type-tag">${escapeHTML(w.type)}</span>` : ''}${w.pronominal && w.pronominal_data ? `<span class="pronominal-tab active" onclick="event.stopPropagation();switchPronominal(event,${idx},true)" title="查看自复用法" style="margin-left:6px;font-size:11px;padding:2px 10px;">${escapeHTML(w.pronominal)}</span>` : ''}</div>
       <div class="head-right">
         ${w.level ? `<span class="badge badge-level">${escapeHTML(w.level)}</span>` : ''}
         ${w.frequency ? `<span class="badge badge-freq">${escapeHTML(w.frequency)}</span>` : ''}
@@ -1632,6 +1721,15 @@ function resetCardState(idx) {
   // Reset expand all text
   const expandEl = document.getElementById('expand-' + idx);
   if (expandEl) expandEl.textContent = '展开全部';
+  // Reset pronominal tabs to base
+  const baseTab = document.getElementById('ptab-' + idx + '-base');
+  const pronTab = document.getElementById('ptab-' + idx + '-pron');
+  const basePanel = document.getElementById('ppanel-' + idx + '-base');
+  const pronPanel = document.getElementById('ppanel-' + idx + '-pron');
+  if (baseTab) baseTab.classList.add('active');
+  if (pronTab) pronTab.classList.remove('active');
+  if (basePanel) { basePanel.style.display = ''; basePanel.classList.add('active'); }
+  if (pronPanel) { pronPanel.style.display = 'none'; pronPanel.classList.remove('active'); }
 }
 
 function toggle(idx) {
@@ -1661,6 +1759,20 @@ function toggleChunk(wordIdx, gender, chunkIdx) {
   if (zh) zh.classList.toggle('show');
   const ex = document.getElementById('chunk-explain-' + wordIdx + '-' + (gender || '') + '-' + chunkIdx);
   if (ex) ex.classList.toggle('show');
+}
+
+function switchPronominal(e, idx, showPron) {
+  e.stopPropagation();
+  // Toggle body tabs
+  const baseTab = document.getElementById('ptab-' + idx + '-base');
+  const pronTab = document.getElementById('ptab-' + idx + '-pron');
+  if (baseTab) baseTab.classList.toggle('active', !showPron);
+  if (pronTab) pronTab.classList.toggle('active', showPron);
+  // Toggle panels
+  const basePanel = document.getElementById('ppanel-' + idx + '-base');
+  const pronPanel = document.getElementById('ppanel-' + idx + '-pron');
+  if (basePanel) { basePanel.style.display = showPron ? 'none' : ''; basePanel.classList.toggle('active', !showPron); }
+  if (pronPanel) { pronPanel.style.display = showPron ? '' : 'none'; pronPanel.classList.toggle('active', showPron); }
 }
 
 function switchGender(e, idx, gender) {
