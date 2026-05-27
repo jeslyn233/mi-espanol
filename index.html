@@ -1878,14 +1878,15 @@ async function saveEdit() {
   if (sb) {
     try { await sb.from('words').upsert({ word: card.word, data: card }, { onConflict: 'word' }); } catch (e) {}
   }
+  const stayIdx = editIdx;
   closeEditModal();
   render();
   // Stay on the edited word
   setTimeout(() => {
-    const cardEl = document.getElementById('card-' + editIdx);
+    const cardEl = document.getElementById('card-' + stayIdx);
     if (cardEl) {
-      document.getElementById('body-' + editIdx).classList.add('open');
-      document.getElementById('chev-' + editIdx).classList.add('open');
+      document.getElementById('body-' + stayIdx).classList.add('open');
+      document.getElementById('chev-' + stayIdx).classList.add('open');
       cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, 100);
