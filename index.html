@@ -1141,13 +1141,9 @@ async function autoGenerate() {
     dedupHighlights(card);
     stripConjugationNotes(card);
     cleanVerbForms(card);
+    cleanRelatedWords(card);
 
     const vfAfter = JSON.stringify(card.verb_forms);
-    if (card.type && card.type.startsWith('v') && !card.word.includes(' ')) {
-      const vfInfo = vfBefore === '{}' ? 'AI未返回变位' : (vfBefore !== '{}' && vfAfter === '{}' ? 'cleanVerbForms清掉了变位' : '变位已保留');
-      showToast('verb_forms: ' + vfInfo + ' | before:' + vfBefore.slice(0,60) + ' | after:' + vfAfter.slice(0,60));
-    }
-    cleanRelatedWords(card);
 
     if (exist >= 0) words[exist] = card;
     else words.push(card);
@@ -1159,7 +1155,10 @@ async function autoGenerate() {
 
     render();
     input.value = '';
-    showToast('✓ ' + card.word + ' creado');
+    const vfInfo = (card.type||'').startsWith('v') && !card.word.includes(' ')
+      ? (vfBefore==='{}' ? ' ⚠️AI没给变位' : vfAfter==='{}' ? ' ⚠️变位被清掉' : ' 变位✓')
+      : '';
+    showToast('✓ ' + card.word + vfInfo + ' [' + vfBefore.slice(0,50) + ']');
 
     // Expand and scroll to new card
     const idx = words.findIndex(w => w.word === card.word);
