@@ -250,6 +250,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
   font-size: 14px; color: var(--text2); margin-bottom: 14px; padding-bottom: 10px;
   border-bottom: 1px solid var(--border); line-height: 1.5;
+  padding-left: 4px;
 }
 .core-meaning-top-missing { color: var(--text3); font-style: italic; }
 .chevron { font-size: 11px; color: var(--text3); transition: transform .2s; flex-shrink: 0; margin-left: auto; }
@@ -970,10 +971,7 @@ function cleanVerbForms(card) {
   const vf = card.verb_forms;
   if (!vf || !Object.keys(vf).length) return;
   const tenses = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
-  const personsMap = {
-    'presente':6,'pretérito imperfecto':6,'pretérito':6,'futuro':6,'condicional':6,'subjuntivo presente':6,'subjuntivo imperfecto':6,'imperativo':5
-  };
-  // First pass: detect duplicates (strong signal of AI error for regular verbs)
+  // Detect duplicates (strong signal of AI error for regular verbs)
   let hasDuplicate = false;
   for (const t of tenses) {
     const str = vf[t];
@@ -988,28 +986,8 @@ function cleanVerbForms(card) {
     }
     if (hasDuplicate) break;
   }
-  // Second pass: check if any form deviates from regular pattern
-  let anyIrregular = false;
-  for (const t of tenses) {
-    const str = vf[t];
-    if (!str) continue;
-    const forms = normalizeVerbFormStr(str).split('/').map(f => f.replace(/^\*|\*$/g, '').trim());
-    const n = personsMap[t] || forms.length;
-    for (let i = 0; i < n; i++) {
-      const clean = (forms[i] || '—').trim();
-      if (clean === '—') continue;
-      const exp = expectedReg(card.word, t, i);
-      if (exp == null) { anyIrregular = true; break; }
-      const expList = Array.isArray(exp) ? exp : [exp];
-      if (!expList.some(e => clean.toLowerCase() === e.toLowerCase())) {
-        anyIrregular = true;
-        break;
-      }
-    }
-    if (anyIrregular) break;
-  }
-  // Clear if fully regular, or if AI made obvious errors (duplicates)
-  if (!anyIrregular || hasDuplicate) {
+  // Only clear if AI made obvious errors (duplicate forms), trust AI's judgment on regularity
+  if (hasDuplicate) {
     card.verb_forms = {};
   }
 }
@@ -1136,14 +1114,10 @@ async function autoGenerate() {
     const card = JSON.parse(content);
     if (!card.word) throw new Error('JSON generado sin campo word');
 
-    const vfBefore = JSON.stringify(card.verb_forms);
-
     dedupHighlights(card);
     stripConjugationNotes(card);
     cleanVerbForms(card);
     cleanRelatedWords(card);
-
-    const vfAfter = JSON.stringify(card.verb_forms);
 
     if (exist >= 0) words[exist] = card;
     else words.push(card);
@@ -1155,10 +1129,7 @@ async function autoGenerate() {
 
     render();
     input.value = '';
-    const vfInfo = (card.type||'').startsWith('v') && !card.word.includes(' ')
-      ? (vfBefore==='{}' ? ' ⚠️AI没给变位' : vfAfter==='{}' ? ' ⚠️变位被清掉' : ' 变位✓')
-      : '';
-    showToast('✓ ' + card.word + vfInfo + ' [' + vfBefore.slice(0,50) + ']');
+    showToast('✓ ' + card.word + ' creado');
 
     // Expand and scroll to new card
     const idx = words.findIndex(w => w.word === card.word);
@@ -1197,7 +1168,6 @@ ESTRUCTURA:
 
 
   "pronominal": "自复不定式 或 省略",
-  "pronominal_data": {"core_meaning":"自复用法的中文释义","english":"to xxx (oneself)","situations":["..."],"chunks":[...],"nuance":[...],"related_words":[...],"native_expressions":[...],"notes":[...]}  // 有pronominal时必须填
   "frequency": "A|B|C",
   "tags": ["标签"],
   "situations": ["生活化中文场景短语"],
@@ -1676,7 +1646,7 @@ function buildCard(w, idx) {
 
   return `<div class="card" id="card-${idx}">
     <div class="card-head" onclick="toggle(${idx})">
-      <div class="head-left"><span class="word-main">${escapeHTML(w.word)}</span>${w.type ? `<span class="type-tag">${escapeHTML(w.type)}</span>` : ''}${w.pronominal && w.pronominal_data ? `<span class="pronominal-tab active" onclick="event.stopPropagation();switchPronominal(event,${idx},true)" title="查看自复用法" style="margin-left:6px;font-size:11px;padding:2px 10px;">${escapeHTML(w.pronominal)}</span>` : ''}</div>
+      <div class="head-left"><span class="word-main">${escapeHTML(w.word)}</span>${w.type ? `<span class="type-tag">${escapeHTML(w.type)}</span>` : ''}</div>
       <div class="head-right">
         ${w.level ? `<span class="badge badge-level">${escapeHTML(w.level)}</span>` : ''}
         ${w.frequency ? `<span class="badge badge-freq">${escapeHTML(w.frequency)}</span>` : ''}
