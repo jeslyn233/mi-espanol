@@ -1228,8 +1228,12 @@ async function autoGenerate() {
     dedupHighlights(card);
     stripConjugationNotes(card);
     cleanVerbForms(card);
-    if (!card.verb_forms || Object.keys(card.verb_forms).length === 0) {
+    // Check for actual tense data, not just non-empty object (AI may return {_irreg_note:""} etc.)
+    const TENSE_KEYS = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
+    const hasTenseData = card.verb_forms && TENSE_KEYS.some(k => card.verb_forms[k]);
+    if (!hasTenseData) {
       const autoVF = autoGenerateVerbForms(card.word);
+      console.log('[autoVerbForms] AI returned empty verb_forms for', card.word, '| autoVF:', autoVF ? Object.keys(autoVF).join(',') : 'NULL');
       if (autoVF) card.verb_forms = autoVF;
     }
     cleanRelatedWords(card);
@@ -1309,7 +1313,7 @@ REGLAS:
 - notes: 每个词必须有1-2条，只写用法提示，不要留空。按话题分成数组项。同一话题内补充用\\n软换行。例: ["语法规则：renunciar 不及物，后面必须用 a。\\n口语更常说 dejar el trabajo。","使用场景：常用于正式场合，如辞职、放弃权利。"] 🚫绝对禁止：①变位表 ②词干变化描述如"o→ue" ③"反义词"(放related_words) ④"近义词"(放nuance)。变位信息只放在verb_forms。
 - native_expressions: 2-3个。绝对禁止重复chunks内容。zh只写中文解释，不要标注分类。两个方向：(1)含原词的高阶俚语/口头禅 (2)不含原词但同场景的母语地道说法 如"Tirar la toalla"
 - related_words: 4-6个独立词汇（近义词、反义词、同根词、场景搭配词）。只收高频词，拒绝生僻词。⚠️禁止：①与chunks/native_expressions重复 ②放同一个词的变位形式(tengo/tiene/tuvo/tendré等) ③放语法结构(tener que)。正确例：tener的related_words→["haber","poseer","carecer","contar con"]。若目标词有常见不规则分词，必须包含。
-- verb_forms: 🔴铁律：只有hablar/comer/vivir这种各人称词干完全不变的动词才填{}。只要词干有任何变化就必须填！含：词干元音变化(dormir→duermo,pedir→pido,pensar→pienso,jugar→juego),拼写改音(coger→cojo,tocar→toqué),完全不规则(tener,ser,ir,hacer,decir,venir,salir,poner,saber,querer,poder,caber,valer,haber,estar,dar,ver,traer,caer,oír,huir,construir)。格式：{"presente":"...","pretérito imperfecto":"...","pretérito":"...","futuro":"...","condicional":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú / usted / nosotros / vosotros / ustedes","otros":["Participio pasado: 过去分词","Gerundio: 副动词"],"_irreg_note":"变化类型"}。过去分词/副动词不规则必须写入otros。每个时态必须写全人称。
+- verb_forms: 🔴铁律：只有hablar/comer/vivir这种各人称词干完全不变的动词才填{}。只要词干有任何变化就必须填！含：词干元音变化(dormir→duermo,pedir→pido,pensar→pienso,jugar→juego),拼写改音(coger→cojo,tocar→toqué),完全不规则(tener,ser,ir,hacer,decir,venir,salir,poner,saber,querer,poder,caber,valer,haber,estar,dar,ver,traer,caer,oír,huir,construir),元音+元音动词(creer,leer,poseer,proveer,roer等i→y拼写变化)。格式：{"presente":"...","pretérito imperfecto":"...","pretérito":"...","futuro":"...","condicional":"...","subjuntivo presente":"...","subjuntivo imperfecto":"...","imperativo":"tú / usted / nosotros / vosotros / ustedes","otros":["Participio pasado: 过去分词","Gerundio: 副动词"],"_irreg_note":"变化类型"}。过去分词/副动词不规则必须写入otros。每个时态必须写全人称。
 - 中文: core_meaning,tags,situations,notes,nuance.desc,chunks.zh,native_expressions.zh
 - 英语: english
 - 西语: word,chunks.text,related_words,native_expressions.text
