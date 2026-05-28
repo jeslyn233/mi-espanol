@@ -971,10 +971,53 @@ const STEM_PATTERNS = {
   'corregir':'e:i','derretir':'e:i','freír':'e:i','gemir':'e:i',
   'jugar':'u:ue',
 };
+
+// i→y orthographic change verbs: stem ends in vowel, so unstressed "i" between vowels → "y"
+// Applies to -eer, -aer, -oer verbs (NOT -traer compounds, which use "j")
+const IY_VERBS = new Set([
+  'caer','decaer','recaer','raer',
+  'creer','leer','poseer','proveer','desposeer','desproveer','releer','sobreseer',
+  'roer','corroer',
+]);
+
+function generateIYForms(infinitive) {
+  const norm = infinitive.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const base = norm.replace(/(ar|er|ir)$/, '');
+  const isAr = infinitive.endsWith('ar');
+  const vf = {};
+
+  const pe = isAr ? ['o','as','a','amos','áis','an'] : ['o','es','e','emos','éis','en'];
+  vf.presente = pe.map(e => base + e).join(' / ');
+
+  const pre = isAr ? ['é','aste','ó','amos','asteis','aron'] : ['í','iste','ió','imos','isteis','ieron'];
+  vf.pretérito = pre.map((e, i) => (i === 2 || i === 5) ? base + 'y' + e.slice(1) : base + e).join(' / ');
+
+  const imp = isAr ? ['aba','abas','aba','ábamos','abais','aban'] : ['ía','ías','ía','íamos','íais','ían'];
+  vf['pretérito imperfecto'] = imp.map(e => base + e).join(' / ');
+
+  vf.futuro = ['é','ás','á','emos','éis','án'].map(e => infinitive + e).join(' / ');
+  vf.condicional = ['ía','ías','ía','íamos','íais','ían'].map(e => infinitive + e).join(' / ');
+
+  const se = isAr ? ['e','es','e','emos','éis','en'] : ['a','as','a','amos','áis','an'];
+  vf['subjuntivo presente'] = se.map(e => base + e).join(' / ');
+
+  const si = isAr ? ['ara','aras','ara','áramos','arais','aran'] : ['iera','ieras','iera','iéramos','ierais','ieran'];
+  vf['subjuntivo imperfecto'] = si.map(e => base + 'y' + e.slice(1)).join(' / ');
+
+  const im = isAr ? ['a','e','emos','ad','en'] : ['e','a','amos','ed','an'];
+  vf.imperativo = im.map(e => base + e).join(' / ');
+
+  vf.otros = ['Gerundio: ' + base + 'yendo', 'Participio pasado: ' + base + 'ído'];
+  return vf;
+}
+
 function autoGenerateVerbForms(infinitive) {
   const key = infinitive.toLowerCase().replace(/se$/,'');
   const pat = STEM_PATTERNS[key];
-  if (!pat) return null;
+  if (!pat) {
+    if (IY_VERBS.has(key)) return generateIYForms(key);
+    return null;
+  }
   const [from, to] = pat.split(':');
   const base = key.replace(/(ar|er|ir)$/, '');
   const isAr = key.endsWith('ar'), isEr = key.endsWith('er');

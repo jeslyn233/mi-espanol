@@ -116,6 +116,7 @@ REGLAS ESTRICTAS:
    - 不规则人称，前端会自动检测并高亮，无需额外标记。
    - ⚠️ _irreg_note：仅拼写改音动词填写，如 "拼写变化：g→j 在 a/o 前"。真正不规则动词（tener, ir, ser 等）不填此字段。规则动词 verb_forms={} 也不填。
    - ⚠️ 拼写改音动词（-ger/-gir, -car, -gar, -zar, -guir）的 verb_forms 绝对不能是 {}。必须填写有变化的时态。例如 coger 必须填 presente 和 subjuntivo presente。这不是可选的。
+	   - ⚠️ 元音+元音动词（-eer, -aer, -oer, -oír 如 creer, leer, caer, roer, oír）的 verb_forms 绝对不能是 {}。i 在元音之间变 y：creyó/creyeron（pretérito）, creyera/creyese（subj. imperfecto）, creyendo（gerundio）。必须填写这些时态。
 
 10. **Nivel**: 根据词频和使用难度判断 A1/A2/B1/B2/C1/C2
 
