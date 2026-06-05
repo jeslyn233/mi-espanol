@@ -2016,7 +2016,9 @@ function jumpToWord(wordStr) {
 }
 
 function buildAZBar(letterSet) {
+  console.log('buildAZBar called, letterSet size:', letterSet.size);
   const bar = document.getElementById('azBar');
+  console.log('azBar element:', bar);
   const topBtn = `<a href="#" class="az-top" onclick="scrollToSearch(event)" title="回到顶部">▲</a>`;
   const sep = `<span class="az-sep"></span>`;
   const letters = ALPHABET.map(l =>
@@ -2371,9 +2373,12 @@ window.onclick = function (e) {
     saveLocal();
   }
   render();
+  console.log('init: render done, words count:', words.length);
   renderGrammar();
+  console.log('init: renderGrammar done');
   document.getElementById('grammarSort').addEventListener('change', renderGrammar);
   showTab('vocab');
+  console.log('init: showTab vocab done, azBar display:', document.getElementById('azBar').style.display);
 })();
 </script>
 </body>
