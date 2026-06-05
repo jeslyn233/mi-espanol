@@ -36,12 +36,13 @@
   --radius-sm: 8px;
   --shadow: 0 1px 3px rgba(0,0,0,.06);
 }
-html { scrollbar-gutter: stable; }
+html { scrollbar-gutter: stable; overflow-x: hidden; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'Georgia', 'Times New Roman', serif;
   background: var(--bg); color: var(--text);
   min-height: 100vh; padding: 2rem 1rem 4rem;
+  overflow-x: hidden;
 }
 .container { max-width: 780px; margin: 0 auto; padding-right: 36px; }
 
@@ -87,10 +88,10 @@ button.edit { color: var(--text2); }
 button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 .az-bar {
-  position: fixed; right: 6px; top: 50%; transform: translateY(-50%);
+  position: fixed; right: 12px; top: 50%; transform: translateY(-50%);
   display: flex; flex-direction: column; align-items: center; z-index: 50;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 999px; padding: 5px 2px; box-shadow: var(--shadow);
+  background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 999px; padding: 5px 2px; box-shadow: 0 2px 8px rgba(0,0,0,.1);
 }
 .az-bar a {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 9.5px; font-weight: 600;
