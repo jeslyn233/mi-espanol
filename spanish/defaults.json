@@ -1,0 +1,326 @@
+[
+  {
+    "word": "agotado",
+    "type": "adj",
+    "level": "B1",
+    "core_meaning": "筋疲力尽的；耗尽的；售罄的",
+    "frequency": "A",
+    "tags": [
+      "口语",
+      "负面",
+      "身体",
+      "日常"
+    ],
+    "situations": [
+      "加班到晚上十点完全不想说话",
+      "社交一整天之后彻底没电了",
+      "想买的演唱会门票售罄了",
+      "搬家完瘫在沙发上动不了"
+    ],
+    "chunks": [
+      {
+        "text": "estar agotado/a",
+        "zh": "筋疲力尽（表达状态）",
+        "highlight": "",
+        "note": "A1",
+        "explain": "estar + adj. 表示状态（非本质），形容词与主语性数一致。"
+      },
+      {
+        "text": "físicamente agotado",
+        "zh": "身体被掏空（高频搭配）",
+        "highlight": "",
+        "note": "A2"
+      },
+      {
+        "text": "Estoy tan agotado que no puedo ni pensar.",
+        "zh": "我累到脑子都不转了。（场景半成品）",
+        "highlight": "",
+        "note": "B1",
+        "explain": "estar tan + adj. + que... 表示「如此……以至于……」"
+      },
+      {
+        "text": "Hoy estoy agotada, mañana te llamo.",
+        "zh": "今天累坏了，明天打给你。（独立高频句）",
+        "highlight": "",
+        "note": "A2"
+      },
+      {
+        "text": "completamente agotado",
+        "zh": "彻底累垮了",
+        "highlight": "",
+        "note": "A2"
+      },
+      {
+        "text": "Las entradas ya están agotadas.",
+        "zh": "票已经卖完了。",
+        "highlight": "",
+        "note": "B1"
+      },
+      {
+        "text": "Estoy agotado, ya no puedo más.",
+        "zh": "我累坏了，不行了。",
+        "highlight": "",
+        "note": "A2"
+      }
+    ],
+    "nuance": [
+      {
+        "word": "cansado",
+        "desc": "一般疲惫，程度较轻，日常高频"
+      },
+      {
+        "word": "extenuado",
+        "desc": "极度疲劳，比 agotado 更正式、程度更深"
+      },
+      {
+        "word": "sin energía",
+        "desc": "没能量了，偏口语，可以直接说"
+      }
+    ],
+    "related_words": [
+      "cansado",
+      "extenuado",
+      "sin energía",
+      "estresado",
+      "agotador"
+    ],
+    "native_expressions": [
+      {
+        "text": "Estoy muerto/a.",
+        "zh": "我累死了。（更口语、更地道）"
+      },
+      {
+        "text": "No puedo más.",
+        "zh": "我不行了，到极限了。"
+      }
+    ],
+    "notes": [
+      "不用 ser agotado，要用 estar agotado——因为疲惫是一种状态，不是本质属性",
+      "cansado 是「累了」，agotado 是「彻底耗尽了」，程度差一个档次。\n跟朋友说 Estoy agotado 会让人觉得你今天真的被榨干了。"
+    ],
+    "verb_forms": {}
+  },
+  {
+    "word": "aprovechar",
+    "type": "v",
+    "level": "B1",
+    "core_meaning": "充分利用；抓住机会",
+    "frequency": "A",
+    "tags": [
+      "通用",
+      "正面",
+      "工作",
+      "日常"
+    ],
+    "situations": [
+      "周末前计划好要做什么充分利用两天时间",
+      "机票打折赶紧下单买了",
+      "午休一小时跑去健身房不浪费"
+    ],
+    "chunks": [
+      {
+        "text": "aprovechar + sustantivo",
+        "zh": "充分利用某物（核心语法块）",
+        "highlight": "",
+        "note": "A2",
+        "explain": "aprovechar 直接接名词，不加前置词。"
+      },
+      {
+        "text": "aprovechar la oportunidad",
+        "zh": "抓住机会（高频搭配）",
+        "highlight": "",
+        "note": "A2"
+      },
+      {
+        "text": "Voy a aprovechar para descansar.",
+        "zh": "我要趁机休息一下。",
+        "highlight": "aprovechar para",
+        "note": "A2",
+        "explain": "aprovechar para + inf. 固定结构，表示「趁机做某事」。"
+      },
+      {
+        "text": "Aprovecha que tienes tiempo libre.",
+        "zh": "趁你有空，好好利用。",
+        "highlight": "Aprovecha que",
+        "note": "A2",
+        "explain": "aprovechar que + indicativo 固定结构，表示「趁着……」。后面接陈述式。"
+      },
+      {
+        "text": "Hay que aprovechar esta oportunidad.",
+        "zh": "得抓住这个机会。",
+        "highlight": "",
+        "note": "B1"
+      },
+      {
+        "text": "Aprovecho el fin de semana para estudiar.",
+        "zh": "我利用周末来学习。",
+        "highlight": "",
+        "note": "A2"
+      },
+      {
+        "text": "aprovechar el tiempo al máximo",
+        "zh": "把时间利用到极致",
+        "highlight": "",
+        "note": "B1"
+      }
+    ],
+    "nuance": [
+      {
+        "word": "usar",
+        "desc": "单纯的「使用」，不强调利用效率"
+      },
+      {
+        "word": "sacar partido",
+        "desc": "设法从某事中获益，比 aprovechar 更口语"
+      },
+      {
+        "word": "desperdiciar",
+        "desc": "浪费（aprovechar 的反义词）"
+      }
+    ],
+    "related_words": [
+      "sacar partido",
+      "utilizar",
+      "desperdiciar",
+      "malgastar",
+      "aprovechado"
+    ],
+    "native_expressions": [
+      {
+        "text": "¡Aprovéchalo!",
+        "zh": "好好利用它！别浪费！"
+      },
+      {
+        "text": "Sácale partido.",
+        "zh": "充分利用它。母语高频替代说法。"
+      },
+      {
+        "text": "El tiempo vuela, aprovéchalo.",
+        "zh": "时间飞逝，好好利用。"
+      }
+    ],
+    "notes": [
+      "aprovechar 直接接名词（aprovechar el tiempo），不需要加 de。\n但某些固定搭配里会出现 de，比如 aprovecharse de alguien（占某人便宜），意思就不一样了。",
+      "aprovechar para + 动词原形 = 趁机做某事，这是最实用的句型。"
+    ],
+    "verb_forms": {}
+  },
+  {
+    "word": "tener",
+    "type": "v",
+    "level": "A1",
+    "core_meaning": "有；拥有；感到",
+    "frequency": "A",
+    "tags": [
+      "通用",
+      "中性",
+      "日常"
+    ],
+    "situations": [
+      "表达拥有某物或某种关系",
+      "描述身体感受如饿渴冷热困",
+      "说明年龄或时间安排",
+      "表示必须做某事的义务"
+    ],
+    "chunks": [
+      {
+        "text": "Tengo hambre.",
+        "zh": "我饿了。",
+        "highlight": "",
+        "note": "A1",
+        "explain": "tener + 名词 表示身体感受（hambre/sed/frío/calor/sueño），不是 ser/estar + adj。"
+      },
+      {
+        "text": "¿Tienes tiempo mañana?",
+        "zh": "你明天有时间吗？",
+        "highlight": "",
+        "note": "A1"
+      },
+      {
+        "text": "Tiene 25 años.",
+        "zh": "他/她 25 岁。",
+        "highlight": "",
+        "note": "A1"
+      },
+      {
+        "text": "tener suerte",
+        "zh": "运气好（高频搭配）",
+        "highlight": "",
+        "note": "A2"
+      },
+      {
+        "text": "tener razón",
+        "zh": "说得对/有道理（高频搭配）",
+        "highlight": "",
+        "note": "A2"
+      },
+      {
+        "text": "tener que + infinitivo",
+        "zh": "必须做某事",
+        "highlight": "",
+        "note": "A2",
+        "explain": "tener que + inf. 固定结构，表示「必须」（客观需要）。"
+      },
+      {
+        "text": "No tengo ganas de salir hoy.",
+        "zh": "我今天不想出门。",
+        "highlight": "",
+        "note": "A2"
+      },
+      {
+        "text": "Ten paciencia, todo va a salir bien.",
+        "zh": "耐心点，一切都会好的。",
+        "highlight": "",
+        "note": "B1"
+      }
+    ],
+    "nuance": [
+      {
+        "word": "haber",
+        "desc": "作为「有」时是无人称（hay），不表示拥有"
+      },
+      {
+        "word": "poseer",
+        "desc": "「拥有」的正式说法，多用于法律/书面"
+      },
+      {
+        "word": "contar con",
+        "desc": "「拥有/具备」，强调可依靠的资源"
+      }
+    ],
+    "related_words": [
+      "haber",
+      "poseer",
+      "contar con",
+      "carecer",
+      "tener que"
+    ],
+    "native_expressions": [
+      {
+        "text": "No tiene ni un pelo de tonto.",
+        "zh": "他/她一点都不傻。（字面：没有一根傻头发）"
+      },
+      {
+        "text": "Tener los pies en la tierra.",
+        "zh": "脚踏实地。"
+      },
+      {
+        "text": "No tener pelos en la lengua.",
+        "zh": "说话直来直去不拐弯抹角。"
+      }
+    ],
+    "notes": [
+      "西班牙语用 tener 表达很多「感受」类的东西（tener hambre / sed / frío / calor / sueño / miedo）。\n英语用 be + adj，千万别翻译成 ser/estar + adj。",
+      "tener que + inf. = 必须（客观需要）；deber + inf. = 应该（道义责任）。\n语气不同，别混用。"
+    ],
+    "verb_forms": {
+      "presente": "tengo / tienes / tiene / tenemos / tenéis / tienen",
+      "pretérito": "tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",
+      "subjuntivo presente": "tenga / tengas / tenga / tengamos / tengáis / tengan",
+      "subjuntivo imperfecto": "tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",
+      "futuro": "tendré / tendrás / tendrá / tendremos / tendréis / tendrán",
+      "imperativo": "ten / tenga / tengamos / tened / tengan",
+      "otros": []
+    }
+  }
+]

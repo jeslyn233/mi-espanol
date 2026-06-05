@@ -33,47 +33,94 @@ REGLAS ESTRICTAS:
   "verb_forms": {}
 }
 
-2. **Chunks (3-5个)**：
-   - 从权威语料提取的真实例句/语块
-   - 长度可短可长，自然即可
+1.5 **Tags (3-5个)**，必须覆盖以下三个维度：
+   - 语域（必含）：书面/口语/通用
+   - 情感色彩（必含）：根据词本身的语义判断。拿不准就用 正面/负面/中性，能细分时可参考以下方向：
+     正面 — 温暖/鼓励/赞美/感激/亲密 等
+     负面 — 批评/抱怨/贬低/厌恶/焦虑 等
+     特殊 — 讽刺/委婉/戏谑/冷淡 等
+   - 使用场景（1-3个）：工作/社交/日常/旅行/身体/心理/数据/决定 等
+   - 例：agotado → ["口语", "负面", "身体", "日常"]；renunciar → ["通用", "负面", "工作"]；abrazar → ["通用", "温暖", "社交", "日常"]
+   - 不要重复 type 已有的信息（v 已经表明是动词，tags 就不用标"动词"）
+
+2. **Chunks（数量根据词灵活决定）**：
+   - 真实自然的例句/语块，长度可短可长
+   - 4个方向都要覆盖到，不要厚此薄彼
    - 至少1个是包含该词固定搭配的长句
+   - 4条偏少，高频常用词建议 5-8 条
+   - ⚠️ 同一语义类别+同一句型的合并为一条，用「/」分隔。例：tener hambre / sed / frío / calor / sueño（都是身体感受）可合并。tener razón / suerte / prisa 是另一类（状态/属性），分开写。tener miedo 也另开一条。禁止把不同语义类别的全部塞进一条，也禁止同类别拆成多条凑数。
 
 3. **高亮规则 (highlight)**：
-   - 只在长句中嵌入的、用户可能忽略的固定搭配才高亮
-   - 短句/自明结构不高亮（如 "estar agotado/a" 本身就是结构，不高亮）
-   - highlight 字段填要高亮的子串，不高亮填空字符串 ""
-   - 高亮的目的是"轻微提示"，不要过度使用
+   - ⚠️ REGLA Nº1 (LA MÁS IMPORTANTE): Cada estructura fija se resalta UNA SOLA VEZ en el chunk más representativo. En los demás chunks de la misma palabra, aunque aparezca la misma estructura, NO se resalta. Ejemplo: si ya resaltaste "renunciar a" en "renunciar a algo", NO lo resaltes en "renunciar a un derecho" ni en "No pienso renunciar a...".
+   - Solo se resalta: verbo+preposición fija, verbo+conjunción fija, o perífrasis verbal. Ejemplos:
+     ✅ "aprovechar para" / "aprovechar que" / "renunciar a" / "tener que"
+   - ⚠️ Si el resaltado incluye un sustantivo con artículo definido fijo (el/la/los/las), el artículo debe ir dentro del highlight. Ej: "el derecho" no "derecho", "la razón" no "razón".
+   - NO se resalta:
+     ❌ verbo + sustantivo cualquiera (coger una flor, tener tiempo)
+     ❌ nombre + de + nombre (hora de la comida, día de trabajo)
+     ❌ frase corta auto-explicativa (estar agotado/a, tener hambre)
+     ❌ colocación frecuente sin estructura gramatical fija (tener razón, aprovechar el tiempo)
+   - El highlight marca un "gancho gramatical" que el alumno debe aprender, no marca vocabulario
+   - highlight debe ser subcadena exacta del chunk.text; si son varias, unirlas con "..."
+   - Ante la duda, NO resaltar (mejor pecar de menos que de más)
 
 4. **解释规则 (explain)**：
-   - 只在有语法/结构/固定搭配值得说明时才加 explain
-   - explain 简短，只讲结构功能，不讲使用场景
-   - 使用场景和注意事项放在 notes 里
-   - 没有 highlight 也可以有 explain
-   - explain 字段是可选的，没有就不加
+   - 只解释「中文母语者容易踩坑」的语法点
+   - 格式：结构 + 空格 + 说明。例："tener + 名词 表示身体感受，非 ser/estar"
+   - 值得加的：
+     ✅ 西语特有固定结构（tener + 名词 表感受）
+     ✅ 固定前置词搭配（renunciar a + inf.）
+     ✅ 特殊用法区别于近义词（aumentar un 10% 表增幅）
+   - 禁止加的：
+     ❌ 对语法时态的描述（完成时态/过去时…跟词本身无关）
+     ❌ 自明废话（"疑问句询问拥有""及物动词+名词"）
+   - 拿不准一律不加
 
-5. **Nuance (3-4个近义词辨析)**
+5. **Related words (4-6个)**：
+   - 近义词、反义词、同根词、分词形式、场景搭配词
+   - 只收高频常用词，拒绝生僻词
+   - ⚠️ 禁止放：①同一个词的不同变位（tengo/tiene/tuvo…）②语法结构（tener que）③与chunks/native_expressions重复的内容
+   - related_words 是关联的独立词汇，不是变位表。正确例：tener→["haber","poseer","carecer","contar con"]
 
-6. **Native expressions (0-2个，可选)**
+6. **Nuance (3-4个近义词辨析)**
 
-7. **Notes (2-3条)**：
+7. **Native expressions (0-2个)**：
+   - 地道说法，不是普通例句。两个方向：含原词的俚语/口头禅，或不含原词的同场景地道替代说法
+   - ✅ "Tirar la toalla"（放弃）、"No tener pelos en la lengua"（说话直）
+   - ❌ 普通语法搭配（"Darse cuenta de"→放chunks）、自明短句（"Estoy cansado"→放chunks）
+
+8. **Notes (2-3条)**：
    - 使用场景、常见错误、文化背景
    - 用 \\n 在逻辑断点处分段，每条1-2句
+   - 每个词都必须有 1-2 条有价值的 notas，不要留空
+   - 🚫 禁止在 notas 里写：①变位表 ②"反义词：xxx"（放 related_words）③"近义词：xxx"（放 nuance）
+   - 例：coger → ["在拉美一些国家（如阿根廷、乌拉圭），coger 有性暗示含义，口语建议用 tomar 或 agarrar 替代。\\n在西班牙本土无此问题。"]
 
-8. **Verb forms**：
-   - 规则动词：{}
-   - 不规则动词，按以下格式：
+9. **Verb forms**：
+   - 规则动词（renunciar, hablar, comer, vivir 等）：{}
+   - ⚠️ Antes de llenar verb_forms, verifica SIEMPRE: ¿este verbo sigue TODAS las conjugaciones regulares sin ninguna excepción? Si sí, DEBE ser {}.
+   - 不规则动词，按以下格式（仅写变位形式，不带人称代词，用「 / 」分隔）：
    {
-     "presente": "yo形 / tú形 / él形 / nosotros形 / vosotros形 / ellos形",
-     "pretérito": "...",
-     "subjuntivo presente": "...",
-     "subjuntivo imperfecto": "...",
-     "otros": ["imperativo (tú): ...", "futuro: ..."]
+     "presente": "tengo / tienes / tiene / tenemos / tenéis / tienen",
+     "pretérito imperfecto": "iba / ibas / iba / íbamos / ibais / iban",
+     "pretérito": "tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",
+     "futuro": "tendré / tendrás / tendrá / tendremos / tendréis / tendrán",
+     "condicional": "tendría / tendrías / tendría / tendríamos / tendríais / tendrían",
+     "subjuntivo presente": "tenga / tengas / tenga / tengamos / tengáis / tengan",
+     "subjuntivo imperfecto": "tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",
+     "imperativo": "ten / tenga / tengamos / tened / tengan",
+     "otros": ["Participio pasado: 过去分词", "Gerundio: 副动词"],
+     "_irreg_note": "简短说明（仅拼写改音动词填写，其余不填）"
    }
    - 只填真正不规则的时态，规则时态不填
+   - 不规则人称，前端会自动检测并高亮，无需额外标记。
+   - ⚠️ _irreg_note：仅拼写改音动词填写，如 "拼写变化：g→j 在 a/o 前"。真正不规则动词（tener, ir, ser 等）不填此字段。规则动词 verb_forms={} 也不填。
+   - ⚠️ 拼写改音动词（-ger/-gir, -car, -gar, -zar, -guir）的 verb_forms 绝对不能是 {}。必须填写有变化的时态。例如 coger 必须填 presente 和 subjuntivo presente。这不是可选的。
+	   - ⚠️ 元音+元音动词（-eer, -aer, -oer, -oír 如 creer, leer, caer, roer, oír）的 verb_forms 绝对不能是 {}。i 在元音之间变 y：creyó/creyeron（pretérito）, creyera/creyese（subj. imperfecto）, creyendo（gerundio）。必须填写这些时态。
 
-9. **Nivel**: 根据词频和使用难度判断 A1/A2/B1/B2/C1/C2
+10. **Nivel**: 根据词频和使用难度判断 A1/A2/B1/B2/C1/C2
 
-10. **Idioma**: core_meaning, situations, tags, nuance.desc, notes, native_expressions.zh 用中文。word, chunks.text, related_words, native_expressions.text 用西语。
+11. **Idioma**: core_meaning, situations, tags, nuance.desc, notes, native_expressions.zh 用中文。word, chunks.text, related_words, native_expressions.text 用西语。
 
 RESPONDE ÚNICAMENTE CON EL JSON, SIN TEXTO ADICIONAL.`;
 
@@ -151,6 +198,51 @@ export default async function handler(req) {
     }
 
     const card = JSON.parse(content);
+
+    // Deduplicate highlights across chunks
+    if (card.chunks && card.chunks.length) {
+      const seen = new Set();
+      for (const ch of card.chunks) {
+        const h = (ch.highlight || '').trim();
+        if (!h) continue;
+        const key = h.toLowerCase();
+        if (seen.has(key)) { ch.highlight = ''; }
+        else { seen.add(key); }
+      }
+    }
+
+    // Strip conjugation boilerplate from notes
+    if (card.notes && card.notes.length) {
+      const conjKeywords = ['现在时','过去时','将来时','虚拟式','命令式','过去分词','副动词',
+        'presente','pretérito','futuro','subjuntivo','imperativo','participio','gerundio',
+        'tengo','tienes','tuviera','conjugación','变位','规则动词','不规则动词',
+        '遵循','ir 动词','er 动词','ar 动词'];
+      card.notes = card.notes.filter(n => {
+        const lower = n.toLowerCase();
+        const hits = conjKeywords.filter(k => lower.includes(k.toLowerCase()));
+        if (hits.length >= 3) return false;
+        const t = n.trim();
+        if (/规则动词/.test(t) && /变位/.test(t)) return false;
+        if (/不规则动词/.test(t) && /变位/.test(t)) return false;
+        if (/变位遵循/.test(t)) return false;
+        if (/反义词/.test(t)) return false;
+        if (/近义词/.test(t)) return false;
+        return true;
+      });
+    }
+
+    // Strip verb conjugations from related_words
+    if (card.related_words && card.related_words.length) {
+      card.related_words = card.related_words.filter(rw => rw.toLowerCase() !== card.word.toLowerCase());
+      if (card.related_words.length && (card.type || '').startsWith('v')) {
+        const stem = card.word.toLowerCase().replace(/(ar|er|ir)$/, '');
+        const prefix = stem.slice(0, 3);
+        const suspects = card.related_words.filter(rw => rw.toLowerCase().startsWith(prefix));
+        if (suspects.length >= 3) {
+          card.related_words = card.related_words.filter(rw => !rw.toLowerCase().startsWith(prefix));
+        }
+      }
+    }
 
     // Validate minimum structure
     if (!card.word) {
