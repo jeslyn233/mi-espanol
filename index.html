@@ -2035,14 +2035,9 @@ function positionAZBar() {
   if (!bar || !container) return;
   const cr = container.getBoundingClientRect();
   const barWidth = bar.offsetWidth || 24;
-  const rightEdge = cr.right + barWidth + 12;
-  if (rightEdge < window.innerWidth) {
-    bar.style.right = '';
-    bar.style.left = rightEdge + 'px';
-  } else {
-    bar.style.left = '';
-    bar.style.right = '6px';
-  }
+  const gap = Math.max(36, (window.innerWidth - cr.right) / 2);
+  bar.style.left = '';
+  bar.style.right = gap + 'px';
 }
 function azClick(e, l) {
   e.preventDefault();
