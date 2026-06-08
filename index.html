@@ -1127,7 +1127,7 @@ const IRREGULAR_BASES = {
 function findIrregularBase(infinitive) {
   const key = infinitive.toLowerCase().replace(/se$/,'');
   // Direct match
-  if (IRREGULAR_BASES[key]) return { base: key, prefix: '' };
+  if (IRREGULAR_BASES[key]) { console.log('[findIrregularBase] direct match:', key); return { base: key, prefix: '' }; }
   // Compound match: a known base verb with a prefix attached
   const bases = Object.keys(IRREGULAR_BASES);
   // Sort by length descending so "tener" matches before "tener" within "contener"
@@ -1138,10 +1138,12 @@ function findIrregularBase(infinitive) {
       // Validate prefix looks like a real prefix (not just a random substring overlap)
       // Common prefixes: a, con, de, des, dis, en, entre, in, inter, man, ob, per, pre, pro, re, sos, sobre, sub, trans, contra, etc.
       if (prefix.length >= 1) {
+        console.log('[findIrregularBase] compound match:', key, '→ prefix:', prefix, '+ base:', b);
         return { base: b, prefix: prefix };
       }
     }
   }
+  console.log('[findIrregularBase] no match for:', key);
   return null;
 }
 
@@ -1392,13 +1394,20 @@ async function autoGenerate() {
     dedupHighlights(card);
     stripConjugationNotes(card);
     cleanVerbForms(card);
-    // Check for actual tense data, not just non-empty object (AI may return {_irreg_note:""} etc.)
+    // Always try auto-generation first — faster and more reliable than AI for known patterns
     const TENSE_KEYS = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
     const hasTenseData = card.verb_forms && TENSE_KEYS.some(k => card.verb_forms[k]);
     if (!hasTenseData) {
       const autoVF = autoGenerateVerbForms(card.word);
       console.log('[autoVerbForms] AI returned empty verb_forms for', card.word, '| autoVF:', autoVF ? Object.keys(autoVF).join(',') : 'NULL');
       if (autoVF) card.verb_forms = autoVF;
+    } else {
+      // AI returned non-empty verb_forms — verify against auto-generation for known irregular verbs
+      const autoVF = autoGenerateVerbForms(card.word);
+      if (autoVF) {
+        console.log('[autoVerbForms] AI returned verb_forms for', card.word, 'but overriding with auto-generated (known irregular pattern)');
+        card.verb_forms = autoVF;
+      }
     }
     cleanRelatedWords(card);
 
@@ -2267,6 +2276,16 @@ async function saveEdit() {
   }
   // Word edit
   if (!card.word) { alert('Falta el campo "word".'); return; }
+  // Auto-fill verb_forms if AI returned empty for an irregular verb
+  if ((card.type || '').startsWith('v') && !card.word.includes(' ')) {
+    const TKS = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
+    const hasTenseData = card.verb_forms && TKS.some(k => card.verb_forms[k]);
+    if (!hasTenseData) {
+      const autoVF = autoGenerateVerbForms(card.word);
+      if (autoVF) card.verb_forms = autoVF;
+    }
+  }
+  cleanVerbForms(card);
   words[editIdx] = card;
   saveLocal();
   if (sb) {
@@ -2359,6 +2378,16 @@ async function doImport() {
       closeImportModal(); render();
       showToast('Datos restaurados');
     } else if (data.word) {
+      // Auto-fill verb_forms for irregular verbs
+      if ((data.type || '').startsWith('v') && !data.word.includes(' ')) {
+        const TKS = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
+        const hasTenseData = data.verb_forms && TKS.some(k => data.verb_forms[k]);
+        if (!hasTenseData) {
+          const autoVF = autoGenerateVerbForms(data.word);
+          if (autoVF) data.verb_forms = autoVF;
+        }
+      }
+      cleanVerbForms(data);
       const ex = words.findIndex(w => w.word === data.word);
       if (ex >= 0) { if (confirm('"' + data.word + '" ya existe. ¿Reemplazar?')) { words[ex] = data; } else return; }
       else words.push(data);
@@ -2531,6 +2560,26 @@ window.onclick = function (e) {
   // Sync merged result to Supabase
   if (sb && grammarNotes.length) { syncGrammarToSupabase(); }
   await loadWords();
+  // Auto-fill missing verb_forms for known irregular verbs and their compounds
+  const TENSE_KEYS = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
+  let verbFormsFixed = false;
+  for (const w of words) {
+    if (!(w.type || '').startsWith('v') || w.word.includes(' ')) continue;
+    const hasTenseData = w.verb_forms && TENSE_KEYS.some(k => w.verb_forms[k]);
+    if (!hasTenseData) {
+      const autoVF = autoGenerateVerbForms(w.word);
+      if (autoVF) { w.verb_forms = autoVF; verbFormsFixed = true; }
+    }
+  }
+  if (verbFormsFixed) {
+    saveLocal();
+    if (sb) {
+      for (const w of words) {
+        if (!(w.type || '').startsWith('v') || w.word.includes(' ')) continue;
+        try { await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch (e) {}
+      }
+    }
+  }
   resetOverdue();
   document.body.classList.add('locked'); // lock by default
   // Ensure default words always up to date in Supabase
