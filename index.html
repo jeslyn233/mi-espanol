@@ -1012,8 +1012,171 @@ function generateIYForms(infinitive) {
   return vf;
 }
 
+// Deeply irregular base verbs whose compounds inherit the same conjugation
+// null tense = regular (use expectedReg), string array = irregular forms for 6 persons (5 for imperativo)
+const IRREGULAR_BASES = {
+  tener: {
+    presente:  ['tengo','tienes','tiene','tenemos','tenéis','tienen'],
+    pretérito: ['tuve','tuviste','tuvo','tuvimos','tuvisteis','tuvieron'],
+    futuro:    ['tendré','tendrás','tendrá','tendremos','tendréis','tendrán'],
+    condicional: ['tendría','tendrías','tendría','tendríamos','tendríais','tendrían'],
+    'subjuntivo presente': ['tenga','tengas','tenga','tengamos','tengáis','tengan'],
+    'subjuntivo imperfecto': ['tuviera','tuvieras','tuviera','tuviéramos','tuvierais','tuvieran'],
+    imperativo: ['ten','tenga','tengamos','tened','tengan'],
+  },
+  venir: {
+    presente:  ['vengo','vienes','viene','venimos','venís','vienen'],
+    pretérito: ['vine','viniste','vino','vinimos','vinisteis','vinieron'],
+    futuro:    ['vendré','vendrás','vendrá','vendremos','vendréis','vendrán'],
+    condicional: ['vendría','vendrías','vendría','vendríamos','vendríais','vendrían'],
+    'subjuntivo presente': ['venga','vengas','venga','vengamos','vengáis','vengan'],
+    'subjuntivo imperfecto': ['viniera','vinieras','viniera','viniéramos','vinierais','vinieran'],
+    imperativo: ['ven','venga','vengamos','venid','vengan'],
+  },
+  decir: {
+    presente:  ['digo','dices','dice','decimos','decís','dicen'],
+    pretérito: ['dije','dijiste','dijo','dijimos','dijisteis','dijeron'],
+    futuro:    ['diré','dirás','dirá','diremos','diréis','dirán'],
+    condicional: ['diría','dirías','diría','diríamos','diríais','dirían'],
+    'subjuntivo presente': ['diga','digas','diga','digamos','digáis','digan'],
+    'subjuntivo imperfecto': ['dijera','dijeras','dijera','dijéramos','dijerais','dijeran'],
+    imperativo: ['di','diga','digamos','decid','digan'],
+  },
+  hacer: {
+    presente:  ['hago','haces','hace','hacemos','hacéis','hacen'],
+    pretérito: ['hice','hiciste','hizo','hicimos','hicisteis','hicieron'],
+    futuro:    ['haré','harás','hará','haremos','haréis','harán'],
+    condicional: ['haría','harías','haría','haríamos','haríais','harían'],
+    'subjuntivo presente': ['haga','hagas','haga','hagamos','hagáis','hagan'],
+    'subjuntivo imperfecto': ['hiciera','hicieras','hiciera','hiciéramos','hicierais','hicieran'],
+    imperativo: ['haz','haga','hagamos','haced','hagan'],
+  },
+  poner: {
+    presente:  ['pongo','pones','pone','ponemos','ponéis','ponen'],
+    pretérito: ['puse','pusiste','puso','pusimos','pusisteis','pusieron'],
+    futuro:    ['pondré','pondrás','pondrá','pondremos','pondréis','pondrán'],
+    condicional: ['pondría','pondrías','pondría','pondríamos','pondríais','pondrían'],
+    'subjuntivo presente': ['ponga','pongas','ponga','pongamos','pongáis','pongan'],
+    'subjuntivo imperfecto': ['pusiera','pusieras','pusiera','pusiéramos','pusierais','pusieran'],
+    imperativo: ['pon','ponga','pongamos','poned','pongan'],
+  },
+  salir: {
+    presente:  ['salgo','sales','sale','salimos','salís','salen'],
+    futuro:    ['saldré','saldrás','saldrá','saldremos','saldréis','saldrán'],
+    condicional: ['saldría','saldrías','saldría','saldríamos','saldríais','saldrían'],
+    'subjuntivo presente': ['salga','salgas','salga','salgamos','salgáis','salgan'],
+    imperativo: ['sal','salga','salgamos','salid','salgan'],
+  },
+  traer: {
+    presente:  ['traigo','traes','trae','traemos','traéis','traen'],
+    pretérito: ['traje','trajiste','trajo','trajimos','trajisteis','trajeron'],
+    'subjuntivo presente': ['traiga','traigas','traiga','traigamos','traigáis','traigan'],
+    'subjuntivo imperfecto': ['trajera','trajeras','trajera','trajéramos','trajerais','trajeran'],
+    imperativo: ['trae','traiga','traigamos','traed','traigan'],
+  },
+  oír: {
+    presente:  ['oigo','oyes','oye','oímos','oís','oyen'],
+    pretérito: ['oí','oíste','oyó','oímos','oísteis','oyeron'],
+    'subjuntivo presente': ['oiga','oigas','oiga','oigamos','oigáis','oigan'],
+    'subjuntivo imperfecto': ['oyera','oyeras','oyera','oyéramos','oyerais','oyeran'],
+    imperativo: ['oye','oiga','oigamos','oíd','oigan'],
+  },
+  ver: {
+    presente:  ['veo','ves','ve','vemos','veis','ven'],
+    'pretérito imperfecto': ['veía','veías','veía','veíamos','veíais','veían'],
+    'subjuntivo presente': ['vea','veas','vea','veamos','veáis','vean'],
+    'subjuntivo imperfecto': ['viera','vieras','viera','viéramos','vierais','vieran'],
+    imperativo: ['ve','vea','veamos','ved','vean'],
+  },
+  saber: {
+    presente:  ['sé','sabes','sabe','sabemos','sabéis','saben'],
+    pretérito: ['supe','supiste','supo','supimos','supisteis','supieron'],
+    futuro:    ['sabré','sabrás','sabrá','sabremos','sabréis','sabrán'],
+    condicional: ['sabría','sabrías','sabría','sabríamos','sabríais','sabrían'],
+    'subjuntivo presente': ['sepa','sepas','sepa','sepamos','sepáis','sepan'],
+    'subjuntivo imperfecto': ['supiera','supieras','supiera','supiéramos','supierais','supieran'],
+    imperativo: ['sabe','sepa','sepamos','sabed','sepan'],
+  },
+  caber: {
+    presente:  ['quepo','cabes','cabe','cabemos','cabéis','caben'],
+    pretérito: ['cupe','cupiste','cupo','cupimos','cupisteis','cupieron'],
+    futuro:    ['cabré','cabrás','cabrá','cabremos','cabréis','cabrán'],
+    condicional: ['cabría','cabrías','cabría','cabríamos','cabríais','cabrían'],
+    'subjuntivo presente': ['quepa','quepas','quepa','quepamos','quepáis','quepan'],
+    'subjuntivo imperfecto': ['cupiera','cupieras','cupiera','cupiéramos','cupierais','cupieran'],
+    imperativo: ['cabe','quepa','quepamos','cabed','quepan'],
+  },
+  querer: {
+    presente:  ['quiero','quieres','quiere','queremos','queréis','quieren'],
+    pretérito: ['quise','quisiste','quiso','quisimos','quisisteis','quisieron'],
+    futuro:    ['querré','querrás','querrá','querremos','querréis','querrán'],
+    condicional: ['querría','querrías','querría','querríamos','querríais','querrían'],
+    'subjuntivo presente': ['quiera','quieras','quiera','queramos','queráis','quieran'],
+    'subjuntivo imperfecto': ['quisiera','quisieras','quisiera','quisiéramos','quisierais','quisieran'],
+    imperativo: ['quiere','quiera','queramos','quered','quieran'],
+  },
+  valer: {
+    presente:  ['valgo','vales','vale','valemos','valéis','valen'],
+    futuro:    ['valdré','valdrás','valdrá','valdremos','valdréis','valdrán'],
+    condicional: ['valdría','valdrías','valdría','valdríamos','valdríais','valdrían'],
+    'subjuntivo presente': ['valga','valgas','valga','valgamos','valgáis','valgan'],
+    imperativo: ['vale','valga','valgamos','valed','valgan'],
+  },
+};
+
+function findIrregularBase(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  // Direct match
+  if (IRREGULAR_BASES[key]) return { base: key, prefix: '' };
+  // Compound match: a known base verb with a prefix attached
+  const bases = Object.keys(IRREGULAR_BASES);
+  // Sort by length descending so "tener" matches before "tener" within "contener"
+  bases.sort((a,b) => b.length - a.length);
+  for (const b of bases) {
+    if (key !== b && key.endsWith(b)) {
+      const prefix = key.slice(0, -b.length);
+      // Validate prefix looks like a real prefix (not just a random substring overlap)
+      // Common prefixes: a, con, de, des, dis, en, entre, in, inter, man, ob, per, pre, pro, re, sos, sobre, sub, trans, contra, etc.
+      if (prefix.length >= 1) {
+        return { base: b, prefix: prefix };
+      }
+    }
+  }
+  return null;
+}
+
+function generateIrregularCompound(infinitive, baseData, prefix) {
+  const vf = {};
+  for (const [tense, forms] of Object.entries(baseData)) {
+    if (!forms) continue; // null = regular, skip
+    const prefixed = forms.map(f => prefix + f);
+    vf[tense] = prefixed.join(' / ');
+  }
+  // Generate regular tenses not in the base data
+  const definedTenses = Object.keys(vf);
+  const allTenses = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
+  for (const t of allTenses) {
+    if (!definedTenses.includes(t)) {
+      const keyNoSe = infinitive.toLowerCase().replace(/se$/,'');
+      const persons = t === 'imperativo' ? ['tú','usted','nosotros','vosotros','ustedes'] : ['yo','tú','él','nosotros','vosotros','ellos'];
+      const forms = persons.map((_, i) => {
+        const exp = expectedReg(keyNoSe, t, i, persons);
+        return Array.isArray(exp) ? exp[0] : exp;
+      });
+      vf[t] = forms.join(' / ');
+    }
+  }
+  vf._irreg_note = baseData._irreg_note || (prefix ? prefix + '...' + Object.keys(IRREGULAR_BASES).find(k => IRREGULAR_BASES[k] === baseData) : '不规则动词');
+  return vf;
+}
+
 function autoGenerateVerbForms(infinitive) {
   const key = infinitive.toLowerCase().replace(/se$/,'');
+  // Check irregular bases / compounds first (before stem patterns, since verbs like "tener" are not simple stem-changers)
+  const irrMatch = findIrregularBase(key);
+  if (irrMatch) {
+    return generateIrregularCompound(infinitive, IRREGULAR_BASES[irrMatch.base], irrMatch.prefix);
+  }
   const pat = STEM_PATTERNS[key];
   if (!pat) {
     if (IY_VERBS.has(key)) return generateIYForms(key);
