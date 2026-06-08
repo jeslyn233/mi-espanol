@@ -1032,6 +1032,7 @@ const IRREGULAR_BASES = {
     'subjuntivo presente': ['venga','vengas','venga','vengamos','vengáis','vengan'],
     'subjuntivo imperfecto': ['viniera','vinieras','viniera','viniéramos','vinierais','vinieran'],
     imperativo: ['ven','venga','vengamos','venid','vengan'],
+    otros: ['Gerundio: viniendo', 'Participio pasado: venido'],
   },
   decir: {
     presente:  ['digo','dices','dice','decimos','decís','dicen'],
@@ -1041,6 +1042,7 @@ const IRREGULAR_BASES = {
     'subjuntivo presente': ['diga','digas','diga','digamos','digáis','digan'],
     'subjuntivo imperfecto': ['dijera','dijeras','dijera','dijéramos','dijerais','dijeran'],
     imperativo: ['di','diga','digamos','decid','digan'],
+    otros: ['Gerundio: diciendo', 'Participio pasado: dicho'],
   },
   hacer: {
     presente:  ['hago','haces','hace','hacemos','hacéis','hacen'],
@@ -1050,6 +1052,7 @@ const IRREGULAR_BASES = {
     'subjuntivo presente': ['haga','hagas','haga','hagamos','hagáis','hagan'],
     'subjuntivo imperfecto': ['hiciera','hicieras','hiciera','hiciéramos','hicierais','hicieran'],
     imperativo: ['haz','haga','hagamos','haced','hagan'],
+    otros: ['Gerundio: haciendo', 'Participio pasado: hecho'],
   },
   poner: {
     presente:  ['pongo','pones','pone','ponemos','ponéis','ponen'],
@@ -1059,6 +1062,7 @@ const IRREGULAR_BASES = {
     'subjuntivo presente': ['ponga','pongas','ponga','pongamos','pongáis','pongan'],
     'subjuntivo imperfecto': ['pusiera','pusieras','pusiera','pusiéramos','pusierais','pusieran'],
     imperativo: ['pon','ponga','pongamos','poned','pongan'],
+    otros: ['Gerundio: poniendo', 'Participio pasado: puesto'],
   },
   salir: {
     presente:  ['salgo','sales','sale','salimos','salís','salen'],
@@ -1073,6 +1077,7 @@ const IRREGULAR_BASES = {
     'subjuntivo presente': ['traiga','traigas','traiga','traigamos','traigáis','traigan'],
     'subjuntivo imperfecto': ['trajera','trajeras','trajera','trajéramos','trajerais','trajeran'],
     imperativo: ['trae','traiga','traigamos','traed','traigan'],
+    otros: ['Gerundio: trayendo', 'Participio pasado: traído'],
   },
   oír: {
     presente:  ['oigo','oyes','oye','oímos','oís','oyen'],
@@ -1080,6 +1085,7 @@ const IRREGULAR_BASES = {
     'subjuntivo presente': ['oiga','oigas','oiga','oigamos','oigáis','oigan'],
     'subjuntivo imperfecto': ['oyera','oyeras','oyera','oyéramos','oyerais','oyeran'],
     imperativo: ['oye','oiga','oigamos','oíd','oigan'],
+    otros: ['Gerundio: oyendo', 'Participio pasado: oído'],
   },
   ver: {
     presente:  ['veo','ves','ve','vemos','veis','ven'],
@@ -1087,6 +1093,7 @@ const IRREGULAR_BASES = {
     'subjuntivo presente': ['vea','veas','vea','veamos','veáis','vean'],
     'subjuntivo imperfecto': ['viera','vieras','viera','viéramos','vierais','vieran'],
     imperativo: ['ve','vea','veamos','ved','vean'],
+    otros: ['Gerundio: viendo', 'Participio pasado: visto'],
   },
   saber: {
     presente:  ['sé','sabes','sabe','sabemos','sabéis','saben'],
@@ -1150,7 +1157,21 @@ function findIrregularBase(infinitive) {
 function generateIrregularCompound(infinitive, baseData, prefix) {
   const vf = {};
   for (const [tense, forms] of Object.entries(baseData)) {
-    if (!forms) continue; // null = regular, skip
+    if (tense === 'otros') {
+      // Gerundio / Participio: apply prefix to the verb form, keep the label
+      const prefixedOtros = forms.map(item => {
+        const colonIdx = item.indexOf(':');
+        if (colonIdx >= 0) {
+          const label = item.slice(0, colonIdx + 1); // e.g. "Gerundio:"
+          const form = item.slice(colonIdx + 1).trim();
+          return label + ' ' + prefix + form;
+        }
+        return prefix + item; // fallback
+      });
+      vf.otros = prefixedOtros;
+      continue;
+    }
+    if (!Array.isArray(forms)) continue; // skip non-array entries like _irreg_note
     const prefixed = forms.map(f => prefix + f);
     vf[tense] = prefixed.join(' / ');
   }
@@ -1167,6 +1188,15 @@ function generateIrregularCompound(infinitive, baseData, prefix) {
       });
       vf[t] = forms.join(' / ');
     }
+  }
+  // Auto-generate regular gerundio + participio if baseData doesn't define them
+  if (!vf.otros) {
+    const keyNoSe = infinitive.toLowerCase().replace(/se$/,'');
+    const stemBase = keyNoSe.replace(/(ar|er|ir)$/, '');
+    const isAr = keyNoSe.endsWith('ar');
+    const ger = isAr ? stemBase + 'ando' : stemBase + 'iendo';
+    const part = isAr ? stemBase + 'ado' : stemBase + 'ido';
+    vf.otros = ['Gerundio: ' + ger, 'Participio pasado: ' + part];
   }
   vf._irreg_note = baseData._irreg_note || (prefix ? prefix + '...' + Object.keys(IRREGULAR_BASES).find(k => IRREGULAR_BASES[k] === baseData) : '不规则动词');
   return vf;
