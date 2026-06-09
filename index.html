@@ -243,9 +243,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .badge-freq { background: #E5E7EB; color: #374151; border: 1px solid #D1D5DB; font-size: 10px; }
 .badge-freq--miss { cursor: pointer; border-style: dashed; }
 .badge-freq--miss:hover { background: #D1D5DB; }
-.freq-picker { position: absolute; z-index: 999; background: #fff; border: 1px solid #D1D5DB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.12); display: flex; gap: 0; overflow: hidden; }
-.freq-picker span { padding: 4px 10px; cursor: pointer; font-size: 11px; font-weight: 600; color: #374151; }
-.freq-picker span:hover { background: #F3F4F6; }
+.freq-picker { position: fixed; z-index: 999; background: #fff; border: 1px solid #D1D5DB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.15); display: flex; overflow: hidden; }
+.freq-picker span { padding: 5px 12px; cursor: pointer; font-size: 12px; font-weight: 600; color: #374151; }
+.freq-picker span:hover { background: #E5E7EB; }
 .freq-picker span + span { border-left: 1px solid #E5E7EB; }
 .core-meaning {
   font-size: 13px; color: var(--text2);
@@ -1262,6 +1262,15 @@ function autoGenerateVerbForms(infinitive) {
   vf.imperativo = im.map((e, i) => (i >= 2 || !isAr && i === 0 ? base : stemR) + e).join(' / ');
   // Nota
   vf._irreg_note = '词干元音' + from + '→' + to;
+  // Auto-generate gerundio + participio
+  let gerStem = base;
+  if (!isAr && !isEr) {
+    if (from === 'o') gerStem = s1 + 'u' + s2;
+    else if (from === 'e') gerStem = s1 + 'i' + s2;
+  }
+  const ger = gerStem + (isAr ? 'ando' : 'iendo');
+  const part = base + (isAr ? 'ado' : 'ido');
+  vf.otros = ['Gerundio: ' + ger, 'Participio pasado: ' + part];
   return vf;
 }
 
@@ -1445,6 +1454,15 @@ async function autoGenerate() {
         card.verb_forms = autoVF;
       }
     }
+    // Ensure gerundio + participio are present if verb_forms has tense data
+    if (card.verb_forms && !card.verb_forms.otros && TENSE_KEYS.some(k => card.verb_forms[k])) {
+      const base = card.word.toLowerCase().replace(/se$/,'').replace(/(ar|er|ir)$/, '');
+      const isAr = card.word.toLowerCase().replace(/se$/,'').endsWith('ar');
+      card.verb_forms.otros = [
+        'Gerundio: ' + base + (isAr ? 'ando' : 'iendo'),
+        'Participio pasado: ' + base + (isAr ? 'ado' : 'ido')
+      ];
+    }
     cleanRelatedWords(card);
 
     if (exist >= 0) words[exist] = card;
@@ -1498,7 +1516,7 @@ ESTRUCTURA:
 
 
   "pronominal": "自复不定式 或 省略",
-  "frequency": "A|B|C",
+  "frequency": "A|B|C|D",
   "tags": ["标签"],
   "situations": ["生活化中文场景短语"],
   "chunks": [
@@ -1568,30 +1586,37 @@ function markReviewed(e, idx) {
   render();
 }
 
+let _freqPicker = null;
 function pickFreq(e, idx) {
   e.stopPropagation();
-  const old = document.querySelector('.freq-picker');
-  if (old) old.remove();
-  const badge = e.currentTarget;
-  const rect = badge.getBoundingClientRect();
-  const picker = document.createElement('div');
-  picker.className = 'freq-picker';
-  picker.style.top = (rect.bottom + 4) + 'px';
-  picker.style.left = rect.left + 'px';
-  ['A','B','C'].forEach(v => {
+  if (_freqPicker) _freqPicker.remove();
+  const rect = e.currentTarget.getBoundingClientRect();
+  const p = document.createElement('div');
+  p.className = 'freq-picker';
+  p.style.top = (rect.bottom + 4) + 'px';
+  p.style.left = rect.left + 'px';
+  ['A','B','C','D'].forEach(v => {
     const s = document.createElement('span');
     s.textContent = v;
-    s.onclick = (ev) => {
+    s.addEventListener('click', ev => {
       ev.stopPropagation();
       words[idx].frequency = v;
       saveLocal();
       render();
-      picker.remove();
-    };
-    picker.appendChild(s);
+      p.remove();
+      _freqPicker = null;
+    });
+    p.appendChild(s);
   });
-  document.body.appendChild(picker);
-  setTimeout(() => document.addEventListener('click', function rm() { picker.remove(); document.removeEventListener('click', rm); }), 0);
+  document.body.appendChild(p);
+  _freqPicker = p;
+  requestAnimationFrame(() => {
+    document.addEventListener('click', function rm() {
+      p.remove();
+      _freqPicker = null;
+      document.removeEventListener('click', rm);
+    });
+  });
 }
 
 function resetOverdue() {
