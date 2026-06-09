@@ -241,12 +241,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 }
 .badge-level { background: var(--accent-bg); color: var(--accent-text); }
 .badge-freq { background: #E5E7EB; color: #374151; border: 1px solid #D1D5DB; font-size: 10px; }
-.badge-freq--miss { cursor: pointer; border-style: dashed; }
-.badge-freq--miss:hover { background: #D1D5DB; }
-.freq-picker { position: fixed; z-index: 999; background: #fff; border: 1px solid #D1D5DB; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,.15); display: flex; overflow: hidden; }
-.freq-picker span { padding: 5px 12px; cursor: pointer; font-size: 12px; font-weight: 600; color: #374151; }
-.freq-picker span:hover { background: #E5E7EB; }
-.freq-picker span + span { border-left: 1px solid #E5E7EB; }
+.badge-freq--pick { cursor: pointer; user-select: none; }
+.badge-freq--pick:hover { background: #D1D5DB; }
 .core-meaning {
   font-size: 13px; color: var(--text2);
   font-family: 'Georgia', serif;
@@ -1586,37 +1582,14 @@ function markReviewed(e, idx) {
   render();
 }
 
-let _freqPicker = null;
 function pickFreq(e, idx) {
   e.stopPropagation();
-  if (_freqPicker) _freqPicker.remove();
-  const rect = e.currentTarget.getBoundingClientRect();
-  const p = document.createElement('div');
-  p.className = 'freq-picker';
-  p.style.top = (rect.bottom + 4) + 'px';
-  p.style.left = rect.left + 'px';
-  ['A','B','C','D'].forEach(v => {
-    const s = document.createElement('span');
-    s.textContent = v;
-    s.addEventListener('click', ev => {
-      ev.stopPropagation();
-      words[idx].frequency = v;
-      saveLocal();
-      render();
-      p.remove();
-      _freqPicker = null;
-    });
-    p.appendChild(s);
-  });
-  document.body.appendChild(p);
-  _freqPicker = p;
-  requestAnimationFrame(() => {
-    document.addEventListener('click', function rm() {
-      p.remove();
-      _freqPicker = null;
-      document.removeEventListener('click', rm);
-    });
-  });
+  const freqs = ['A','B','C','D'];
+  const cur = words[idx].frequency;
+  const curIdx = freqs.indexOf(cur);
+  words[idx].frequency = curIdx >= 0 ? freqs[(curIdx + 1) % freqs.length] : 'A';
+  saveLocal();
+  render();
 }
 
 function resetOverdue() {
@@ -2034,7 +2007,7 @@ function buildCard(w, idx) {
       <div class="head-left"><span class="word-main">${escapeHTML(w.word)}</span>${w.type ? `<span class="type-tag">${escapeHTML(w.type)}</span>` : ''}</div>
       <div class="head-right">
         ${w.level ? `<span class="badge badge-level">${escapeHTML(w.level)}</span>` : ''}
-        ${w.frequency ? `<span class="badge badge-freq">${escapeHTML(w.frequency)}</span>` : `<span class="badge badge-freq badge-freq--miss" onclick="event.stopPropagation();pickFreq(event,${idx})" title="点击设置频次">?</span>`}
+        <span class="badge badge-freq badge-freq--pick" onclick="event.stopPropagation();pickFreq(event,${idx})" title="点击切换频次">${w.frequency ? escapeHTML(w.frequency) : '?'}</span>
         <span class="core-meaning">${escapeHTML(w.english || w.core_meaning || '')}</span>
         <span class="chevron" id="chev-${idx}">▼</span>
       </div>
