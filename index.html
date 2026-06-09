@@ -1431,6 +1431,7 @@ async function autoGenerate() {
 
     const card = JSON.parse(content);
     if (!card.word) throw new Error('JSON generado sin campo word');
+    if (card.error) throw new Error(card.error);
 
     dedupHighlights(card);
     stripConjugationNotes(card);
@@ -1498,6 +1499,8 @@ async function autoGenerate() {
 const AI_SYSTEM_PROMPT = `Eres profesor de español ELE. Genera una tarjeta de vocabulario en JSON para estudiantes chinos.
 
 ⚠️ 动词变位铁律：只有hablar/comer/vivir这种完全规则的动词verb_forms才返回{}。只要词干有任何变化(dormir→duermo, coger→cojo, pedir→pido, pensar→pienso, poder→puedo等)就必须返回完整变位。如果分不清规则不规则，宁可返回变位。
+
+🔴 单词验证铁律：如果输入的词在西班牙语中根本不存在（拼写错误、虚构词、其他语言的词、纯乱码如asdf），禁止编造虚假词卡。必须返回 {"error": "「xxx」no es una palabra válida en español."}。
 
 ESTRUCTURA:
 {
