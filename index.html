@@ -3167,7 +3167,9 @@ function updateStudyCard() {
         }
         if (idx >= 0) {
           const before = text.slice(0, idx).trim();
-          const after = text.slice(idx + text.slice(idx).match(/^[a-záéíóúñü]+/i)?.[0]?.length || card.word.length).trim();
+          let end = idx;
+          while (end < text.length && /[a-záéíóúñü]/i.test(text[end])) end++;
+          const after = text.slice(end).trim();
           chunkClozes.push({ zh: ch.zh, before, after });
         }
       }
@@ -3202,7 +3204,7 @@ function updateStudyCard() {
     const promptText = fillPrompt || card.core_meaning || card.english || '';
     const parts = promptText.split('\n');
     document.getElementById('studyType').textContent = parts[0] || '';
-    document.getElementById('studyWord').textContent = parts[1] || '';
+    document.getElementById('studyWord').textContent = parts[1] || '___';
   } else {
     const showWord = !studyChoiceAudio || !showChoices;
     document.getElementById('studyWord').textContent = showWord ? card.word : '🔊';
@@ -3212,8 +3214,8 @@ function updateStudyCard() {
       if (studyChoiceAudio) setTimeout(() => speakStudyWord(card.word), 300);
     }
   }
-  const typeLabel = (isSpell || isFill || studyMode === 'mix') ? '' : ((card.type || '') + (card.level ? ' · ' + card.level : ''));
-  document.getElementById('studyType').textContent = typeLabel;
+  const typeLabel = (isSpell || isFill || studyMode === 'mix') ? null : ((card.type || '') + (card.level ? ' · ' + card.level : ''));
+  if (typeLabel !== null) document.getElementById('studyType').textContent = typeLabel;
   document.getElementById('studyMeaning').textContent = card.core_meaning || card.english || '';
   let extra = '';
   if (card.frequency) extra += '<span>频次: ' + escapeHTML(card.frequency) + '</span>';
@@ -3225,14 +3227,11 @@ function updateStudyCard() {
   document.getElementById('studyChoices').style.display = showChoices ? 'flex' : 'none';
   document.getElementById('studySpell').style.display = (isSpell || isFill) ? 'flex' : 'none';
   document.getElementById('studyChoiceModeToggle').style.display = showChoices ? '' : 'none';
-    document.getElementById('studyMeaning').textContent = card.word;
-    document.getElementById('studyExtra').innerHTML = '';
+
+  if (isSpell || isFill) {
     const input = document.getElementById('studySpellInput');
     input.value = '';
     input.focus();
-    document.getElementById('studySpellResult').textContent = '';
-    document.getElementById('studySpellResult').className = 'study-spell-result';
-  } else {
     document.getElementById('studySpellResult').textContent = '';
     document.getElementById('studySpellResult').className = 'study-spell-result';
   }
