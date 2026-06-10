@@ -115,9 +115,11 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .more-dropdown { display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: 0 4px 16px rgba(0,0,0,.1); z-index: 60; min-width: 140px; flex-direction: column; padding: 4px; }
 .more-dropdown.open { display: flex; }
 .more-dropdown button { width: 100%; justify-content: flex-start; border: none; border-radius: 6px; font-size: 13px; padding: 8px 12px; }
-.toolbar { display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }
+.toolbar { display: flex; gap: 12px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
 .toolbar-left { flex: 1; min-width: 0; }
-.toolbar-right { flex-shrink: 0; display: flex; align-items: center; gap: 12px; }
+.toolbar-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+.review-bar { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
+.review-due-hint { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; color: var(--text3); margin-left: auto; }
 .flashcard-btn {
   width: 26px; height: 26px; border-radius: 50%;
   border: none; cursor: pointer; flex-shrink: 0;
@@ -549,28 +551,101 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .study-nav .nav-arrow:hover { transform: none; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .study-rating { display: flex; gap: 10px; }
 .rating-btn {
-  font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px;
-  padding: 10px 20px; border-radius: 999px; cursor: pointer;
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 20px; font-weight: 600;
+  width: 48px; height: 48px; padding: 0; border-radius: 50%; cursor: pointer;
   transition: all .15s; border: 1px solid var(--border2);
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  display: flex; align-items: center; justify-content: center;
 }
-.rating-btn.again { background: #FDE8EC; color: #B05060; border-color: #F0C4CC; }
-.rating-btn.again:hover { background: #FAD4DA; }
-.rating-btn.hard { background: #FEF3C7; color: #92600A; border-color: #F0D78C; }
-.rating-btn.hard:hover { background: #FCE8A0; }
+.rating-btn.again { background: #FDE8EC; color: #C04858; border-color: #F0C4CC; }
+.rating-btn.again:hover { background: #FAD4DA; transform: scale(1.08); }
+.rating-btn.hard { background: #FEF3C7; color: #A07010; border-color: #F0D78C; }
+.rating-btn.hard:hover { background: #FCE8A0; transform: scale(1.08); }
 .rating-btn.good { background: #DCF5E0; color: #2D6A3F; border-color: #B8E0C0; }
-.rating-btn.good:hover { background: #C4ECC9; }
+.rating-btn.good:hover { background: #C4ECC9; transform: scale(1.08); }
 .study-hint {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; color: var(--text3);
   position: fixed; bottom: 100px; text-align: center;
 }
+.study-detail-btn {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px;
+  padding: 8px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  background: var(--surface); color: var(--accent); cursor: pointer;
+  margin-top: 20px; transition: all .15s;
+}
+.study-detail-btn:hover { background: var(--accent-bg); }
 .study-empty {
   text-align: center; color: var(--text3);
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 16px;
 }
 
+/* AI Chat */
+.chat-fab {
+  position: fixed; bottom: 28px; right: 28px; z-index: 150;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: #fff; border: none;
+  cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(58,95,138,.35); transition: all .2s;
+}
+.chat-fab:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(58,95,138,.45); }
+.chat-panel {
+  position: fixed; bottom: 92px; right: 28px; z-index: 149;
+  width: 380px; max-height: 520px; background: var(--surface);
+  border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  display: none; flex-direction: column; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.chat-panel.open { display: flex; }
+.chat-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; font-weight: 600;
+  color: var(--text);
+}
+.chat-header button {
+  background: none; border: none; cursor: pointer; font-size: 16px;
+  color: var(--text3); padding: 2px 6px;
+}
+.chat-header button:hover { color: var(--text); }
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 12px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+  min-height: 200px; max-height: 360px;
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px;
+}
+.chat-msg { max-width: 88%; padding: 10px 14px; border-radius: 14px; line-height: 1.6; word-break: break-word; }
+.chat-msg.user { align-self: flex-end; background: var(--accent-bg); color: var(--accent-text); border-bottom-right-radius: 4px; }
+.chat-msg.assistant { align-self: flex-start; background: var(--cool-bg); color: var(--text); border-bottom-left-radius: 4px; }
+.chat-msg.assistant p { margin: 0 0 6px; }
+.chat-msg.assistant p:last-child { margin: 0; }
+.chat-msg.assistant code {
+  font-family: 'DM Sans', monospace; font-size: 12px;
+  background: var(--surface); padding: 2px 6px; border-radius: 4px;
+  color: var(--accent-text);
+}
+.chat-msg.assistant strong { color: var(--text); }
+.chat-msg.assistant em { font-family: 'Georgia', serif; font-style: italic; color: #4D4242; }
+.chat-input-row {
+  display: flex; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--border);
+}
+.chat-input-row input {
+  flex: 1; border: 1px solid var(--border2); border-radius: 999px;
+  padding: 8px 14px; font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px;
+  outline: none; background: var(--cool-bg); color: var(--text);
+}
+.chat-input-row input:focus { border-color: var(--accent); background: var(--surface); }
+.chat-input-row button {
+  width: 36px; height: 36px; border-radius: 50%; border: none;
+  background: var(--accent); color: #fff; cursor: pointer; font-size: 14px;
+  flex-shrink: 0; transition: all .15s;
+}
+.chat-input-row button:hover { filter: brightness(1.1); }
+.chat-input-row button:disabled { opacity: .4; cursor: not-allowed; }
+.chat-typing { align-self: flex-start; padding: 10px 14px; color: var(--text3); font-size: 12px; }
+
 @media (max-width: 640px) {
   .speak-btn { opacity: 1; width: 32px; height: 32px; font-size: 15px; }
+  .chat-panel { width: calc(100vw - 40px); right: 20px; max-height: 60vh; }
   .study-word { font-size: clamp(28px, 10vw, 48px); }
   .study-meaning { font-size: 18px; }
   .study-nav { bottom: 20px; gap: 12px; }
@@ -579,8 +654,25 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .study-topbar { top: 10px; right: 10px; }
   .study-topbar button { font-size: 12px; padding: 6px 12px; }
   .study-hint { display: none; }
-  .rating-btn { font-size: 12px; padding: 8px 14px; }
+  .rating-btn { font-size: 18px; width: 42px; height: 42px; }
   .study-rating { gap: 6px; }
+}
+
+/* Selection AI popup */
+.selection-popup {
+  position: absolute; z-index: 160;
+  display: none; align-items: center;
+  background: var(--accent); color: #fff;
+  padding: 6px 12px; border-radius: 999px;
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px;
+  cursor: pointer; box-shadow: 0 4px 14px rgba(58,95,138,.4);
+  white-space: nowrap; transition: opacity .15s; user-select: none;
+}
+.selection-popup:hover { filter: brightness(1.1); }
+.selection-popup::after {
+  content: ''; position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent; border-top-color: var(--accent);
 }
 
 .toast {
@@ -681,16 +773,18 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .gen-box input { width: 120px; font-size: 12px; }
   .gen-box button { font-size: 11px; padding: 6px 10px; }
   .gen-box input { width: 100%; min-width: 0; }
-  .toolbar { flex-direction: column; gap: 8px; }
-  .toolbar-left { width: 100%; }
-  .toolbar-right { width: 100%; display: flex; align-items: center; gap: 8px; }
+  .toolbar { flex-direction: row; gap: 6px; }
+  .toolbar-left { flex: 1; min-width: 0; }
+  .toolbar-right { flex-shrink: 0; gap: 6px; }
+  .review-bar { gap: 6px; }
   .search-bar { width: 100%; }
   .search-bar input { font-size: 13px; padding: 7px 10px; }
   .task-tabs { flex: 1; display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; }
   .task-tab { flex: 1; font-size: 11px; padding: 6px 4px; white-space: nowrap; text-align: center; }
-  .light-select { font-size: 11px; width: 52px; padding-right: 14px; background-position: right 3px center; }
+  .light-select { font-size: 11px; width: 48px; padding-right: 12px; background-position: right 3px center; }
   .search-divider { height: 18px; }
   .flashcard-btn { width: 24px; height: 24px; flex-shrink: 0; }
+  .review-due-hint { display: none; }
   #search { min-width: 80px; }
 
   /* Card */
@@ -785,25 +879,10 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   </div>
 
   <div id="tab-vocab">
-    <div class="fab-row">
-      <div class="gen-box">
-        <input type="text" id="genInput" placeholder="输入西语单词，AI 自动生成卡片…" onkeydown="if(event.key==='Enter')autoGenerate()" style="width:260px;">
-        <button class="primary" id="genBtn" onclick="autoGenerate()"><span class="gen-spin" id="genSpin">⟳</span> AI 生成</button>
-        <span style="color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;margin:0 4px;">o</span>
-        <button onclick="openImportModal('word')">粘贴 JSON</button>
-        <div class="more-menu">
-          <button class="more-btn" onclick="toggleMoreMenu(event)" title="Más opciones">⋯</button>
-          <div class="more-dropdown" id="moreDropdown">
-            <button onclick="exportData()">Exportar</button>
-            <button onclick="openImportModal('restore')">Restaurar</button>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="toolbar">
       <div class="toolbar-left">
         <div class="search-bar">
-          <input type="text" id="search" placeholder="Buscar…" oninput="render()" onfocus="if(this.value){this.value='';render();}">
+          <input type="text" id="search" placeholder="搜索单词，或输入新词让 AI 生成…" oninput="render()" onkeydown="if(event.key==='Enter')searchOrGenerate()">
           <span class="search-divider"></span>
           <select id="filterType" onchange="render()" class="light-select">
             <option value="">分类</option>
@@ -818,11 +897,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
             <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
           </select>
           <span class="search-divider"></span>
-          <select id="filterFreq" onchange="render()" class="light-select">
-            <option value="">频次</option>
-            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-          </select>
-          <span class="search-divider"></span>
           <select id="filterForm" onchange="render()" class="light-select">
             <option value="">形式</option>
             <option value="word">单词</option>
@@ -831,13 +905,24 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
         </div>
       </div>
       <div class="toolbar-right">
-        <div class="task-tabs">
-          <button class="task-tab active" onclick="setReviewFilter('all')">全部 <span class="task-num" id="taskAll">0</span></button>
-          <button class="task-tab" onclick="setReviewFilter('reviewed')">已复习 <span class="task-num" id="taskReviewed">0</span></button>
-          <button class="task-tab" onclick="setReviewFilter('unreviewed')">未复习 <span class="task-num" id="taskUnreviewed">0</span></button>
-        </div>
-        <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式：按一下隐藏英文，再按隐藏西语，再按恢复"></button>
+        <button class="primary" id="genBtn" onclick="autoGenerate()"><span class="gen-spin" id="genSpin">⟳</span> AI 生成</button>
+        <button onclick="openImportModal('word')" style="font-size:12px;">粘贴</button>
         <button class="primary" onclick="openStudy()" style="padding:6px 14px;font-size:12px;">📖 学习</button>
+        <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
+        <div class="more-menu">
+          <button class="more-btn" onclick="toggleMoreMenu(event)" title="Más opciones">⋯</button>
+          <div class="more-dropdown" id="moreDropdown">
+            <button onclick="exportData()">Exportar</button>
+            <button onclick="openImportModal('restore')">Restaurar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="review-bar">
+      <div class="task-tabs">
+        <button class="task-tab active" onclick="setReviewFilter('all')">全部 <span class="task-num" id="taskAll">0</span></button>
+        <button class="task-tab" onclick="setReviewFilter('reviewed')">已复习 <span class="task-num" id="taskReviewed">0</span></button>
+        <button class="task-tab" onclick="setReviewFilter('unreviewed')">未复习 <span class="task-num" id="taskUnreviewed">0</span></button>
       </div>
     </div>
     <div id="count" class="count"></div>
@@ -930,6 +1015,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 <div class="az-bar" id="azBar"></div>
 <div class="toast" id="toast"></div>
+<div class="selection-popup" id="selectionPopup" onclick="askAIAboutSelection()">🤖 问问 Sole</div>
 
 <!-- Study Mode Overlay -->
 <div class="study-overlay" id="studyOverlay">
@@ -945,15 +1031,16 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <div class="study-reveal">
       <div class="study-meaning" id="studyMeaning"></div>
       <div class="study-extra" id="studyExtra"></div>
+      <button id="studyDetailBtn" class="study-detail-btn" onclick="event.stopPropagation();openCardDetail()" style="display:none;">📋 查看完整词卡</button>
     </div>
   </div>
-  <div class="study-hint" id="studyHint">回忆词义后自评 · 1不记得 2模糊 3知道了 · ← → 浏览</div>
+  <div class="study-hint" id="studyHint">回忆词义后自评 · 1 ✕  2 —  3 ✓ · ← → 浏览</div>
   <div class="study-nav" id="studyNav">
     <button class="nav-arrow" onclick="event.stopPropagation();prevStudyCard()" title="上一个 (←)">←</button>
     <div class="study-rating" id="studyRating">
-      <button class="rating-btn again" onclick="event.stopPropagation();rateStudyCard(0)">不记得</button>
-      <button class="rating-btn hard" onclick="event.stopPropagation();rateStudyCard(1)">模糊</button>
-      <button class="rating-btn good" onclick="event.stopPropagation();rateStudyCard(2)">知道了</button>
+      <button class="rating-btn again" onclick="event.stopPropagation();rateStudyCard(0)" title="不记得">✕</button>
+      <button class="rating-btn hard" onclick="event.stopPropagation();rateStudyCard(1)" title="模糊">—</button>
+      <button class="rating-btn good" onclick="event.stopPropagation();rateStudyCard(2)" title="知道了">✓</button>
     </div>
     <button class="nav-arrow" onclick="event.stopPropagation();nextStudyCard()" title="下一个 (→)">→</button>
   </div>
@@ -981,6 +1068,22 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       <button onclick="closeEditModal()">Cancelar</button>
       <button class="primary" onclick="saveEdit()">Guardar</button>
     </div>
+  </div>
+</div>
+
+<!-- AI Chat -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()" title="AI 西语助教">💬</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <span>🤖 AI 西语助教</span>
+    <button onclick="clearChat()" title="清空对话">↺</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg assistant">¡Hola! 我是你的西语助教。可以问我语法、词汇、翻译、学习建议，任何西语相关的问题都可以。</div>
+  </div>
+  <div class="chat-input-row">
+    <input type="text" id="chatInput" placeholder="问西语问题…" onkeydown="if(event.key==='Enter')sendChat()">
+    <button id="chatSendBtn" onclick="sendChat()">↑</button>
   </div>
 </div>
 
@@ -1874,8 +1977,34 @@ async function syncGrammarToSupabase() {
 }
 
 // ── Auto-generate ─────────────────────────────────
+function searchOrGenerate() {
+  const input = document.getElementById('search');
+  const word = input.value.trim();
+  if (!word) return;
+  const exist = words.findIndex(w => w.word.toLowerCase() === word.toLowerCase());
+  if (exist >= 0) {
+    // Word exists: jump to it
+    input.value = '';
+    render();
+    setTimeout(() => jumpToWordIdx(exist), 100);
+  } else {
+    // New word: generate
+    autoGenerate();
+  }
+}
+
+function jumpToWordIdx(idx) {
+  const card = document.getElementById('card-' + idx);
+  if (!card) return;
+  document.getElementById('body-' + idx).classList.add('open');
+  document.getElementById('chev-' + idx).classList.add('open');
+  card.classList.add('highlight');
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => card.classList.remove('highlight'), 1800);
+}
+
 async function autoGenerate() {
-  const input = document.getElementById('genInput');
+  const input = document.getElementById('search');
   const btn = document.getElementById('genBtn');
   const spin = document.getElementById('genSpin');
   const word = input.value.trim();
@@ -2517,6 +2646,7 @@ function buildCard(w, idx) {
   body += `<div class="card-actions">
     <button class="edit" onclick="event.stopPropagation();editWord(${idx})">Editar</button>
     <button class="danger" onclick="event.stopPropagation();deleteWord(${idx})">Eliminar</button>
+    <button style="font-size:12px;padding:5px 10px;" onclick="event.stopPropagation();askAboutCard('${escapeHTML(w.word.replace(/'/g,"\\'"))}')">🤔 问 Sole</button>
     <div class="review-area" onclick="event.stopPropagation()">
       <div class="review-dots">${dotsHTML}</div>
       <div class="review-check${checkClass}" onclick="markReviewed(event,${idx})" title="Marcar como repasado"></div>
@@ -2822,6 +2952,12 @@ function closeStudy() {
 }
 
 function updateStudyCard() {
+  // Reset visual state FIRST to avoid flashing new content in flipped mode
+  document.getElementById('studyCard').classList.remove('flipped');
+  document.getElementById('studyRating').style.opacity = '';
+  document.getElementById('studyRating').style.pointerEvents = '';
+  document.getElementById('studyDetailBtn').style.display = 'none';
+  // Now update content
   const card = studyCards[studyIndex];
   const total = studyCards.length;
   document.getElementById('studyWord').textContent = card.word;
@@ -2833,10 +2969,23 @@ function updateStudyCard() {
   document.getElementById('studyExtra').innerHTML = extra;
   document.getElementById('studyCount').textContent = (studyIndex + 1) + ' / ' + total;
   document.getElementById('studyProgressBar').style.width = ((studyIndex + 1) / total * 100) + '%';
-  // Reset to unflipped state, re-enable rating buttons
-  document.getElementById('studyCard').classList.remove('flipped');
-  document.getElementById('studyRating').style.opacity = '';
-  document.getElementById('studyRating').style.pointerEvents = '';
+}
+
+function openCardDetail() {
+  const card = studyCards[studyIndex];
+  const origIdx = words.indexOf(card);
+  closeStudy();
+  setTimeout(() => {
+    const bodyEl = document.getElementById('body-' + origIdx);
+    const chevEl = document.getElementById('chev-' + origIdx);
+    if (bodyEl && chevEl) {
+      bodyEl.classList.add('open');
+      chevEl.classList.add('open');
+      document.getElementById('card-' + origIdx).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('card-' + origIdx).classList.add('highlight');
+      setTimeout(() => document.getElementById('card-' + origIdx).classList.remove('highlight'), 1800);
+    }
+  }, 300);
 }
 
 function rateStudyCard(level) {
@@ -2847,23 +2996,33 @@ function rateStudyCard(level) {
     const quality = [1, 3, 5][level];
     words[origIdx].review = sm2Schedule(words[origIdx].review, quality);
   }
-  // Flip to show answer after rating
+  // Flip to show answer
   document.getElementById('studyCard').classList.add('flipped');
   document.getElementById('studyRating').style.opacity = '0.4';
   document.getElementById('studyRating').style.pointerEvents = 'none';
-  // Auto-advance after a short delay
-  setTimeout(() => {
-    studyIndex = (studyIndex + 1) % studyCards.length;
-    if (studyIndex === 0 && studyCards.length > 0) {
-      saveLocal();
-      showToast('🎉 一轮完成！已自动保存');
-    }
-    updateStudyCard();
-  }, 1500);
+  // Only auto-advance on "知道了"
+  if (level === 2) {
+    setTimeout(() => {
+      studyIndex = (studyIndex + 1) % studyCards.length;
+      if (studyIndex === 0 && studyCards.length > 0) {
+        saveLocal();
+        showToast('🎉 一轮完成！已自动保存');
+      }
+      updateStudyCard();
+    }, 1500);
+  } else {
+    // "不记得" or "模糊": stay on card to study the answer
+    document.getElementById('studyDetailBtn').style.display = 'inline-block';
+  }
 }
 
 function nextStudyCard() {
   if (studyCards.length === 0) return;
+  // If currently flipped (after a rating), save before advancing
+  const ratingEl = document.getElementById('studyRating');
+  if (ratingEl.style.pointerEvents === 'none') {
+    saveLocal();
+  }
   studyIndex = (studyIndex + 1) % studyCards.length;
   if (studyIndex === 0 && studyCards.length > 0) {
     saveLocal();
@@ -2908,6 +3067,142 @@ document.addEventListener('keydown', function(e) {
   else if (e.key === '3' || e.key === '#') { e.preventDefault(); rateStudyCard(2); }
   else if (e.key === 'Escape') { e.preventDefault(); closeStudy(); }
 });
+
+// ── AI Chat ──────────────────────────────────────
+let chatHistory = [];
+
+function askAboutCard(word) {
+  const panel = document.getElementById('chatPanel');
+  if (!panel.classList.contains('open')) toggleChat();
+  document.getElementById('chatInput').value = '关于 "' + word + '" 我有个疑问：';
+  document.getElementById('chatInput').focus();
+}
+
+// ── Selection → AI ──────────────────────────────
+let lastSelection = '';
+document.addEventListener('mouseup', function(e) {
+  setTimeout(() => {
+    const sel = window.getSelection();
+    const text = (sel || '').toString().trim();
+    const popup = document.getElementById('selectionPopup');
+    if (!text || text.length < 2 || text.length > 200) { popup.style.display = 'none'; return; }
+    if (e.target.closest('#chatPanel') || e.target.closest('input,textarea,select')) {
+      popup.style.display = 'none'; return;
+    }
+    lastSelection = text;
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    popup.style.display = 'flex';
+    popup.style.left = (rect.left + rect.width / 2) + 'px';
+    popup.style.top = (rect.top - 40 + window.scrollY) + 'px';
+    popup.style.transform = 'translateX(-50%)';
+  }, 10);
+});
+document.addEventListener('mousedown', function(e) {
+  if (!e.target.closest('#selectionPopup')) {
+    document.getElementById('selectionPopup').style.display = 'none';
+  }
+});
+
+function askAIAboutSelection() {
+  if (!lastSelection) return;
+  document.getElementById('selectionPopup').style.display = 'none';
+  const panel = document.getElementById('chatPanel');
+  if (!panel.classList.contains('open')) toggleChat();
+  document.getElementById('chatInput').value = '«' + lastSelection + '» 解释一下：';
+  sendChat();
+  window.getSelection().removeAllRanges();
+}
+
+function toggleChat() {
+  const panel = document.getElementById('chatPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    document.getElementById('chatInput').focus();
+  }
+}
+
+function clearChat() {
+  chatHistory = [];
+  document.getElementById('chatMessages').innerHTML = '<div class="chat-msg assistant">对话已清空。有什么可以帮你的？</div>';
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const btn = document.getElementById('chatSendBtn');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  // Show user message
+  const msgsEl = document.getElementById('chatMessages');
+  msgsEl.innerHTML += '<div class="chat-msg user">' + escapeHTML(msg) + '</div>';
+  input.value = '';
+  btn.disabled = true;
+
+  // Show typing indicator
+  const typingEl = document.createElement('div');
+  typingEl.className = 'chat-typing';
+  typingEl.textContent = '思考中…';
+  msgsEl.appendChild(typingEl);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+
+  // Build conversation
+  chatHistory.push({ role: 'user', content: msg });
+  const messages = [
+    { role: 'system', content: 'Eres una profe de español cercana, divertida y con mucha energía. Te llamas Sole. Hablas como una amiga, no como un libro de texto. Usas emojis de vez en cuando, bromeas, animas mucho al estudiante. Nada de respuestas frías ni académicas. Cuando el usuario escribe en chino, respondes en chino explicando de forma clara pero cálida. Cuando escribe en español, le respondes en español con naturalidad, adaptando el nivel, celebrando sus aciertos y corrigiendo con cariño los errores. Siempre respondes en el mismo idioma que usa el usuario. Si se va del tema, lo traes de vuelta con humor.' },
+    ...chatHistory
+  ];
+
+  try {
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer sk-7ab7615fcd524efd8efab906a20dd964'
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: messages,
+        temperature: 0.7,
+        max_tokens: 1500
+      })
+    });
+
+    typingEl.remove();
+
+    if (!resp.ok) {
+      throw new Error('API error: ' + resp.status);
+    }
+
+    const data = await resp.json();
+    const reply = data.choices?.[0]?.message?.content;
+    if (!reply) throw new Error('Empty response');
+
+    chatHistory.push({ role: 'assistant', content: reply });
+    msgsEl.innerHTML += '<div class="chat-msg assistant">' + formatChatMsg(reply) + '</div>';
+  } catch (e) {
+    typingEl.remove();
+    msgsEl.innerHTML += '<div class="chat-msg assistant" style="color:#b91c1c;">出错了：' + escapeHTML(e.message) + '。请稍后重试。</div>';
+    chatHistory.pop(); // remove failed user message
+  }
+
+  btn.disabled = false;
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  document.getElementById('chatInput').focus();
+}
+
+function formatChatMsg(text) {
+  let html = escapeHTML(text);
+  // Bold: **text**
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic (Spanish words): *word*
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  // Inline code: `code`
+  html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+  // Line breaks → paragraphs
+  html = html.split('\n\n').map(p => '<p>' + p.replace(/\n/g, '<br>') + '</p>').join('');
+  return html;
+}
 
 // Initialize speech synthesis voices
 if ('speechSynthesis' in window) {
