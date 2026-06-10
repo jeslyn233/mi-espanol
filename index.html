@@ -117,8 +117,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .more-dropdown.open { display: flex; }
 .more-dropdown button { width: 100%; justify-content: flex-start; border: none; border-radius: 6px; font-size: 13px; padding: 8px 12px; }
 .toolbar { display: flex; gap: 12px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
-.toolbar-left { flex: 1; min-width: 0; }
-.toolbar-right { flex-shrink: 0; display: flex; align-items: center; gap: 8px; }
+.toolbar-left { flex-shrink: 0; display: flex; align-items: center; }
+.toolbar-right { flex: 1; display: flex; align-items: center; gap: 8px; justify-content: flex-end; min-width: 0; }
 .review-bar { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
 .review-due-hint { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; color: var(--text3); margin-left: auto; }
 .flashcard-btn {
@@ -574,6 +574,40 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   background: var(--surface); color: var(--accent); cursor: pointer;
   margin-top: 20px; transition: all .15s;
 }
+.study-choices {
+  display: flex; flex-direction: column; gap: 8px;
+  width: 100%; max-width: 400px; margin-top: 32px;
+}
+.study-choice {
+  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-size: 16px; padding: 14px 20px; border: 1px solid var(--border2);
+  border-radius: 12px; background: var(--surface); color: var(--text);
+  cursor: pointer; transition: all .15s; text-align: center;
+  line-height: 1.4;
+}
+.study-choice:hover { background: var(--cool-bg); border-color: #94A3B8; }
+.study-choice.correct { background: #DCF5E0; border-color: #6BAF7A; color: #2D6A3F; }
+.study-choice.wrong { background: #FDE8EC; border-color: #E8A0B0; color: #B05060; }
+.study-choice:disabled { pointer-events: none; }
+.study-spell { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 360px; margin-top: 24px; }
+.study-spell-input {
+  width: 100%; padding: 12px 16px; font-family: 'Georgia', serif;
+  font-size: 22px; font-style: italic; text-align: center;
+  border: 2px solid var(--border2); border-radius: 12px;
+  background: var(--surface); color: var(--text); outline: none;
+  transition: border-color .15s;
+}
+.study-spell-input:focus { border-color: var(--accent); }
+.study-spell-btn {
+  width: 44px; height: 44px; border-radius: 50%; border: none;
+  background: var(--accent); color: #fff; cursor: pointer;
+  font-size: 18px; transition: all .15s;
+}
+.study-spell-btn:hover { filter: brightness(1.1); }
+.study-spell-result { font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; min-height: 20px; }
+.study-spell-result.correct { color: #2D6A3F; }
+.study-spell-result.wrong { color: #B05060; }
+
 .study-detail-btn:hover { background: var(--accent-bg); }
 .study-empty {
   text-align: center; color: var(--text3);
@@ -664,6 +698,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .study-hint { display: none; }
   .rating-btn { font-size: 18px; width: 42px; height: 42px; }
   .study-rating { gap: 6px; }
+  .study-choice { font-size: 14px; padding: 12px 16px; }
+  .study-choices { gap: 6px; margin-top: 20px; }
+  .study-spell-input { font-size: 18px; padding: 10px 14px; }
 }
 
 /* Selection AI popup */
@@ -905,6 +942,11 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
             <option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option>
           </select>
           <span class="search-divider"></span>
+          <select id="filterFreq" onchange="render()" class="light-select">
+            <option value="">频次</option>
+            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+          </select>
+          <span class="search-divider"></span>
           <select id="filterForm" onchange="render()" class="light-select">
             <option value="">形式</option>
             <option value="word">单词</option>
@@ -1029,6 +1071,17 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 <div class="study-overlay" id="studyOverlay">
   <div class="study-progress"><div class="study-progress-bar" id="studyProgressBar" style="width:0%"></div></div>
   <div class="study-topbar">
+    <select id="studyMode" onchange="changeStudyMode()" style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
+      <option value="flashcard">词卡</option>
+      <option value="choice">选择</option>
+      <option value="listen">听选</option>
+      <option value="spell">拼写</option>
+    </select>
+    <select id="studyBatchSize" onchange="changeBatchSize()" style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
+      <option value="10">10词一组</option>
+      <option value="20">20词一组</option>
+      <option value="0">全部</option>
+    </select>
     <span class="study-count" id="studyCount"></span>
     <button onclick="toggleShuffleStudy()" id="studyShuffleBtn">🔀 随机</button>
     <button onclick="closeStudy()">✕ 退出</button>
@@ -1036,19 +1089,32 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   <div class="study-card-area" id="studyCard">
     <div class="study-word" id="studyWord"></div>
     <div class="study-type" id="studyType"></div>
-    <div class="study-reveal">
+    <div class="study-reveal" id="studyReveal">
       <div class="study-meaning" id="studyMeaning"></div>
       <div class="study-extra" id="studyExtra"></div>
       <button id="studyDetailBtn" class="study-detail-btn" onclick="event.stopPropagation();openCardDetail()" style="display:none;">📋 查看完整词卡</button>
+    </div>
+    <div class="study-choices" id="studyChoices" style="display:none;">
+      <button class="study-choice" onclick="event.stopPropagation();answerChoice(0)" id="choice0"></button>
+      <button class="study-choice" onclick="event.stopPropagation();answerChoice(1)" id="choice1"></button>
+      <button class="study-choice" onclick="event.stopPropagation();answerChoice(2)" id="choice2"></button>
+      <button class="study-choice" onclick="event.stopPropagation();answerChoice(3)" id="choice3"></button>
+    </div>
+    <div class="study-spell" id="studySpell" style="display:none;">
+      <input type="text" class="study-spell-input" id="studySpellInput" placeholder="输入西班牙语…" onkeydown="if(event.key==='Enter')checkSpelling()" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="study-spell-btn" onclick="event.stopPropagation();checkSpelling()">↵</button>
+      <div class="study-spell-result" id="studySpellResult"></div>
     </div>
   </div>
   <div class="study-hint" id="studyHint">回忆词义后自评 · 1 ✕  2 —  3 ✓ · ← → 浏览</div>
   <div class="study-nav" id="studyNav">
     <button class="nav-arrow" onclick="event.stopPropagation();prevStudyCard()" title="上一个 (←)">←</button>
     <div class="study-rating" id="studyRating">
-      <button class="rating-btn again" onclick="event.stopPropagation();rateStudyCard(0)" title="不记得">✕</button>
-      <button class="rating-btn hard" onclick="event.stopPropagation();rateStudyCard(1)" title="模糊">—</button>
-      <button class="rating-btn good" onclick="event.stopPropagation();rateStudyCard(2)" title="知道了">✓</button>
+      <button class="rating-btn again" onclick="event.stopPropagation();rateStudyCard(0)" title="不认识"></button>
+      <button class="rating-btn good" onclick="event.stopPropagation();rateStudyCard(2)" title="认识"></button>
+    </div>
+    <div class="study-rating" id="studySkipNav" style="display:none;">
+      <button class="rating-btn hard" onclick="event.stopPropagation();skipChoiceCard()" title="跳过" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;">⟩</button>
     </div>
     <button class="nav-arrow" onclick="event.stopPropagation();nextStudyCard()" title="下一个 (→)">→</button>
   </div>
@@ -2925,9 +2991,15 @@ function speakWord(btn) {
 }
 
 // ── Study Mode ────────────────────────────────────
-let studyCards = [];
-let studyIndex = 0;
+let studyAllCards = [];
+let studyQueue = [];
+let studyCurrentBatch = [];
+let studyBatchIndex = 0;
+let studyBatchTotal = 10;
 let studyShuffle = false;
+let studyMode = 'flashcard'; // flashcard | choice | listen
+let choiceOptions = []; // current choice options (indices into studyAllCards)
+let studyAnsweredCount = 0; // prevent false completion
 
 function getFilteredCards() {
   const sq = (document.getElementById('search')?.value || '').trim().toLowerCase();
@@ -2951,13 +3023,71 @@ function getFilteredCards() {
   });
 }
 
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
 function openStudy() {
-  studyCards = getFilteredCards();
-  if (!studyCards.length) { showToast('没有匹配的词卡'); return; }
-  studyIndex = 0;
+  studyAllCards = getFilteredCards();
+  if (!studyAllCards.length) { showToast('没有匹配的词卡'); return; }
+  studyAnsweredCount = 0;
+  studyMode = document.getElementById('studyMode').value;
+  studyBatchTotal = parseInt(document.getElementById('studyBatchSize').value) || 0;
+  studyQueue = studyAllCards.map((_, i) => i);
+  if (studyShuffle) shuffleArray(studyQueue);
   document.getElementById('studyOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
+  applyStudyModeUI();
+  startBatch();
+}
+
+function changeStudyMode() {
+  studyMode = document.getElementById('studyMode').value;
+  applyStudyModeUI();
+  // Restart
+  studyAllCards = getFilteredCards();
+  studyQueue = studyAllCards.map((_, i) => i);
+  if (studyShuffle) shuffleArray(studyQueue);
+  studyCurrentBatch = [];
+  startBatch();
+}
+
+function applyStudyModeUI() {
+  const isFlashcard = studyMode === 'flashcard';
+  const isSpell = studyMode === 'spell';
+  document.getElementById('studyRating').style.display = isFlashcard ? 'flex' : 'none';
+  document.getElementById('studySkipNav').style.display = (isFlashcard || isSpell) ? 'none' : 'flex';
+  document.getElementById('studyHint').textContent = isFlashcard
+    ? '回忆词义后自评 · 1 ✕  2 ✓ · ← → 浏览'
+    : studyMode === 'spell' ? '看中文，输入西班牙语 · Enter 确认' : studyMode === 'choice' ? '选择正确的中文意思' : '听发音，选择正确的中文意思';
+}
+
+function startBatch() {
+  if (studyQueue.length === 0) {
+    if (studyAnsweredCount > 0) {
+      saveLocal();
+      showToast('🎉 全部完成！');
+      setTimeout(closeStudy, 1200);
+    }
+    return;
+  }
+  studyAnsweredCount = 0;
+  const size = studyBatchTotal || studyQueue.length;
+  studyCurrentBatch = studyQueue.splice(0, Math.min(size, studyQueue.length));
+  studyBatchIndex = 0;
   updateStudyCard();
+}
+
+function updateBatchProgress() {
+  const done = studyAllCards.length - studyQueue.length - studyCurrentBatch.length;
+  const total = studyAllCards.length;
+  const pos = done + studyBatchIndex + 1;
+  const remaining = studyCurrentBatch.length;
+  document.getElementById('studyCount').textContent = pos + ' / ' + total + (studyBatchTotal ? ' · 本组剩' + remaining : '');
+  document.getElementById('studyProgressBar').style.width = ((done + studyBatchIndex) / total * 100) + '%';
 }
 
 function closeStudy() {
@@ -2965,7 +3095,7 @@ function closeStudy() {
   document.body.style.overflow = '';
   saveLocal();
   if (sb) {
-    for (const w of studyCards) {
+    for (const w of studyAllCards) {
       try { sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch (e) {}
     }
   }
@@ -2973,27 +3103,94 @@ function closeStudy() {
 }
 
 function updateStudyCard() {
-  // Reset visual state FIRST to avoid flashing new content in flipped mode
   document.getElementById('studyCard').classList.remove('flipped');
   document.getElementById('studyRating').style.opacity = '';
   document.getElementById('studyRating').style.pointerEvents = '';
   document.getElementById('studyDetailBtn').style.display = 'none';
-  // Now update content
-  const card = studyCards[studyIndex];
-  const total = studyCards.length;
-  document.getElementById('studyWord').textContent = card.word;
-  document.getElementById('studyType').textContent = (card.type || '') + (card.level ? ' · ' + card.level : '');
+  if (studyCurrentBatch.length === 0) {
+    startBatch();
+    return;
+  }
+  const cardIdx = studyCurrentBatch[studyBatchIndex];
+  const card = studyAllCards[cardIdx];
+  document.getElementById('studyWord').textContent = isSpell ? (card.core_meaning || card.english || '') : card.word;
+  document.getElementById('studyType').textContent = isSpell ? '拼写' : ((card.type || '') + (card.level ? ' · ' + card.level : ''));
   document.getElementById('studyMeaning').textContent = card.core_meaning || card.english || '';
   let extra = '';
   if (card.frequency) extra += '<span>频次: ' + escapeHTML(card.frequency) + '</span>';
   if (card.tags && card.tags.length) extra += '<span>' + card.tags.slice(0,4).map(t => escapeHTML(t)).join(' · ') + '</span>';
   document.getElementById('studyExtra').innerHTML = extra;
-  document.getElementById('studyCount').textContent = (studyIndex + 1) + ' / ' + total;
-  document.getElementById('studyProgressBar').style.width = ((studyIndex + 1) / total * 100) + '%';
+
+  const isFlashcard = studyMode === 'flashcard';
+  const isSpell = studyMode === 'spell';
+  document.getElementById('studyReveal').style.display = (isFlashcard) ? '' : 'none';
+  document.getElementById('studyChoices').style.display = (!isFlashcard && !isSpell) ? 'flex' : 'none';
+  document.getElementById('studySpell').style.display = isSpell ? 'flex' : 'none';
+
+  if (isSpell) {
+    document.getElementById('studyMeaning').textContent = card.word;
+    document.getElementById('studyExtra').innerHTML = '';
+    const input = document.getElementById('studySpellInput');
+    input.value = '';
+    input.focus();
+    document.getElementById('studySpellResult').textContent = '';
+    document.getElementById('studySpellResult').className = 'study-spell-result';
+  } else {
+    document.getElementById('studySpellResult').textContent = '';
+    document.getElementById('studySpellResult').className = 'study-spell-result';
+  }
+
+  if (!isFlashcard) {
+    // Generate 4 choice options: 1 correct + 3 random wrong
+    const correctMeaning = card.core_meaning || card.english || '';
+    const wrongPool = studyAllCards.filter((_, i) => i !== cardIdx && ((studyAllCards[i].core_meaning || studyAllCards[i].english || '') !== correctMeaning));
+    const wrongs = shuffleArraySlice(wrongPool, 3).map(w => w.core_meaning || w.english || '');
+    choiceOptions = [correctMeaning, ...wrongs];
+    // Shuffle the 4 options
+    for (let i = choiceOptions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [choiceOptions[i], choiceOptions[j]] = [choiceOptions[j], choiceOptions[i]];
+    }
+    for (let i = 0; i < 4; i++) {
+      const btn = document.getElementById('choice' + i);
+      btn.textContent = choiceOptions[i] || '—';
+      btn.className = 'study-choice';
+      btn.disabled = false;
+    }
+    // Listen mode: auto-speak
+    if (studyMode === 'listen') {
+      const word = card.word;
+      setTimeout(() => speakStudyWord(word), 300);
+    }
+  }
+
+  updateBatchProgress();
+}
+
+function speakStudyWord(word) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'es-ES'; u.rate = 0.85;
+  const voices = speechSynthesis.getVoices();
+  const esVoice = voices.find(v => v.lang.startsWith('es-')) || voices.find(v => v.lang.startsWith('es'));
+  if (esVoice) u.voice = esVoice;
+  speechSynthesis.speak(u);
+}
+
+function shuffleArraySlice(arr, n) {
+  const result = arr.slice();
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result.slice(0, n);
 }
 
 function openCardDetail() {
-  const card = studyCards[studyIndex];
+  if (studyCurrentBatch.length === 0) return;
+  const cardIdx = studyCurrentBatch[studyBatchIndex];
+  const card = studyAllCards[cardIdx];
   const origIdx = words.indexOf(card);
   closeStudy();
   setTimeout(() => {
@@ -3010,52 +3207,170 @@ function openCardDetail() {
 }
 
 function rateStudyCard(level) {
-  // level: 0=不记得, 1=模糊, 2=知道了 → maps to SM-2 quality 1, 3, 5
-  const card = studyCards[studyIndex];
+  if (studyCurrentBatch.length === 0) return;
+  studyAnsweredCount++;
+  const cardIdx = studyCurrentBatch[studyBatchIndex];
+  const card = studyAllCards[cardIdx];
   const origIdx = words.indexOf(card);
   if (origIdx >= 0) {
     const quality = [1, 3, 5][level];
     words[origIdx].review = sm2Schedule(words[origIdx].review, quality);
   }
-  // Flip to show answer
   document.getElementById('studyCard').classList.add('flipped');
   document.getElementById('studyRating').style.opacity = '0.4';
   document.getElementById('studyRating').style.pointerEvents = 'none';
-  // Only auto-advance on "知道了"
+
   if (level === 2) {
-    setTimeout(() => {
-      studyIndex = (studyIndex + 1) % studyCards.length;
-      if (studyIndex === 0 && studyCards.length > 0) {
-        saveLocal();
-        showToast('🎉 一轮完成！已自动保存');
-      }
-      updateStudyCard();
-    }, 1500);
+    // 知道了: remove from batch permanently
+    studyCurrentBatch.splice(studyBatchIndex, 1);
+    document.getElementById('studyDetailBtn').style.display = 'none';
   } else {
-    // "不记得" or "模糊": stay on card to study the answer
+    // 不记得/模糊: move to end of batch, will reappear
+    const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
+    studyCurrentBatch.push(moved);
     document.getElementById('studyDetailBtn').style.display = 'inline-block';
   }
+
+  setTimeout(() => {
+    if (studyCurrentBatch.length === 0) {
+      saveLocal();
+      if (studyQueue.length > 0) {
+        showToast('✅ 本组完成！进入下一组');
+      }
+      startBatch();
+      return;
+    }
+    if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
+    updateStudyCard();
+  }, level === 2 ? 1000 : 100);
 }
 
 function nextStudyCard() {
-  if (studyCards.length === 0) return;
-  // If currently flipped (after a rating), save before advancing
-  const ratingEl = document.getElementById('studyRating');
-  if (ratingEl.style.pointerEvents === 'none') {
-    saveLocal();
+  if (studyCurrentBatch.length === 0) return;
+  studyBatchIndex = (studyBatchIndex + 1) % studyCurrentBatch.length;
+  updateStudyCard();
+}
+
+function answerChoice(idx) {
+  if (studyCurrentBatch.length === 0) return;
+  studyAnsweredCount++;
+  const cardIdx = studyCurrentBatch[studyBatchIndex];
+  const card = studyAllCards[cardIdx];
+  const correctMeaning = card.core_meaning || card.english || '';
+  const chosen = choiceOptions[idx];
+  const isCorrect = chosen === correctMeaning;
+
+  // Highlight correct + wrong
+  for (let i = 0; i < 4; i++) {
+    const btn = document.getElementById('choice' + i);
+    btn.disabled = true;
+    if (choiceOptions[i] === correctMeaning) btn.classList.add('correct');
+    else if (i === idx && !isCorrect) btn.classList.add('wrong');
   }
-  studyIndex = (studyIndex + 1) % studyCards.length;
-  if (studyIndex === 0 && studyCards.length > 0) {
-    saveLocal();
-    showToast('🎉 一轮完成！已自动保存');
+
+  // Show the Spanish word meaning to confirm
+  document.getElementById('studyReveal').style.display = '';
+  document.getElementById('studyMeaning').textContent = correctMeaning;
+
+  // SM-2: correct = quality 5, wrong = quality 1
+  const origIdx = words.indexOf(card);
+  if (origIdx >= 0) {
+    words[origIdx].review = sm2Schedule(words[origIdx].review, isCorrect ? 5 : 1);
   }
+
+  if (isCorrect) {
+    studyCurrentBatch.splice(studyBatchIndex, 1);
+  } else {
+    const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
+    studyCurrentBatch.push(moved);
+  }
+
+  setTimeout(() => {
+    if (studyCurrentBatch.length === 0) {
+      saveLocal();
+      if (studyQueue.length > 0) showToast('✅ 本组完成！进入下一组');
+      startBatch();
+      return;
+    }
+    if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
+    updateStudyCard();
+  }, isCorrect ? 800 : 1500);
+}
+
+function checkSpelling() {
+  if (studyCurrentBatch.length === 0) return;
+  studyAnsweredCount++;
+  const cardIdx = studyCurrentBatch[studyBatchIndex];
+  const card = studyAllCards[cardIdx];
+  const input = document.getElementById('studySpellInput');
+  const userAnswer = input.value.trim();
+  if (!userAnswer) return;
+
+  // Normalize: strip accents, lowercase
+  const normalize = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+  const correct = normalize(card.word);
+  const answer = normalize(userAnswer);
+  const isCorrect = correct === answer;
+
+  const result = document.getElementById('studySpellResult');
+  if (isCorrect) {
+    result.textContent = '✓ ' + card.word;
+    result.className = 'study-spell-result correct';
+  } else {
+    result.textContent = '✗ 正确答案：' + card.word;
+    result.className = 'study-spell-result wrong';
+  }
+
+  const origIdx = words.indexOf(card);
+  if (origIdx >= 0) {
+    words[origIdx].review = sm2Schedule(words[origIdx].review, isCorrect ? 5 : 1);
+  }
+
+  if (isCorrect) {
+    studyCurrentBatch.splice(studyBatchIndex, 1);
+    // Auto-advance on correct
+    setTimeout(() => {
+      if (studyCurrentBatch.length === 0) {
+        saveLocal();
+        if (studyQueue.length > 0) showToast('✅ 本组完成！进入下一组');
+        startBatch();
+        return;
+      }
+      if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
+      updateStudyCard();
+    }, 700);
+  } else {
+    // Wrong: move to end, stay on page, user presses → to continue
+    const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
+    studyCurrentBatch.push(moved);
+    if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
+  }
+}
+
+function skipChoiceCard() {
+  if (studyCurrentBatch.length === 0) return;
+  // Move to end of batch without scoring
+  if (studyCurrentBatch.length > 1) {
+    const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
+    studyCurrentBatch.push(moved);
+  }
+  if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
   updateStudyCard();
 }
 
 function prevStudyCard() {
-  if (studyCards.length === 0) return;
-  studyIndex = (studyIndex - 1 + studyCards.length) % studyCards.length;
+  if (studyCurrentBatch.length === 0) return;
+  studyBatchIndex = (studyBatchIndex - 1 + studyCurrentBatch.length) % studyCurrentBatch.length;
   updateStudyCard();
+}
+
+function changeBatchSize() {
+  studyBatchTotal = parseInt(document.getElementById('studyBatchSize').value) || 0;
+  studyAllCards = getFilteredCards();
+  studyQueue = studyAllCards.map((_, i) => i);
+  if (studyShuffle) shuffleArray(studyQueue);
+  studyCurrentBatch = [];
+  startBatch();
 }
 
 function toggleShuffleStudy() {
@@ -3064,29 +3379,39 @@ function toggleShuffleStudy() {
   if (studyShuffle) {
     btn.textContent = '🔀 随机 ✓';
     btn.style.background = '#EDE4F5';
-    for (let i = studyCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [studyCards[i], studyCards[j]] = [studyCards[j], studyCards[i]];
-    }
   } else {
     btn.textContent = '🔀 随机';
     btn.style.background = '';
-    studyCards = getFilteredCards();
   }
-  studyIndex = 0;
-  updateStudyCard();
+  studyAllCards = getFilteredCards();
+  studyQueue = studyAllCards.map((_, i) => i);
+  if (studyShuffle) shuffleArray(studyQueue);
+  studyCurrentBatch = [];
+  startBatch();
 }
 
 // Keyboard shortcuts for study mode
 document.addEventListener('keydown', function(e) {
   const overlay = document.getElementById('studyOverlay');
   if (!overlay.classList.contains('active')) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeStudy(); return; }
   if (e.key === 'ArrowRight') { e.preventDefault(); nextStudyCard(); }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); prevStudyCard(); }
-  else if (e.key === '1' || e.key === '!') { e.preventDefault(); rateStudyCard(0); }
-  else if (e.key === '2' || e.key === '@') { e.preventDefault(); rateStudyCard(1); }
-  else if (e.key === '3' || e.key === '#') { e.preventDefault(); rateStudyCard(2); }
-  else if (e.key === 'Escape') { e.preventDefault(); closeStudy(); }
+
+  if (studyMode === 'flashcard') {
+    if (e.key === '1' || e.key === '!') { e.preventDefault(); rateStudyCard(0); }
+    else if (e.key === '2' || e.key === '@') { e.preventDefault(); rateStudyCard(2); }
+  } else if (studyMode === 'spell') {
+    // Don't intercept when typing in the input
+    if (document.activeElement === document.getElementById('studySpellInput')) return;
+    if (e.key === ' ') { e.preventDefault(); nextStudyCard(); }
+  } else {
+    if (e.key === '1' || e.key === '!') { e.preventDefault(); answerChoice(0); }
+    else if (e.key === '2' || e.key === '@') { e.preventDefault(); answerChoice(1); }
+    else if (e.key === '3' || e.key === '#') { e.preventDefault(); answerChoice(2); }
+    else if (e.key === '4' || e.key === '$') { e.preventDefault(); answerChoice(3); }
+    else if (e.key === ' ') { e.preventDefault(); skipChoiceCard(); }
+  }
 });
 
 // ── AI Chat ──────────────────────────────────────
