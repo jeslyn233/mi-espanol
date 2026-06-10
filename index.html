@@ -1099,7 +1099,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <button onclick="toggleShuffleStudy()" id="studyShuffleBtn">🔀 随机</button>
     <button onclick="closeStudy()">✕ 退出</button>
   </div>
-  <div class="study-card-area" id="studyCard">
+  <div class="study-card-area" id="studyCard" onclick="if(studyChoiceAudio && studyCurrentBatch.length){const c=studyAllCards[studyCurrentBatch[studyBatchIndex]];speakStudyWord(c.word);}">
     <div class="study-word" id="studyWord"></div>
     <div class="study-type" id="studyType"></div>
     <div class="study-reveal" id="studyReveal">
