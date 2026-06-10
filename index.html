@@ -521,7 +521,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 }
 .study-type {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; color: var(--text3);
-  margin-top: 8px; transition: all .3s;
+  margin-top: 8px; transition: all .3s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
 }
 .study-reveal {
   opacity: 0; transform: translateY(12px); transition: all .35s ease;
@@ -3152,9 +3152,9 @@ function updateStudyCard() {
     const isVerb = (card.type || '').startsWith('v');
     const hasConj = isVerb && card.verb_forms && Object.keys(card.verb_forms).some(k => card.verb_forms[k] && ['presente','pretérito','futuro','condicional','subjuntivo presente','imperativo'].includes(k));
 
-    // Collect chunk-based cloze questions
+    // Collect chunk-based cloze questions (single-word cards only)
     const chunkClozes = [];
-    if (card.chunks) {
+    if (card.chunks && !card.word.includes(' ')) {
       const stem = word.replace(/(ar|er|ir)$/, '');
       for (const ch of card.chunks) {
         const text = ch.text || '';
@@ -3170,7 +3170,9 @@ function updateStudyCard() {
           let end = idx;
           while (end < text.length && /[a-záéíóúñü]/i.test(text[end])) end++;
           const after = text.slice(end).trim();
-          chunkClozes.push({ zh: ch.zh, before, after });
+          if (before || after) {
+            chunkClozes.push({ zh: ch.zh, before, after });
+          }
         }
       }
     }
@@ -3200,14 +3202,15 @@ function updateStudyCard() {
     }
   }
 
+  const showChoices = !isFlashcard && !isSpell && !isFill;
+
   if (isSpell || isFill) {
     const promptText = fillPrompt || card.core_meaning || card.english || '';
     const parts = promptText.split('\n');
     document.getElementById('studyType').textContent = parts[0] || '';
     document.getElementById('studyWord').textContent = parts[1] || '___';
   } else {
-    const showWord = !studyChoiceAudio || !showChoices;
-    document.getElementById('studyWord').textContent = showWord ? card.word : '🔊';
+    document.getElementById('studyWord').textContent = (!studyChoiceAudio || !showChoices) ? card.word : '🔊';
     if (showChoices) {
       document.getElementById('studyChoiceModeToggle').textContent = studyChoiceAudio ? '👁 看字' : '🔊 听音';
       document.getElementById('studyChoiceModeToggle').className = 'study-choice-mode-toggle' + (studyChoiceAudio ? ' audio' : '');
@@ -3222,7 +3225,6 @@ function updateStudyCard() {
   if (card.tags && card.tags.length) extra += '<span>' + card.tags.slice(0,4).map(t => escapeHTML(t)).join(' · ') + '</span>';
   document.getElementById('studyExtra').innerHTML = extra;
 
-  const showChoices = !isFlashcard && !isSpell && !isFill;
   document.getElementById('studyReveal').style.display = (isFlashcard || isSpell || isFill) ? '' : 'none';
   document.getElementById('studyChoices').style.display = showChoices ? 'flex' : 'none';
   document.getElementById('studySpell').style.display = (isSpell || isFill) ? 'flex' : 'none';
