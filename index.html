@@ -460,6 +460,129 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .review-check.done::after { content: '✓'; font-size: 11px; color: #3A6A8A; font-weight: 700; }
 .empty { text-align: center; padding: 3rem 1rem; color: var(--text3); font-family: 'DM Sans', system-ui, sans-serif; font-size: 15px; }
 
+/* Pronunciation */
+.speak-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--border); background: transparent;
+  cursor: pointer; flex-shrink: 0; margin-left: 2px;
+  font-size: 13px; color: var(--text3); transition: all .15s;
+  padding: 0; opacity: 0;
+}
+.card-head:hover .speak-btn, .card.open .speak-btn { opacity: 1; }
+.speak-btn:hover { background: var(--accent-bg); color: var(--accent); border-color: var(--accent); }
+.speak-btn.speaking { background: #F9E3E8; color: #C06070; border-color: #F0C4CC; animation: speakPulse .6s ease-in-out infinite; }
+@keyframes speakPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+/* Study Mode */
+.study-overlay {
+  display: none; position: fixed; inset: 0;
+  background: #F5F9FC; z-index: 200;
+  flex-direction: column; align-items: center; justify-content: center;
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+.study-overlay.active { display: flex; }
+.study-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: #E2E8F0; z-index: 201;
+}
+.study-progress-bar {
+  height: 100%; background: var(--accent);
+  transition: width .3s ease;
+}
+.study-topbar {
+  position: fixed; top: 16px; right: 16px; z-index: 202;
+  display: flex; gap: 8px; align-items: center;
+}
+.study-topbar button {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px;
+  padding: 8px 16px; border: 1px solid var(--border2); border-radius: 999px;
+  background: var(--surface); color: var(--text2); cursor: pointer;
+  transition: all .15s;
+}
+.study-topbar button:hover { background: var(--surface2); }
+.study-count {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: var(--text3);
+}
+.study-card-area {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100vh; padding: 60px 24px 100px;
+  user-select: none; -webkit-tap-highlight-color: transparent;
+  width: 100%; max-width: 600px;
+}
+.study-word {
+  font-family: 'Georgia', serif; font-size: clamp(36px, 8vw, 64px);
+  font-weight: 500; font-style: italic; color: #4D4242;
+  text-align: center; line-height: 1.2; transition: all .3s;
+}
+.study-type {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; color: var(--text3);
+  margin-top: 8px; transition: all .3s;
+}
+.study-reveal {
+  opacity: 0; transform: translateY(12px); transition: all .35s ease;
+  text-align: center; margin-top: 24px; max-width: 480px;
+}
+.study-card-area.flipped .study-reveal { opacity: 1; transform: translateY(0); }
+.study-meaning {
+  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-size: 22px; color: var(--text); line-height: 1.5; margin-bottom: 16px;
+}
+.study-extra {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: var(--text3);
+  line-height: 1.6;
+}
+.study-extra span { display: inline-block; margin: 0 6px; }
+.study-nav {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 16px; align-items: center; z-index: 202;
+}
+.study-nav button {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px;
+  padding: 12px 24px; border: 1px solid var(--border2); border-radius: 999px;
+  background: var(--surface); color: var(--text); cursor: pointer;
+  transition: all .15s; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.study-nav button:hover { background: var(--surface2); }
+.study-nav button:active { transform: scale(.96); }
+.study-nav .nav-arrow { font-size: 20px; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; }
+.study-nav .nav-arrow:hover { transform: none; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+.study-rating { display: flex; gap: 10px; }
+.rating-btn {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px;
+  padding: 10px 20px; border-radius: 999px; cursor: pointer;
+  transition: all .15s; border: 1px solid var(--border2);
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.rating-btn.again { background: #FDE8EC; color: #B05060; border-color: #F0C4CC; }
+.rating-btn.again:hover { background: #FAD4DA; }
+.rating-btn.hard { background: #FEF3C7; color: #92600A; border-color: #F0D78C; }
+.rating-btn.hard:hover { background: #FCE8A0; }
+.rating-btn.good { background: #DCF5E0; color: #2D6A3F; border-color: #B8E0C0; }
+.rating-btn.good:hover { background: #C4ECC9; }
+.study-hint {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; color: var(--text3);
+  position: fixed; bottom: 100px; text-align: center;
+}
+.study-empty {
+  text-align: center; color: var(--text3);
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 16px;
+}
+
+@media (max-width: 640px) {
+  .speak-btn { opacity: 1; width: 32px; height: 32px; font-size: 15px; }
+  .study-word { font-size: clamp(28px, 10vw, 48px); }
+  .study-meaning { font-size: 18px; }
+  .study-nav { bottom: 20px; gap: 12px; }
+  .study-nav button { font-size: 13px; padding: 10px 18px; }
+  .study-nav .nav-arrow { width: 40px; height: 40px; font-size: 18px; }
+  .study-topbar { top: 10px; right: 10px; }
+  .study-topbar button { font-size: 12px; padding: 6px 12px; }
+  .study-hint { display: none; }
+  .rating-btn { font-size: 12px; padding: 8px 14px; }
+  .study-rating { gap: 6px; }
+}
+
 .toast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
   background: #1a1a18; color: #fff; font-family: 'DM Sans', system-ui, sans-serif;
@@ -714,6 +837,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
           <button class="task-tab" onclick="setReviewFilter('unreviewed')">未复习 <span class="task-num" id="taskUnreviewed">0</span></button>
         </div>
         <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式：按一下隐藏英文，再按隐藏西语，再按恢复"></button>
+        <button class="primary" onclick="openStudy()" style="padding:6px 14px;font-size:12px;">📖 学习</button>
       </div>
     </div>
     <div id="count" class="count"></div>
@@ -806,6 +930,34 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 <div class="az-bar" id="azBar"></div>
 <div class="toast" id="toast"></div>
+
+<!-- Study Mode Overlay -->
+<div class="study-overlay" id="studyOverlay">
+  <div class="study-progress"><div class="study-progress-bar" id="studyProgressBar" style="width:0%"></div></div>
+  <div class="study-topbar">
+    <span class="study-count" id="studyCount"></span>
+    <button onclick="toggleShuffleStudy()" id="studyShuffleBtn">🔀 随机</button>
+    <button onclick="closeStudy()">✕ 退出</button>
+  </div>
+  <div class="study-card-area" id="studyCard">
+    <div class="study-word" id="studyWord"></div>
+    <div class="study-type" id="studyType"></div>
+    <div class="study-reveal">
+      <div class="study-meaning" id="studyMeaning"></div>
+      <div class="study-extra" id="studyExtra"></div>
+    </div>
+  </div>
+  <div class="study-hint" id="studyHint">回忆词义后自评 · 1不记得 2模糊 3知道了 · ← → 浏览</div>
+  <div class="study-nav" id="studyNav">
+    <button class="nav-arrow" onclick="event.stopPropagation();prevStudyCard()" title="上一个 (←)">←</button>
+    <div class="study-rating" id="studyRating">
+      <button class="rating-btn again" onclick="event.stopPropagation();rateStudyCard(0)">不记得</button>
+      <button class="rating-btn hard" onclick="event.stopPropagation();rateStudyCard(1)">模糊</button>
+      <button class="rating-btn good" onclick="event.stopPropagation();rateStudyCard(2)">知道了</button>
+    </div>
+    <button class="nav-arrow" onclick="event.stopPropagation();nextStudyCard()" title="下一个 (→)">→</button>
+  </div>
+</div>
 
 <div class="modal-overlay" id="importModal">
   <div class="modal">
@@ -969,9 +1121,9 @@ const STEM_PATTERNS = {
   'confesar':'e:ie','fregar':'e:ie','helar':'e:ie','invertir':'e:ie','merendar':'e:ie',
   'recomendar':'e:ie','sembrar':'e:ie','tropezar':'e:ie','manifestar':'e:ie','requerir':'e:ie',
   'pedir':'e:i','servir':'e:i','repetir':'e:i','vestir':'e:i','seguir':'e:i',
-  'conseguir':'e:i','despedir':'e:i','elegir':'e:i','impedir':'e:i','medir':'e:i',
+  'conseguir':'e:i','despedir':'e:i','impedir':'e:i','medir':'e:i',
   'perseguir':'e:i','rendir':'e:i','reñir':'e:i','sonreír':'e:i','competir':'e:i',
-  'corregir':'e:i','derretir':'e:i','freír':'e:i','gemir':'e:i',
+  'derretir':'e:i','freír':'e:i','gemir':'e:i',
   'jugar':'u:ue',
 };
 
@@ -982,6 +1134,291 @@ const IY_VERBS = new Set([
   'creer','leer','poseer','proveer','desposeer','desproveer','releer','sobreseer',
   'roer','corroer',
 ]);
+
+// -cer/-cir verbs with vowel before c → zc spelling change before a/o
+// e.g. crecer→crezco, conocer→conozco, conducir→conduzco, nacer→nazco
+// Exceptions: hacer (in IRREGULAR_BASES), cocer/torcer (stem-change + c→z, not zc)
+const ZC_EXCEPTIONS = new Set(['hacer','cocer','torcer','escocer','recocer','retorcer','destorcer','contorcer']);
+
+function isZcVerb(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  if (ZC_EXCEPTIONS.has(key)) return false;
+  if (/ducir$/.test(key)) return false; // handled by isDucirVerb (has irregular preterite)
+  return /[aeiouáéíóú]c[ie]r$/.test(key);
+}
+
+function generateZcVerbForms(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  const isEr = key.endsWith('er');
+  const base = key.replace(/(er|ir)$/, '');
+  const zcRoot = base.slice(0, -1); // remove final c: "crec"→"cre", "conduc"→"condu"
+  const vf = {};
+
+  // Presente: zc for yo, regular otherwise
+  const pe = isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
+  vf.presente = pe.map((e, i) => i === 0 ? zcRoot + 'zco' : base + e).join(' / ');
+
+  // Pretérito: regular
+  const pre = ['í','iste','ió','imos','isteis','ieron'];
+  vf.pretérito = pre.map(e => base + e).join(' / ');
+
+  // Imperfecto
+  const imp = ['ía','ías','ía','íamos','íais','ían'];
+  vf['pretérito imperfecto'] = imp.map(e => base + e).join(' / ');
+
+  // Futuro
+  vf.futuro = ['é','ás','á','emos','éis','án'].map(e => key + e).join(' / ');
+
+  // Condicional
+  vf.condicional = ['ía','ías','ía','íamos','íais','ían'].map(e => key + e).join(' / ');
+
+  // Subjuntivo presente: all zc
+  const se = ['a','as','a','amos','áis','an'];
+  vf['subjuntivo presente'] = se.map(e => zcRoot + 'zc' + e).join(' / ');
+
+  // Subjuntivo imperfecto: regular
+  const si = ['iera','ieras','iera','iéramos','ierais','ieran'];
+  vf['subjuntivo imperfecto'] = si.map(e => base + e).join(' / ');
+
+  // Imperativo: zc for usted/nosotros/ustedes, regular for tú/vosotros
+  const im = isEr ? ['e','a','amos','ed','an'] : ['e','a','amos','id','an'];
+  vf.imperativo = im.map((e, i) => (i === 1 || i === 2 || i === 4) ? zcRoot + 'zc' + e : base + e).join(' / ');
+
+  // Gerundio y participio
+  vf.otros = ['Gerundio: ' + base + 'iendo', 'Participio pasado: ' + base + 'ido'];
+  vf._irreg_note = 'c→zc拼写变化';
+  return vf;
+}
+
+// ── g→j spelling change for -ger/-gir verbs ──
+// e.g. coger→cojo, proteger→protejo, dirigir→dirijo, fingir→finjo
+// Excludes verbs with stem changes (elegir, corregir, regir, colegir → in IRREGULAR_BASES)
+const GTOJ_EXCEPTIONS = new Set(['elegir','corregir','regir','colegir','reelegir']);
+
+function isGtoJVerb(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  if (GTOJ_EXCEPTIONS.has(key)) return false;
+  return /[aeiouáéíóú]g[ie]r$/.test(key);
+}
+
+function generateGtoJForms(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  const isEr = key.endsWith('er');
+  const base = key.replace(/(er|ir)$/, '');
+  const jStem = base.slice(0, -1) + 'j'; // "cog"→"coj", "dirig"→"dirij"
+  const vf = {};
+
+  // Presente: g→j only for yo
+  const pe = isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
+  vf.presente = pe.map((e, i) => i === 0 ? jStem + 'o' : base + e).join(' / ');
+
+  // Pretérito: regular (g→j NOT in pretérito for pure -ger/-gir verbs)
+  const pre = ['í','iste','ió','imos','isteis','ieron'];
+  vf.pretérito = pre.map(e => base + e).join(' / ');
+
+  // Imperfecto
+  const imp = ['ía','ías','ía','íamos','íais','ían'];
+  vf['pretérito imperfecto'] = imp.map(e => base + e).join(' / ');
+
+  // Futuro & Condicional
+  vf.futuro = ['é','ás','á','emos','éis','án'].map(e => key + e).join(' / ');
+  vf.condicional = ['ía','ías','ía','íamos','íais','ían'].map(e => key + e).join(' / ');
+
+  // Subjuntivo presente: all g→j
+  const se = ['a','as','a','amos','áis','an'];
+  vf['subjuntivo presente'] = se.map(e => jStem + e).join(' / ');
+
+  // Subjuntivo imperfecto: regular
+  const si = ['iera','ieras','iera','iéramos','ierais','ieran'];
+  vf['subjuntivo imperfecto'] = si.map(e => base + e).join(' / ');
+
+  // Imperativo: g→j for usted/nosotros/ustedes
+  const im = isEr ? ['e','a','amos','ed','an'] : ['e','a','amos','id','an'];
+  vf.imperativo = im.map((e, i) => (i === 1 || i === 2 || i === 4) ? jStem + e : base + e).join(' / ');
+
+  vf.otros = ['Gerundio: ' + base + 'iendo', 'Participio pasado: ' + base + (isEr ? 'ido' : 'ido')];
+  vf._irreg_note = 'g→j拼写变化';
+  return vf;
+}
+
+// ── -guir → g before a/o (not seguir type which has e→i stem change) ──
+// e.g. distinguir→distingo, extinguir→extingo
+const GUIR_EXCEPTIONS = new Set(['seguir','conseguir','perseguir']);
+
+function isGuirVerb(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  if (GUIR_EXCEPTIONS.has(key)) return false;
+  return /guir$/.test(key);
+}
+
+function generateGuirForms(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  const base = key.replace(/ir$/, '');
+  const gStem = base.slice(0, -2) + 'g'; // "distingu"→"disting"
+  const vf = {};
+
+  // Presente: gu→g only for yo
+  const pe = ['o','es','e','imos','ís','en'];
+  vf.presente = pe.map((e, i) => i === 0 ? gStem + 'o' : base + e).join(' / ');
+
+  // Pretérito: regular
+  const pre = ['í','iste','ió','imos','isteis','ieron'];
+  vf.pretérito = pre.map(e => base + e).join(' / ');
+
+  // Imperfecto
+  const imp = ['ía','ías','ía','íamos','íais','ían'];
+  vf['pretérito imperfecto'] = imp.map(e => base + e).join(' / ');
+
+  vf.futuro = ['é','ás','á','emos','éis','án'].map(e => key + e).join(' / ');
+  vf.condicional = ['ía','ías','ía','íamos','íais','ían'].map(e => key + e).join(' / ');
+
+  // Subjuntivo presente: all gu→g
+  const se = ['a','as','a','amos','áis','an'];
+  vf['subjuntivo presente'] = se.map(e => gStem + e).join(' / ');
+
+  const si = ['iera','ieras','iera','iéramos','ierais','ieran'];
+  vf['subjuntivo imperfecto'] = si.map(e => base + e).join(' / ');
+
+  // Imperativo: gu→g for usted/nosotros/ustedes
+  const im = ['e','a','amos','id','an'];
+  vf.imperativo = im.map((e, i) => (i === 1 || i === 2 || i === 4) ? gStem + e : base + e).join(' / ');
+
+  vf.otros = ['Gerundio: ' + base + 'iendo', 'Participio pasado: ' + base + 'ido'];
+  vf._irreg_note = 'gu→g拼写变化';
+  return vf;
+}
+
+// ── -uir (not -guir) → +y between stem vowel and ending ──
+// e.g. construir→construyo, huir→huyo, influir→influyo
+function isUirYVerb(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  // ends in "uir" but not "guir" or "quir"
+  return /[^gq]uir$/.test(key) && key !== 'ir';
+}
+
+function generateUirYForms(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  const base = key.replace(/ir$/, '');
+  const vf = {};
+
+  // Presente: y inserted before o/es/e/en (NOT imos/ís)
+  const pe = ['o','es','e','imos','ís','en'];
+  vf.presente = pe.map((e, i) => (i === 3 || i === 4) ? base + e : base + 'y' + e).join(' / ');
+
+  // Pretérito: y replaces i in 3rd person (ió→yó, ieron→yeron)
+  const pre = ['í','iste','ió','imos','isteis','ieron'];
+  vf.pretérito = pre.map((e, i) => (i === 2 || i === 5) ? base + 'y' + e.slice(1) : base + e).join(' / ');
+
+  // Imperfecto: regular
+  const imp = ['ía','ías','ía','íamos','íais','ían'];
+  vf['pretérito imperfecto'] = imp.map(e => base + e).join(' / ');
+
+  vf.futuro = ['é','ás','á','emos','éis','án'].map(e => key + e).join(' / ');
+  vf.condicional = ['ía','ías','ía','íamos','íais','ían'].map(e => key + e).join(' / ');
+
+  // Subjuntivo presente: all +y
+  const se = ['a','as','a','amos','áis','an'];
+  vf['subjuntivo presente'] = se.map(e => base + 'y' + e).join(' / ');
+
+  // Subjuntivo imperfecto: all +y
+  const si = ['era','eras','era','éramos','erais','eran'];
+  vf['subjuntivo imperfecto'] = si.map(e => base + 'y' + e).join(' / ');
+
+  // Imperativo: y for all except vosotros
+  const im = ['e','a','amos','id','an'];
+  vf.imperativo = im.map((e, i) => i === 3 ? base + 'id' : base + 'y' + e).join(' / ');
+
+  vf.otros = ['Gerundio: ' + base + 'yendo', 'Participio pasado: ' + base + 'ido'];
+  vf._irreg_note = 'i→y拼写变化';
+  return vf;
+}
+
+// ── consonant + cer/cir → c→z before a/o (NOT zc) ──
+// e.g. vencer→venzo, convencer→convenzo, esparcir→esparzo
+function isCtoZVerb(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  return /[^aeiouáéíóú]c[ie]r$/.test(key);
+}
+
+function generateCtoZForms(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  const isEr = key.endsWith('er');
+  const base = key.replace(/(er|ir)$/, '');
+  const zStem = base.slice(0, -1) + 'z'; // "venc"→"venz"
+  const vf = {};
+
+  // Presente: c→z only for yo
+  const pe = isEr ? ['o','es','e','emos','éis','en'] : ['o','es','e','imos','ís','en'];
+  vf.presente = pe.map((e, i) => i === 0 ? zStem + 'o' : base + e).join(' / ');
+
+  // Pretérito: regular
+  const pre = ['í','iste','ió','imos','isteis','ieron'];
+  vf.pretérito = pre.map(e => base + e).join(' / ');
+
+  const imp = ['ía','ías','ía','íamos','íais','ían'];
+  vf['pretérito imperfecto'] = imp.map(e => base + e).join(' / ');
+
+  vf.futuro = ['é','ás','á','emos','éis','án'].map(e => key + e).join(' / ');
+  vf.condicional = ['ía','ías','ía','íamos','íais','ían'].map(e => key + e).join(' / ');
+
+  // Subjuntivo presente: all c→z
+  const se = ['a','as','a','amos','áis','an'];
+  vf['subjuntivo presente'] = se.map(e => zStem + e).join(' / ');
+
+  const si = ['iera','ieras','iera','iéramos','ierais','ieran'];
+  vf['subjuntivo imperfecto'] = si.map(e => base + e).join(' / ');
+
+  // Imperativo: c→z for usted/nosotros/ustedes
+  const im = isEr ? ['e','a','amos','ed','an'] : ['e','a','amos','id','an'];
+  vf.imperativo = im.map((e, i) => (i === 1 || i === 2 || i === 4) ? zStem + e : base + e).join(' / ');
+
+  vf.otros = ['Gerundio: ' + base + 'iendo', 'Participio pasado: ' + base + 'ido'];
+  vf._irreg_note = 'c→z拼写变化';
+  return vf;
+}
+
+// ── -ducir verbs: c→zc present + irregular -duj- preterite ──
+// e.g. conducir→conduzco/conduje, producir→produzco/produje
+function isDucirVerb(infinitive) {
+  return /ducir$/.test(infinitive.toLowerCase().replace(/se$/,''));
+}
+
+function generateDucirForms(infinitive) {
+  const key = infinitive.toLowerCase().replace(/se$/,'');
+  const base = key.replace(/cir$/, ''); // "condu", "produ", "tradu"
+  const zRoot = base + 'z';  // for -zco/-zca
+  const jRoot = base + 'j';  // for -je/-jera
+  const vf = {};
+
+  // Presente: -zco for yo
+  vf.presente = ['o','es','e','imos','ís','en'].map((e, i) =>
+    i === 0 ? zRoot + 'co' : base + 'c' + e
+  ).join(' / ');
+
+  // Pretérito: irregular -duj-
+  vf.pretérito = ['e','iste','o','imos','isteis','eron'].map(e => jRoot + e).join(' / ');
+
+  const imp = ['ía','ías','ía','íamos','íais','ían'];
+  vf['pretérito imperfecto'] = imp.map(e => base + 'c' + e).join(' / ');
+
+  vf.futuro = ['é','ás','á','emos','éis','án'].map(e => key + e).join(' / ');
+  vf.condicional = ['ía','ías','ía','íamos','íais','ían'].map(e => key + e).join(' / ');
+
+  // Subjuntivo presente: -zca (all)
+  vf['subjuntivo presente'] = ['a','as','a','amos','áis','an'].map(e => zRoot + e).join(' / ');
+
+  // Subjuntivo imperfecto: -dujera (all)
+  vf['subjuntivo imperfecto'] = ['a','as','a','amos','ais','an'].map(e => jRoot + 'er' + e).join(' / ');
+
+  // Imperativo
+  vf.imperativo = ['e','a','amos','id','an'].map((e, i) =>
+    (i === 1 || i === 2 || i === 4) ? zRoot + e : base + 'c' + e
+  ).join(' / ');
+
+  vf.otros = ['Gerundio: ' + base + 'ciendo', 'Participio pasado: ' + base + 'cido'];
+  vf._irreg_note = '不规则：-duzco/-duje/-dujera';
+  return vf;
+}
 
 function generateIYForms(infinitive) {
   const norm = infinitive.normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -1131,6 +1568,50 @@ const IRREGULAR_BASES = {
     'subjuntivo presente': ['valga','valgas','valga','valgamos','valgáis','valgan'],
     imperativo: ['vale','valga','valgamos','valed','valgan'],
   },
+  cocer: {
+    presente:  ['cuezo','cueces','cuece','cocemos','cocéis','cuecen'],
+    'subjuntivo presente': ['cueza','cuezas','cueza','cozamos','cozáis','cuezan'],
+    imperativo: ['cuece','cueza','cozamos','coced','cuezan'],
+    otros: ['Gerundio: cociendo', 'Participio pasado: cocido'],
+  },
+  torcer: {
+    presente:  ['tuerzo','tuerces','tuerce','torcemos','torcéis','tuercen'],
+    'subjuntivo presente': ['tuerza','tuerzas','tuerza','torzamos','torzáis','tuerzan'],
+    imperativo: ['tuerce','tuerza','torzamos','torced','tuerzan'],
+    otros: ['Gerundio: torciendo', 'Participio pasado: torcido'],
+  },
+  elegir: {
+    presente:  ['elijo','eliges','elige','elegimos','elegís','eligen'],
+    pretérito: ['elegí','elegiste','eligió','elegimos','elegisteis','eligieron'],
+    'subjuntivo presente': ['elija','elijas','elija','elijamos','elijáis','elijan'],
+    imperativo: ['elige','elija','elijamos','elegid','elijan'],
+    otros: ['Gerundio: eligiendo', 'Participio pasado: elegido'],
+    _irreg_note: '词干e→i，g→j拼写变化',
+  },
+  corregir: {
+    presente:  ['corrijo','corriges','corrige','corregimos','corregís','corrigen'],
+    pretérito: ['corregí','corregiste','corrigió','corregimos','corregisteis','corrigieron'],
+    'subjuntivo presente': ['corrija','corrijas','corrija','corrijamos','corrijáis','corrijan'],
+    imperativo: ['corrige','corrija','corrijamos','corregid','corrijan'],
+    otros: ['Gerundio: corrigiendo', 'Participio pasado: corregido'],
+    _irreg_note: '词干e→i，g→j拼写变化',
+  },
+  regir: {
+    presente:  ['rijo','riges','rige','regimos','regís','rigen'],
+    pretérito: ['regí','registe','rigió','regimos','registeis','rigieron'],
+    'subjuntivo presente': ['rija','rijas','rija','rijamos','rijáis','rijan'],
+    imperativo: ['rige','rija','rijamos','regid','rijan'],
+    otros: ['Gerundio: rigiendo', 'Participio pasado: regido'],
+    _irreg_note: '词干e→i，g→j拼写变化',
+  },
+  colegir: {
+    presente:  ['colijo','coliges','colige','colegimos','colegís','coligen'],
+    pretérito: ['colegí','colegiste','coligió','colegimos','colegisteis','coligieron'],
+    'subjuntivo presente': ['colija','colijas','colija','colijamos','colijáis','colijan'],
+    imperativo: ['colige','colija','colijamos','colegid','colijan'],
+    otros: ['Gerundio: coligiendo', 'Participio pasado: colegido'],
+    _irreg_note: '词干e→i，g→j拼写变化',
+  },
 };
 
 function findIrregularBase(infinitive) {
@@ -1214,6 +1695,12 @@ function autoGenerateVerbForms(infinitive) {
   const pat = STEM_PATTERNS[key];
   if (!pat) {
     if (IY_VERBS.has(key)) return generateIYForms(key);
+    if (isDucirVerb(key)) return generateDucirForms(key);
+    if (isZcVerb(key)) return generateZcVerbForms(key);
+    if (isGtoJVerb(key)) return generateGtoJForms(key);
+    if (isGuirVerb(key)) return generateGuirForms(key);
+    if (isUirYVerb(key)) return generateUirYForms(key);
+    if (isCtoZVerb(key)) return generateCtoZForms(key);
     return null;
   }
   const [from, to] = pat.split(':');
@@ -1554,6 +2041,46 @@ const DOT_CONFIGS = [
   ['blue','blue','blue'], ['gray','blue','blue'], ['gray','gray','blue'],
   ['gray','gray','gray'], ['gray','gray',null], ['gray',null,null], [null,null,null]
 ];
+// ── SM-2 Spaced Repetition ───────────────────────
+// quality: 1=不记得, 3=模糊, 5=知道了 (maps from 1/3/5 to SM-2 0-5 scale)
+const SM2_INITIAL_EASE = 2.5;
+const SM2_MIN_EASE = 1.3;
+
+function sm2Schedule(review, quality) {
+  // quality: 1 (again), 3 (hard), 5 (good) — mapped to SM-2 0-5
+  if (!review) review = { stage: 0, ease: SM2_INITIAL_EASE, interval: 0, repetitions: 0, last_reviewed: null };
+  let { ease = SM2_INITIAL_EASE, interval = 0, repetitions = 0 } = review;
+  const today = new Date().toISOString().slice(0, 10);
+
+  if (quality < 3) {
+    // Failed: reset
+    repetitions = 0;
+    interval = 1;
+  } else {
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 6;
+    else interval = Math.round(interval * ease);
+    repetitions++;
+  }
+  // Update ease factor (SM-2 formula)
+  const q = quality; // 1, 3, or 5
+  ease = ease + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
+  ease = Math.max(SM2_MIN_EASE, ease);
+
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + interval);
+
+  return {
+    stage: Math.min(repetitions, 12),
+    ease: Math.round(ease * 100) / 100,
+    interval,
+    repetitions,
+    last_reviewed: today,
+    next_review: nextDate.toISOString().slice(0, 10)
+  };
+}
+
+// Backward-compatible wrapper for existing INTERVALS-based code
 const INTERVALS = [1,1,2,2,4,4,7,7,15,15,30,30];
 
 function renderReviewDots(stage) {
@@ -1568,16 +2095,7 @@ function markReviewed(e, idx) {
   if (!w) return;
   const today = new Date().toISOString().slice(0, 10);
   if (w.review && w.review.last_reviewed === today) return; // already reviewed today
-  const stage = (w.review ? w.review.stage : 0);
-  const newStage = Math.min(stage + 1, 12);
-  const nextDays = INTERVALS[Math.min(newStage, 11)] || 30;
-  const nextDate = new Date();
-  nextDate.setDate(nextDate.getDate() + nextDays);
-  w.review = {
-    stage: newStage,
-    last_reviewed: today,
-    next_review: nextDate.toISOString().slice(0, 10)
-  };
+  w.review = sm2Schedule(w.review, 5); // checkbox = perfect recall
   saveLocal();
   if (sb) {
     try { sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch(e) {}
@@ -2007,7 +2525,7 @@ function buildCard(w, idx) {
 
   return `<div class="card" id="card-${idx}">
     <div class="card-head" onclick="toggle(${idx})">
-      <div class="head-left"><span class="word-main">${escapeHTML(w.word)}</span>${w.type ? `<span class="type-tag">${escapeHTML(w.type)}</span>` : ''}</div>
+      <div class="head-left"><span class="word-main">${escapeHTML(w.word)}</span>${w.type ? `<span class="type-tag">${escapeHTML(w.type)}</span>` : ''}<button class="speak-btn" data-word="${escapeHTML(w.word)}" onclick="event.stopPropagation();speakWord(this)" title="听发音">🔊</button></div>
       <div class="head-right">
         ${w.level ? `<span class="badge badge-level">${escapeHTML(w.level)}</span>` : ''}
         <span class="badge badge-freq badge-freq--pick" onclick="event.stopPropagation();pickFreq(event,${idx})" title="点击切换频次">${w.frequency ? escapeHTML(w.frequency) : '?'}</span>
@@ -2236,6 +2754,165 @@ function toggleFlashcard() {
     btn.classList.add('purple');
     document.body.classList.add('flashcard-purple');
   }
+}
+
+// ── Pronunciation ─────────────────────────────────
+function speakWord(btn) {
+  if (!('speechSynthesis' in window)) return;
+  const word = btn.getAttribute('data-word');
+  if (!word) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'es-ES';
+  u.rate = 0.85;
+  const voices = speechSynthesis.getVoices();
+  const esVoice = voices.find(v => v.lang.startsWith('es-')) || voices.find(v => v.lang.startsWith('es'));
+  if (esVoice) u.voice = esVoice;
+  btn.classList.add('speaking');
+  u.onend = () => btn.classList.remove('speaking');
+  speechSynthesis.speak(u);
+}
+
+// ── Study Mode ────────────────────────────────────
+let studyCards = [];
+let studyIndex = 0;
+let studyShuffle = false;
+
+function getFilteredCards() {
+  const sq = (document.getElementById('search').value || '').trim().toLowerCase();
+  const fType = document.getElementById('filterType').value;
+  const fLevel = document.getElementById('filterLevel').value;
+  const fFreq = document.getElementById('filterFreq').value;
+  const fForm = document.getElementById('filterForm').value;
+  return words.filter((w, i) => {
+    if (reviewFilter === 'reviewed' && !(w.review && w.review.last_reviewed === new Date().toISOString().slice(0,10))) return false;
+    if (reviewFilter === 'unreviewed' && w.review && w.review.last_reviewed === new Date().toISOString().slice(0,10)) return false;
+    if (fType && fType !== (w.type || '').split('/')[0].trim()) return false;
+    if (fLevel && fLevel !== (w.level || '')) return false;
+    if (fFreq && fFreq !== (w.frequency || '')) return false;
+    if (fForm === 'word' && w.word.includes(' ')) return false;
+    if (fForm === 'phrase' && !w.word.includes(' ')) return false;
+    if (sq) {
+      const hay = [w.word, w.core_meaning || '', w.english || '', ...(w.tags||[]), ...(w.situations||[])].join(' ').toLowerCase();
+      if (!hay.includes(sq)) return false;
+    }
+    return true;
+  });
+}
+
+function openStudy() {
+  studyCards = getFilteredCards();
+  if (!studyCards.length) { showToast('没有匹配的词卡'); return; }
+  studyIndex = 0;
+  document.getElementById('studyOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  updateStudyCard();
+}
+
+function closeStudy() {
+  document.getElementById('studyOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  saveLocal();
+  if (sb) {
+    for (const w of studyCards) {
+      try { sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch (e) {}
+    }
+  }
+  render();
+}
+
+function updateStudyCard() {
+  const card = studyCards[studyIndex];
+  const total = studyCards.length;
+  document.getElementById('studyWord').textContent = card.word;
+  document.getElementById('studyType').textContent = (card.type || '') + (card.level ? ' · ' + card.level : '');
+  document.getElementById('studyMeaning').textContent = card.core_meaning || card.english || '';
+  let extra = '';
+  if (card.frequency) extra += '<span>频次: ' + escapeHTML(card.frequency) + '</span>';
+  if (card.tags && card.tags.length) extra += '<span>' + card.tags.slice(0,4).map(t => escapeHTML(t)).join(' · ') + '</span>';
+  document.getElementById('studyExtra').innerHTML = extra;
+  document.getElementById('studyCount').textContent = (studyIndex + 1) + ' / ' + total;
+  document.getElementById('studyProgressBar').style.width = ((studyIndex + 1) / total * 100) + '%';
+  // Reset to unflipped state, re-enable rating buttons
+  document.getElementById('studyCard').classList.remove('flipped');
+  document.getElementById('studyRating').style.opacity = '';
+  document.getElementById('studyRating').style.pointerEvents = '';
+}
+
+function rateStudyCard(level) {
+  // level: 0=不记得, 1=模糊, 2=知道了 → maps to SM-2 quality 1, 3, 5
+  const card = studyCards[studyIndex];
+  const origIdx = words.indexOf(card);
+  if (origIdx >= 0) {
+    const quality = [1, 3, 5][level];
+    words[origIdx].review = sm2Schedule(words[origIdx].review, quality);
+  }
+  // Flip to show answer after rating
+  document.getElementById('studyCard').classList.add('flipped');
+  document.getElementById('studyRating').style.opacity = '0.4';
+  document.getElementById('studyRating').style.pointerEvents = 'none';
+  // Auto-advance after a short delay
+  setTimeout(() => {
+    studyIndex = (studyIndex + 1) % studyCards.length;
+    if (studyIndex === 0 && studyCards.length > 0) {
+      saveLocal();
+      showToast('🎉 一轮完成！已自动保存');
+    }
+    updateStudyCard();
+  }, 1500);
+}
+
+function nextStudyCard() {
+  if (studyCards.length === 0) return;
+  studyIndex = (studyIndex + 1) % studyCards.length;
+  if (studyIndex === 0 && studyCards.length > 0) {
+    saveLocal();
+    showToast('🎉 一轮完成！已自动保存');
+  }
+  updateStudyCard();
+}
+
+function prevStudyCard() {
+  if (studyCards.length === 0) return;
+  studyIndex = (studyIndex - 1 + studyCards.length) % studyCards.length;
+  updateStudyCard();
+}
+
+function toggleShuffleStudy() {
+  studyShuffle = !studyShuffle;
+  const btn = document.getElementById('studyShuffleBtn');
+  if (studyShuffle) {
+    btn.textContent = '🔀 随机 ✓';
+    btn.style.background = '#EDE4F5';
+    for (let i = studyCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [studyCards[i], studyCards[j]] = [studyCards[j], studyCards[i]];
+    }
+  } else {
+    btn.textContent = '🔀 随机';
+    btn.style.background = '';
+    studyCards = getFilteredCards();
+  }
+  studyIndex = 0;
+  updateStudyCard();
+}
+
+// Keyboard shortcuts for study mode
+document.addEventListener('keydown', function(e) {
+  const overlay = document.getElementById('studyOverlay');
+  if (!overlay.classList.contains('active')) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); nextStudyCard(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); prevStudyCard(); }
+  else if (e.key === '1' || e.key === '!') { e.preventDefault(); rateStudyCard(0); }
+  else if (e.key === '2' || e.key === '@') { e.preventDefault(); rateStudyCard(1); }
+  else if (e.key === '3' || e.key === '#') { e.preventDefault(); rateStudyCard(2); }
+  else if (e.key === 'Escape') { e.preventDefault(); closeStudy(); }
+});
+
+// Initialize speech synthesis voices
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
 }
 
 function jumpToWord(wordStr) {
