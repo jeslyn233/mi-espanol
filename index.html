@@ -54,7 +54,8 @@ header p { font-size: .875rem; color: var(--text2); margin-top: 4px; font-family
 .lock-input { font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; padding: 4px 8px; border: 1px solid var(--border2); border-radius: 4px; width: 100px; display: none; }
 .lock-input.show { display: inline-block; }
 .lock-msg { font-size: 11px; color: var(--text3); font-family: 'DM Sans', system-ui, sans-serif; display: none; }
-.locked .gen-box,
+.locked #genBtn,
+.locked .paste-btn,
 .locked .more-menu,
 .locked .card-actions,
 .locked .gram-import-btn,
@@ -154,7 +155,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .search-bar {
   display: flex; align-items: center; background: #FFFFFF;
   border: 1px solid var(--border); border-radius: var(--radius-sm);
-  overflow: hidden; flex: 1; min-width: 0;
+  overflow: hidden; flex: 1; min-width: 0; max-width: 440px;
 }
 .search-bar input {
   border: none; flex: 1; min-width: 0; background: transparent;
@@ -913,7 +914,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       </div>
       <div class="toolbar-right">
         <button class="primary" id="genBtn" onclick="autoGenerate()"><span class="gen-spin" id="genSpin">⟳</span> AI 生成</button>
-        <button onclick="openImportModal('word')" style="font-size:12px;">粘贴</button>
+        <button class="paste-btn" onclick="openImportModal('word')" style="font-size:12px;">粘贴</button>
         <div class="more-menu">
           <button class="more-btn" onclick="toggleMoreMenu(event)" title="Más opciones">⋯</button>
           <div class="more-dropdown" id="moreDropdown">
@@ -2290,11 +2291,11 @@ function renderChunkText(text, highlight) {
 }
 
 function render() {
-  const q = document.getElementById('search').value.toLowerCase();
-  const type = document.getElementById('filterType').value;
-  const level = document.getElementById('filterLevel').value;
-  const freq = document.getElementById('filterFreq').value;
-  const form = document.getElementById('filterForm').value;
+  const q = document.getElementById('search')?.value?.toLowerCase() || '';
+  const type = document.getElementById('filterType')?.value || '';
+  const level = document.getElementById('filterLevel')?.value || '';
+  const freq = document.getElementById('filterFreq')?.value || '';
+  const form = document.getElementById('filterForm')?.value || '';
   const today = new Date().toISOString().slice(0, 10);
 
   const filtered = words.filter(w => {
@@ -2929,11 +2930,11 @@ let studyIndex = 0;
 let studyShuffle = false;
 
 function getFilteredCards() {
-  const sq = (document.getElementById('search').value || '').trim().toLowerCase();
-  const fType = document.getElementById('filterType').value;
-  const fLevel = document.getElementById('filterLevel').value;
-  const fFreq = document.getElementById('filterFreq').value;
-  const fForm = document.getElementById('filterForm').value;
+  const sq = (document.getElementById('search')?.value || '').trim().toLowerCase();
+  const fType = document.getElementById('filterType')?.value || '';
+  const fLevel = document.getElementById('filterLevel')?.value || '';
+  const fFreq = document.getElementById('filterFreq')?.value || '';
+  const fForm = document.getElementById('filterForm')?.value || '';
   return words.filter((w, i) => {
     if (reviewFilter === 'reviewed' && !(w.review && w.review.last_reviewed === new Date().toISOString().slice(0,10))) return false;
     if (reviewFilter === 'unreviewed' && w.review && w.review.last_reviewed === new Date().toISOString().slice(0,10)) return false;
@@ -3434,6 +3435,7 @@ function handleFileSelect(e) {
 })();
 
 async function doImport() {
+  if (isLocked) return;
   let raw = document.getElementById('importText').value.trim();
   if (!raw) { alert('Pega el contenido primero.'); return; }
   let data;
