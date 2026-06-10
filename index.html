@@ -514,9 +514,10 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   width: 100%; max-width: 600px;
 }
 .study-word {
-  font-family: 'Georgia', serif; font-size: clamp(36px, 8vw, 64px);
+  font-family: 'Georgia', serif; font-size: clamp(28px, 6vw, 48px);
   font-weight: 500; font-style: italic; color: #4D4242;
-  text-align: center; line-height: 1.2; transition: all .3s;
+  text-align: center; line-height: 1.3; transition: all .3s;
+  max-width: 100%; word-break: break-word;
 }
 .study-type {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; color: var(--text3);
@@ -599,12 +600,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 }
 .study-spell-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(58,95,138,.08); }
 .study-spell-input::placeholder { color: var(--text3); font-style: normal; font-size: 14px; }
-.study-spell-submit {
-  width: 40px; height: 40px; border-radius: 50%; border: none;
-  background: #D9E0E7; color: #475569; cursor: pointer;
-  font-size: 16px; transition: all .15s;
-}
-.study-spell-submit:hover { background: #CDD5DE; }
 .study-spell-result { font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; min-height: 20px; font-weight: 500; }
 .study-spell-result.correct { color: #2D6A3F; }
 .study-spell-result.wrong { color: #B05060; }
@@ -1121,7 +1116,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     </div>
     <div class="study-spell" id="studySpell" style="display:none;">
       <input type="text" class="study-spell-input" id="studySpellInput" placeholder="输入答案…" onkeydown="if(event.key==='Enter')checkSpelling()" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <button class="study-spell-submit" onclick="event.stopPropagation();checkSpelling()">↵</button>
       <div class="study-spell-result" id="studySpellResult"></div>
       <button class="study-new-sentence-btn" id="studyNewSentenceBtn" onclick="event.stopPropagation();generateNewSentence()" style="display:none;" title="AI 生成新句子">🔄 换一题</button>
     </div>
@@ -3218,9 +3212,8 @@ function updateStudyCard() {
       if (studyChoiceAudio) setTimeout(() => speakStudyWord(card.word), 300);
     }
   }
-  const zhmode = isSpell ? '拼写' : isFill ? '填空' : '';
-  const typeLabel = (isSpell || isFill) ? '' : ((card.type || '') + (card.level ? ' · ' + card.level : ''));
-  document.getElementById('studyType').textContent = studyMode === 'mix' ? '混合 · ' + zhmode : typeLabel;
+  const typeLabel = (isSpell || isFill || studyMode === 'mix') ? '' : ((card.type || '') + (card.level ? ' · ' + card.level : ''));
+  document.getElementById('studyType').textContent = typeLabel;
   document.getElementById('studyMeaning').textContent = card.core_meaning || card.english || '';
   let extra = '';
   if (card.frequency) extra += '<span>频次: ' + escapeHTML(card.frequency) + '</span>';
@@ -3231,8 +3224,7 @@ function updateStudyCard() {
   document.getElementById('studyReveal').style.display = (isFlashcard || isSpell || isFill) ? '' : 'none';
   document.getElementById('studyChoices').style.display = showChoices ? 'flex' : 'none';
   document.getElementById('studySpell').style.display = (isSpell || isFill) ? 'flex' : 'none';
-
-  if (isSpell || isFill) {
+  document.getElementById('studyChoiceModeToggle').style.display = showChoices ? '' : 'none';
     document.getElementById('studyMeaning').textContent = card.word;
     document.getElementById('studyExtra').innerHTML = '';
     const input = document.getElementById('studySpellInput');
