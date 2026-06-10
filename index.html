@@ -589,16 +589,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .study-choice.correct { background: #DCF5E0; border-color: #6BAF7A; color: #2D6A3F; }
 .study-choice.wrong { background: #FDE8EC; border-color: #E8A0B0; color: #B05060; }
 .study-choice:disabled { pointer-events: none; }
-.study-spell { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; max-width: 440px; margin-top: 24px; }
-.study-spell-prompt {
-  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
-  font-size: 15px; color: var(--text3); text-align: center; line-height: 1.4;
-  max-width: 100%;
-}
-.study-spell-blank {
-  font-family: 'Georgia', serif; font-size: 22px; font-style: italic;
-  color: var(--text); text-align: center; margin-top: 18px; line-height: 1.4;
-}
+.study-spell { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 440px; margin-top: 8px; }
 .study-spell-input {
   width: 100%; padding: 14px 18px; font-family: 'Georgia', serif;
   font-size: 20px; font-style: italic; color: var(--text); text-align: center;
@@ -617,6 +608,14 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .study-spell-result { font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; min-height: 20px; font-weight: 500; }
 .study-spell-result.correct { color: #2D6A3F; }
 .study-spell-result.wrong { color: #B05060; }
+.study-choice-mode-toggle {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px;
+  padding: 4px 12px; border: 1px solid var(--border2); border-radius: 999px;
+  background: var(--surface); color: var(--text2); cursor: pointer;
+  align-self: center; margin-bottom: 2px; transition: all .15s;
+}
+.study-choice-mode-toggle:hover { background: var(--cool-bg); }
+.study-choice-mode-toggle.audio { background: #EDE4F5; color: #7B5EA7; border-color: #D0C0E8; }
 .study-new-sentence-btn {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px;
   padding: 4px 12px; border: 1px solid transparent; border-radius: 999px;
@@ -1092,7 +1091,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <select id="studyMode" onchange="changeStudyMode()" style="font-family:'DM Sans',system-ui,sans-serif;font-size:12px;padding:4px 8px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text2);">
       <option value="flashcard">词卡</option>
       <option value="choice">选择</option>
-      <option value="listen">听选</option>
       <option value="spell">拼写</option>
       <option value="fill">填空</option>
       <option value="mix">混合</option>
@@ -1115,14 +1113,13 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       <button id="studyDetailBtn" class="study-detail-btn" onclick="event.stopPropagation();openCardDetail()" style="display:none;">📋 查看完整词卡</button>
     </div>
     <div class="study-choices" id="studyChoices" style="display:none;">
+      <button class="study-choice-mode-toggle" id="studyChoiceModeToggle" onclick="event.stopPropagation();toggleChoiceMode()">👁 看字</button>
       <button class="study-choice" onclick="event.stopPropagation();answerChoice(0)" id="choice0"></button>
       <button class="study-choice" onclick="event.stopPropagation();answerChoice(1)" id="choice1"></button>
       <button class="study-choice" onclick="event.stopPropagation();answerChoice(2)" id="choice2"></button>
       <button class="study-choice" onclick="event.stopPropagation();answerChoice(3)" id="choice3"></button>
     </div>
     <div class="study-spell" id="studySpell" style="display:none;">
-      <div class="study-spell-prompt" id="studySpellPrompt"></div>
-      <div class="study-spell-blank" id="studySpellBlank"></div>
       <input type="text" class="study-spell-input" id="studySpellInput" placeholder="输入答案…" onkeydown="if(event.key==='Enter')checkSpelling()" autocomplete="off" autocapitalize="off" spellcheck="false">
       <button class="study-spell-submit" onclick="event.stopPropagation();checkSpelling()">↵</button>
       <div class="study-spell-result" id="studySpellResult"></div>
@@ -3025,6 +3022,7 @@ let studyCardMode = 'flashcard'; // actual mode for current card (may differ in 
 let choiceOptions = []; // current choice options (indices into studyAllCards)
 let studyAnsweredCount = 0; // prevent false completion
 let studyFillAnswer = ''; // correct answer for fill mode
+let studyChoiceAudio = false; // choice mode: show word or play audio
 
 function getFilteredCards() {
   const sq = (document.getElementById('search')?.value || '').trim().toLowerCase();
@@ -3142,12 +3140,11 @@ function updateStudyCard() {
   }
   let effectiveMode = studyMode;
   if (studyMode === 'mix') {
-    effectiveMode = ['choice', 'listen', 'spell', 'fill'][Math.floor(Math.random() * 4)];
+    effectiveMode = ['choice', 'spell', 'fill'][Math.floor(Math.random() * 3)];
   }
   studyCardMode = effectiveMode;
   const isFlashcard = effectiveMode === 'flashcard';
   const isSpell = effectiveMode === 'spell';
-  const isListen = effectiveMode === 'listen';
   const isFill = effectiveMode === 'fill';
   const cardIdx = studyCurrentBatch[studyBatchIndex];
   const card = studyAllCards[cardIdx];
@@ -3156,129 +3153,72 @@ function updateStudyCard() {
   let fillPrompt = '';
   studyFillAnswer = '';
   if (isFill) {
-    const TENSE_ZH = { presente:'现在时', 'pretérito':'过去时', 'pretérito imperfecto':'过去未完成', futuro:'将来时', condicional:'条件式', 'subjuntivo presente':'虚拟现在', 'subjuntivo imperfecto':'虚拟过去', imperativo:'命令式' };
-    const word = card.word.replace(/se$/, ''); // strip reflexive for matching
+    const TENSE_ZH = { presente:'现在时', 'pretérito':'过去时', futuro:'将来时', condicional:'条件式', 'subjuntivo presente':'虚拟现在', imperativo:'命令式' };
+    const word = card.word.replace(/se$/, '');
     const isVerb = (card.type || '').startsWith('v');
     const hasConj = isVerb && card.verb_forms && Object.keys(card.verb_forms).some(k => card.verb_forms[k] && ['presente','pretérito','futuro','condicional','subjuntivo presente','imperativo'].includes(k));
 
-    // Extract preposition patterns from chunks
-    const prepPatterns = [];
+    // Collect chunk-based cloze questions
+    const chunkClozes = [];
     if (card.chunks) {
-      const PREPS = [' a ',' de ',' en ',' con ',' por ',' para ',' que ',' sin ',' sobre ',' desde ',' hasta ',' contra ',' entre ',' hacia ',' según ',' ante ',' bajo ',' tras '];
-      for (const ch of card.chunks) {
-        const explain = (ch.explain || '') + ' ' + (ch.text || '');
-        for (const p of PREPS) {
-          const idx = explain.toLowerCase().indexOf(word.toLowerCase() + p);
-          if (idx >= 0) {
-            prepPatterns.push({ prep: p.trim(), context: explain.slice(idx + word.length).trim().slice(0, 50) });
-            break; // one pattern per chunk
-          }
-        }
-      }
-    }
-
-    // Extract chunk cloze patterns: find the word (or its conjugated forms) in chunks
-    const clozePatterns = [];
-    if (card.chunks) {
-      const stem = word.replace(/se$/, '').replace(/(ar|er|ir)$/, '');
+      const stem = word.replace(/(ar|er|ir)$/, '');
       for (const ch of card.chunks) {
         const text = ch.text || '';
-        const textLower = text.toLowerCase();
-        // Try exact match first, then stem match
-        let idx = textLower.indexOf(word.toLowerCase());
+        if (!ch.zh) continue;
+        let idx = text.toLowerCase().indexOf(card.word.toLowerCase());
         if (idx < 0 && stem.length >= 3) {
-          // Look for a word starting with the stem (handles conjugations)
           const re = new RegExp('\\b' + stem + '[a-záéíóúñü]*', 'i');
-          const m = textLower.match(re);
+          const m = text.toLowerCase().match(re);
           if (m) idx = m.index;
         }
         if (idx >= 0) {
-          // Find the end of the matched word
-          let end = idx;
-          while (end < text.length && /[a-záéíóúñü]/.test(text[end])) end++;
-          const after = text.slice(end).trim();
-          if (after) {
-            clozePatterns.push({ after, answer: after, full: text, zh: ch.zh || '' });
-          }
-        }
-      }
-    }
-
-    // Article fill for nouns with gender
-    const nounGender = (card.type === 'm' || card.type === 'f') ? card.type : null;
-
-    // Sentence cloze: show Chinese + Spanish sentence with word blanked
-    const sentenceClozes = [];
-    if (card.chunks) {
-      for (const ch of card.chunks) {
-        const text = ch.text || '';
-        const zh = ch.zh || '';
-        const idx = text.toLowerCase().indexOf(word.toLowerCase());
-        if (idx >= 0 && zh) {
           const before = text.slice(0, idx).trim();
-          const after = text.slice(idx + word.length).trim();
-          sentenceClozes.push({ zh, before, after });
+          const after = text.slice(idx + text.slice(idx).match(/^[a-záéíóúñü]+/i)?.[0]?.length || card.word.length).trim();
+          chunkClozes.push({ zh: ch.zh, before, after });
         }
       }
     }
 
-    // Decide question type
-    const hasPatterns = prepPatterns.length > 0;
-    const hasClozes = clozePatterns.length > 0;
-    const hasSentClozes = sentenceClozes.length > 0;
+    // Build question types
     const types = [];
     if (hasConj) types.push('conj');
-    if (hasPatterns) types.push('prep');
-    if (hasClozes) types.push('cloze');
-    if (nounGender) types.push('article');
-    if (hasSentClozes) types.push('sentence');
+    if (chunkClozes.length > 0) types.push('cloze');
     if (types.length === 0) types.push('spell');
-    const questionType = types[Math.floor(Math.random() * types.length)];
+    const qt = types[Math.floor(Math.random() * types.length)];
 
-    if (questionType === 'conj' && hasConj) {
+    if (qt === 'conj') {
       const tenses = ['presente','pretérito','futuro','condicional','subjuntivo presente','imperativo'].filter(k => card.verb_forms[k]);
       const tense = tenses[Math.floor(Math.random() * tenses.length)];
       const forms = normalizeVerbFormStr(card.verb_forms[tense]).split('/').map(f => f.trim().replace(/^\*|\*$/g, ''));
       const personMap = tense === 'imperativo' ? ['tú','usted','nosotros','vosotros','ustedes'] : ['yo','tú','él','nosotros','vosotros','ellos'];
       const pi = Math.floor(Math.random() * Math.min(forms.length, personMap.length));
       studyFillAnswer = forms[pi] || '';
-      fillPrompt = card.word + ' · ' + personMap[pi] + ' · ' + (TENSE_ZH[tense] || tense);
-    } else if (questionType === 'prep' && hasPatterns) {
-      const pat = prepPatterns[Math.floor(Math.random() * prepPatterns.length)];
-      studyFillAnswer = pat.prep;
-      fillPrompt = card.word + ' ___ ' + (pat.context.replace(new RegExp('^' + pat.prep + '\\s*', 'i'), '') || '…');
-    } else if (questionType === 'cloze' && hasClozes) {
-      const cl = clozePatterns[Math.floor(Math.random() * clozePatterns.length)];
-      studyFillAnswer = cl.answer;
-      const hint = cl.zh || '';
-      fillPrompt = hint + '\n' + card.word + ' ___';
-    } else if (questionType === 'article' && nounGender) {
-      studyFillAnswer = nounGender === 'm' ? 'el' : 'la';
-      fillPrompt = '___ ' + card.word;
-    } else if (questionType === 'sentence' && hasSentClozes) {
-      const sc = sentenceClozes[Math.floor(Math.random() * sentenceClozes.length)];
+      fillPrompt = personMap[pi] + ' · ' + (TENSE_ZH[tense] || tense) + '\n' + card.word;
+    } else if (qt === 'cloze') {
+      const cl = chunkClozes[Math.floor(Math.random() * chunkClozes.length)];
       studyFillAnswer = card.word;
-      fillPrompt = sc.zh + '\n' + (sc.before ? sc.before + ' ' : '') + '___' + (sc.after ? ' ' + sc.after : '');
-      document.getElementById('studyNewSentenceBtn').style.display = 'inline-block';
+      fillPrompt = cl.zh + '\n' + (cl.before ? cl.before + ' ' : '') + '___' + (cl.after ? ' ' + cl.after : '');
     } else {
-      document.getElementById('studyNewSentenceBtn').style.display = 'none';
       studyFillAnswer = card.word;
-      fillPrompt = card.core_meaning || card.english || '';
+      fillPrompt = (card.core_meaning || card.english || '') + '\n___';
     }
-  } else {
-    document.getElementById('studyNewSentenceBtn').style.display = 'none';
   }
 
   if (isSpell || isFill) {
-    document.getElementById('studyWord').textContent = '';
     const promptText = fillPrompt || card.core_meaning || card.english || '';
     const parts = promptText.split('\n');
-    document.getElementById('studySpellPrompt').textContent = parts[0] || '';
-    document.getElementById('studySpellBlank').innerHTML = parts[1] ? escapeHTML(parts[1]) : '';
+    document.getElementById('studyType').textContent = parts[0] || '';
+    document.getElementById('studyWord').textContent = parts[1] || '';
   } else {
-    document.getElementById('studyWord').textContent = card.word;
+    const showWord = !studyChoiceAudio || !showChoices;
+    document.getElementById('studyWord').textContent = showWord ? card.word : '🔊';
+    if (showChoices) {
+      document.getElementById('studyChoiceModeToggle').textContent = studyChoiceAudio ? '👁 看字' : '🔊 听音';
+      document.getElementById('studyChoiceModeToggle').className = 'study-choice-mode-toggle' + (studyChoiceAudio ? ' audio' : '');
+      if (studyChoiceAudio) setTimeout(() => speakStudyWord(card.word), 300);
+    }
   }
-  const zhmode = isSpell ? '拼写' : isFill ? '填空' : isListen ? '听选' : '';
+  const zhmode = isSpell ? '拼写' : isFill ? '填空' : '';
   const typeLabel = (isSpell || isFill) ? '' : ((card.type || '') + (card.level ? ' · ' + card.level : ''));
   document.getElementById('studyType').textContent = studyMode === 'mix' ? '混合 · ' + zhmode : typeLabel;
   document.getElementById('studyMeaning').textContent = card.core_meaning || card.english || '';
@@ -3321,11 +3261,6 @@ function updateStudyCard() {
       btn.textContent = choiceOptions[i] || '—';
       btn.className = 'study-choice';
       btn.disabled = false;
-    }
-    // Listen mode or mix→listen: auto-speak
-    if (isListen) {
-      const word = card.word;
-      setTimeout(() => speakStudyWord(word), 300);
     }
   }
 
@@ -3370,6 +3305,11 @@ async function generateNewSentence() {
   }
   btn.disabled = false;
   btn.textContent = '🔄 换一题';
+}
+
+function toggleChoiceMode() {
+  studyChoiceAudio = !studyChoiceAudio;
+  updateStudyCard();
 }
 
 function speakStudyWord(word) {
@@ -3818,15 +3758,11 @@ function positionAZBar() {
     bar.style.left = '';
     bar.style.right = gap + 'px';
   }
-  // Align chat button with AZ bar
+  // Align chat button center with AZ bar center
   const fab = document.getElementById('chatFab');
   const panel = document.getElementById('chatPanel');
-  if (fab) {
-    fab.style.right = (gap + 4) + 'px';
-  }
-  if (panel) {
-    panel.style.right = (gap + 4) + 'px';
-  }
+  if (fab) fab.style.right = (gap - 14) + 'px';
+  if (panel) panel.style.right = (gap - 14) + 'px';
 }
 function azClick(e, l) {
   e.preventDefault();
