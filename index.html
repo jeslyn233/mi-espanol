@@ -589,32 +589,37 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .study-choice.correct { background: #DCF5E0; border-color: #6BAF7A; color: #2D6A3F; }
 .study-choice.wrong { background: #FDE8EC; border-color: #E8A0B0; color: #B05060; }
 .study-choice:disabled { pointer-events: none; }
-.study-spell { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 360px; margin-top: 24px; }
+.study-spell { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 380px; margin-top: 28px; }
+.study-spell-input-wrap {
+  display: flex; align-items: center; width: 100%;
+  background: var(--surface); border: 2px solid var(--border2); border-radius: 16px;
+  overflow: hidden; transition: border-color .2s;
+}
+.study-spell-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(58,95,138,.08); }
 .study-spell-input {
-  width: 100%; padding: 12px 16px; font-family: 'Georgia', serif;
-  font-size: 22px; font-style: italic; text-align: center;
-  border: 2px solid var(--border2); border-radius: 12px;
-  background: var(--surface); color: var(--text); outline: none;
-  transition: border-color .15s;
+  flex: 1; padding: 14px 0 14px 18px; font-family: 'Georgia', serif;
+  font-size: 20px; font-style: italic; color: var(--text);
+  border: none; background: transparent; outline: none;
 }
-.study-spell-input:focus { border-color: var(--accent); }
+.study-spell-input::placeholder { color: var(--text3); font-style: normal; font-size: 14px; }
 .study-spell-btn {
-  width: 44px; height: 44px; border-radius: 50%; border: none;
-  background: var(--accent); color: #fff; cursor: pointer;
-  font-size: 18px; transition: all .15s;
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: #D9E0E7; color: #475569; cursor: pointer;
+  font-size: 16px; transition: all .15s; margin-right: 6px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
 }
-.study-spell-btn:hover { filter: brightness(1.1); }
-.study-spell-result { font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; min-height: 20px; }
+.study-spell-btn:hover { background: #CDD5DE; }
+.study-spell-result { font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; min-height: 20px; font-weight: 500; }
 .study-spell-result.correct { color: #2D6A3F; }
 .study-spell-result.wrong { color: #B05060; }
 .study-new-sentence-btn {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px;
-  padding: 5px 12px; border: 1px solid var(--border2); border-radius: 999px;
-  background: var(--surface); color: var(--accent); cursor: pointer;
-  margin-top: 8px; transition: all .15s;
+  padding: 4px 12px; border: 1px solid transparent; border-radius: 999px;
+  background: transparent; color: var(--text3); cursor: pointer;
+  transition: all .15s;
 }
-.study-new-sentence-btn:hover { background: var(--accent-bg); }
-.study-new-sentence-btn:disabled { opacity: .5; cursor: not-allowed; }
+.study-new-sentence-btn:hover { background: var(--cool-bg); color: var(--text2); border-color: var(--border2); }
+.study-new-sentence-btn:disabled { opacity: .4; cursor: not-allowed; }
 
 .study-detail-btn:hover { background: var(--accent-bg); }
 .study-empty {
@@ -708,7 +713,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .study-rating { gap: 6px; }
   .study-choice { font-size: 14px; padding: 12px 16px; }
   .study-choices { gap: 6px; margin-top: 20px; }
-  .study-spell-input { font-size: 18px; padding: 10px 14px; }
+  .study-spell-input { font-size: 16px; padding: 12px 0 12px 14px; }
 }
 
 /* Selection AI popup */
@@ -1111,8 +1116,10 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       <button class="study-choice" onclick="event.stopPropagation();answerChoice(3)" id="choice3"></button>
     </div>
     <div class="study-spell" id="studySpell" style="display:none;">
-      <input type="text" class="study-spell-input" id="studySpellInput" placeholder="输入西班牙语…" onkeydown="if(event.key==='Enter')checkSpelling()" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <button class="study-spell-btn" onclick="event.stopPropagation();checkSpelling()">↵</button>
+      <div class="study-spell-input-wrap">
+        <input type="text" class="study-spell-input" id="studySpellInput" placeholder="输入西班牙语…" onkeydown="if(event.key==='Enter')checkSpelling()" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="study-spell-btn" onclick="event.stopPropagation();checkSpelling()">↵</button>
+      </div>
       <div class="study-spell-result" id="studySpellResult"></div>
       <button class="study-new-sentence-btn" id="studyNewSentenceBtn" onclick="event.stopPropagation();generateNewSentence()" style="display:none;" title="AI 生成新句子">🔄 换一题</button>
     </div>
@@ -3165,17 +3172,16 @@ function updateStudyCard() {
       }
     }
 
-    // Extract chunk cloze patterns: blank out the word from its chunks
+    // Extract chunk cloze patterns: blank out the collocation (what follows the word)
     const clozePatterns = [];
     if (card.chunks) {
       for (const ch of card.chunks) {
         const text = ch.text || '';
         const idx = text.toLowerCase().indexOf(word.toLowerCase());
         if (idx >= 0) {
-          const before = text.slice(0, idx);
-          const after = text.slice(idx + word.length);
-          if (before.trim() || after.trim()) {
-            clozePatterns.push({ before: before.trim(), after: after.trim(), full: text });
+          const after = text.slice(idx + word.length).trim();
+          if (after) {
+            clozePatterns.push({ after, answer: after, full: text, zh: ch.zh || '' });
           }
         }
       }
@@ -3219,15 +3225,16 @@ function updateStudyCard() {
       const personMap = tense === 'imperativo' ? ['tú','usted','nosotros','vosotros','ustedes'] : ['yo','tú','él','nosotros','vosotros','ellos'];
       const pi = Math.floor(Math.random() * Math.min(forms.length, personMap.length));
       studyFillAnswer = forms[pi] || '';
-      fillPrompt = '变位 · ' + personMap[pi] + ' · ' + (TENSE_ZH[tense] || tense);
+      fillPrompt = '变位 · ' + card.word + ' · ' + personMap[pi] + ' · ' + (TENSE_ZH[tense] || tense);
     } else if (questionType === 'prep' && hasPatterns) {
       const pat = prepPatterns[Math.floor(Math.random() * prepPatterns.length)];
       studyFillAnswer = pat.prep;
-      fillPrompt = '搭配 · ' + card.word + ' ___ ' + (pat.context.replace(new RegExp('^' + pat.prep + '\\s*', 'i'), '') || '…');
+      fillPrompt = '介词 · ' + card.word + ' ___ ' + (pat.context.replace(new RegExp('^' + pat.prep + '\\s*', 'i'), '') || '…');
     } else if (questionType === 'cloze' && hasClozes) {
       const cl = clozePatterns[Math.floor(Math.random() * clozePatterns.length)];
-      studyFillAnswer = card.word;
-      fillPrompt = '填空 · ' + (cl.before ? cl.before + ' ' : '') + '___' + (cl.after ? ' ' + cl.after : '');
+      studyFillAnswer = cl.answer;
+      const hint = cl.zh || '';
+      fillPrompt = '搭配 · ' + hint + '\n' + card.word + ' ___';
     } else if (questionType === 'article' && nounGender) {
       studyFillAnswer = nounGender === 'm' ? 'el' : 'la';
       fillPrompt = '冠词 · ___ ' + card.word;
