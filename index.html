@@ -539,6 +539,14 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px; color: var(--text3);
   margin-top: 8px; transition: all .3s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
 }
+.zh-hint {
+  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-size: clamp(14px, 3.5vw, 20px); color: var(--text2);
+}
+.es-target {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: clamp(18px, 5vw, 28px); font-weight: 500; color: var(--text);
+}
 .study-reveal {
   opacity: 0; transform: translateY(12px); transition: all .35s ease;
   text-align: center; margin-top: 24px; max-width: 480px;
@@ -1180,9 +1188,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       <button id="studyUndoBtn" onclick="event.stopPropagation();undoCorrect()">↩ 记错了</button>
       <button id="studyBackBtn" onclick="event.stopPropagation();resumeFromPause()">↩ 返回</button>
       <button id="studyConfirmBtn" class="rating-btn good" onclick="event.stopPropagation();confirmCorrect()" style="font-size:14px;width:auto;padding:12px 24px;border-radius:999px;">下一个 →</button>
-    </div>
-    <div class="study-rating" id="studySkipNav" style="display:none;">
-      <button class="rating-btn hard" onclick="event.stopPropagation();skipChoiceCard()" title="跳过" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;">⟩</button>
     </div>
     <button class="nav-arrow" id="studyNextArrow" onclick="event.stopPropagation();nextStudyCard()" title="下一个 (→)">→</button>
   </div>
@@ -3204,7 +3209,6 @@ function applyStudyModeUI() {
   const isFill = studyMode === 'fill';
   const noNav = isSpell || isFill;
   document.getElementById('studyRating').style.display = isFlashcard ? 'flex' : 'none';
-  document.getElementById('studySkipNav').style.display = (isFlashcard || noNav) ? 'none' : 'flex';
   document.getElementById('studyPrevArrow').style.visibility = noNav ? 'hidden' : '';
   document.getElementById('studyNextArrow').style.visibility = noNav ? 'hidden' : '';
   document.getElementById('studyHint').textContent = isFlashcard
@@ -3347,9 +3351,11 @@ function updateStudyCard() {
 
   if (isSpell || isFill) {
     const promptText = fillPrompt || card.core_meaning || card.english || '';
-    const parts = promptText.split('\n');
-    document.getElementById('studyType').textContent = parts[0] || '';
-    document.getElementById('studyWord').textContent = parts[1] || '___';
+    const lines = promptText.split('\n');
+    const zh = lines[0] || '';
+    const es = lines[1] || '___';
+    document.getElementById('studyType').textContent = '';
+    document.getElementById('studyWord').innerHTML = '<span class="zh-hint">' + escapeHTML(zh) + '</span> <span class="es-target">' + escapeHTML(es) + '</span>';
   } else {
     document.getElementById('studyWord').textContent = (!studyChoiceAudio || !showChoices) ? card.word : '🔊';
     if (showChoices) {
@@ -3443,7 +3449,7 @@ async function generateNewSentence() {
     if (content.zh && content.blank) {
       fillPrompt = content.zh + '\n' + content.blank;
       studyFillAnswer = word;
-      document.getElementById('studyWord').innerHTML = escapeHTML(fillPrompt).replace(/\n/g, '<br>');
+      document.getElementById('studyWord').innerHTML = '<span class="zh-hint">' + escapeHTML(content.zh) + '</span> <span class="es-target">' + escapeHTML(content.blank) + '</span>';
     }
   } catch (e) {
     console.warn('generateNewSentence failed:', e);
@@ -3673,13 +3679,18 @@ function answerChoice(idx) {
   document.getElementById('studyReveal').style.display = '';
   document.getElementById('studyMeaning').textContent = correctMeaning;
 
-  // SM-2: correct = quality 5, wrong = quality 1
+  // Only score on first attempt; retries keep the original wrong score
+  const isRetry = card._retry;
   const origIdx = words.indexOf(card);
-  if (origIdx >= 0) {
-    words[origIdx].review = sm2Schedule(words[origIdx].review, isCorrect ? 5 : 1);
+  if (isCorrect && !isRetry) {
+    if (origIdx >= 0) words[origIdx].review = sm2Schedule(words[origIdx].review, 5);
+  } else if (!isCorrect) {
+    card._retry = true;
+    if (origIdx >= 0) words[origIdx].review = sm2Schedule(words[origIdx].review, 1);
   }
 
   if (isCorrect) {
+    delete card._retry;
     studyCurrentBatch.splice(studyBatchIndex, 1);
     setTimeout(() => {
       if (studyCurrentBatch.length === 0) {
@@ -3692,9 +3703,10 @@ function answerChoice(idx) {
       updateStudyCard();
     }, 800);
   } else {
-    // Wrong: move to end, pause for user
+    // Wrong: move to end of batch for retry, pause to show answer
     const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
     studyCurrentBatch.push(moved);
+    if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
     studyPaused = true;
     studyLastCorrect = false;
     document.getElementById('studyRating').style.display = 'none';
@@ -3734,14 +3746,19 @@ function checkSpelling() {
     result.className = 'study-spell-result wrong';
   }
 
+  // Only score on first attempt; retries keep the original wrong score
+  const isRetry = card._retry;
   const origIdx = words.indexOf(card);
-  if (origIdx >= 0) {
-    words[origIdx].review = sm2Schedule(words[origIdx].review, isCorrect ? 5 : 1);
+  if (isCorrect && !isRetry) {
+    if (origIdx >= 0) words[origIdx].review = sm2Schedule(words[origIdx].review, 5);
+  } else if (!isCorrect) {
+    card._retry = true;
+    if (origIdx >= 0) words[origIdx].review = sm2Schedule(words[origIdx].review, 1);
   }
 
   if (isCorrect) {
+    delete card._retry;
     studyCurrentBatch.splice(studyBatchIndex, 1);
-    // Auto-advance on correct
     setTimeout(() => {
       if (studyCurrentBatch.length === 0) {
         saveLocal();
@@ -3753,7 +3770,7 @@ function checkSpelling() {
       updateStudyCard();
     }, 700);
   } else {
-    // Wrong: move to end, pause to show detail + back button
+    // Wrong: move to end of batch for retry, pause to show answer
     const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
     studyCurrentBatch.push(moved);
     if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
@@ -3767,19 +3784,9 @@ function checkSpelling() {
     document.getElementById('studyConfirmBtn').style.display = 'none';
     document.getElementById('studyBackBtn').style.display = '';
     document.getElementById('studyDetailBtn').style.display = 'inline-block';
+    document.getElementById('studyPostRating').style.justifyContent = 'center';
     updateBatchProgress();
   }
-}
-
-function skipChoiceCard() {
-  if (studyCurrentBatch.length === 0) return;
-  // Move to end of batch without scoring
-  if (studyCurrentBatch.length > 1) {
-    const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
-    studyCurrentBatch.push(moved);
-  }
-  if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
-  updateStudyCard();
 }
 
 function prevStudyCard() {
@@ -3860,7 +3867,6 @@ document.addEventListener('keydown', function(e) {
     else if (e.key === '2' || e.key === '@') { e.preventDefault(); answerChoice(1); }
     else if (e.key === '3' || e.key === '#') { e.preventDefault(); answerChoice(2); }
     else if (e.key === '4' || e.key === '$') { e.preventDefault(); answerChoice(3); }
-    else if (e.key === ' ') { e.preventDefault(); skipChoiceCard(); }
   }
 });
 
