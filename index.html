@@ -3540,7 +3540,13 @@ function undoCorrect() {
   if (origIdx >= 0) words[origIdx].review = sm2Schedule(words[origIdx].review, 1);
   const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
   studyCurrentBatch.push(moved);
-  advanceAfterPause();
+  // Switch to wrong-answer UI: show 返回 + detail, stay paused
+  studyLastCorrect = false;
+  document.getElementById('studyUndoBtn').style.display = 'none';
+  document.getElementById('studyConfirmBtn').style.display = 'none';
+  document.getElementById('studyBackBtn').style.display = '';
+  document.getElementById('studyDetailBtn').style.display = 'inline-block';
+  document.getElementById('studyPostRating').style.justifyContent = 'center';
 }
 
 function resumeFromPause() {
@@ -3742,6 +3748,11 @@ document.addEventListener('keydown', function(e) {
 
   // Paused after rating: arrow keys map to post-rating actions
   if (studyPaused) {
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      openCardDetail();
+      return;
+    }
     if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       e.preventDefault();
       if (studyLastCorrect) {
