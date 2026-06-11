@@ -2235,8 +2235,8 @@ async function autoGenerate() {
       try { await sb.from('words').upsert({ word: card.word, data: card }, { onConflict: 'word' }); } catch (e) {}
     }
 
-    render();
     input.value = '';
+    render();
     showToast('✓ ' + card.word + ' creado');
 
     // Expand and scroll to new card
