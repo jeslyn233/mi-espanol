@@ -1200,6 +1200,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 <!-- AI Chat -->
 <button class="chat-fab" id="chatFab" onclick="toggleChat()" title="AI 西语助教">💬</button>
+<button id="studyReturnBtn" onclick="resumeStudy()" style="display:none;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:160;font-family:'DM Sans',system-ui,sans-serif;font-size:14px;padding:12px 24px;border:none;border-radius:999px;background:#3A5F8A;color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(58,95,138,.4);align-items:center;gap:6px;">↩ 返回学习</button>
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <span>🤖 AI 西语助教</span>
@@ -3107,6 +3108,11 @@ function shuffleArray(arr) {
 }
 
 function openStudy() {
+  // If a study session is hidden (viewing card detail), just resume
+  if (document.getElementById('studyReturnBtn').style.display === 'flex') {
+    resumeStudy();
+    return;
+  }
   studyAllCards = getFilteredCards();
   if (!studyAllCards.length) { showToast('没有匹配的词卡'); return; }
   studyAnsweredCount = 0;
@@ -3413,7 +3419,12 @@ function openCardDetail() {
   const cardIdx = studyCurrentBatch[studyBatchIndex];
   const card = studyAllCards[cardIdx];
   const origIdx = words.indexOf(card);
-  closeStudy();
+  // Hide overlay but keep study state alive
+  document.getElementById('studyOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+  // Show return button
+  const btn = document.getElementById('studyReturnBtn');
+  btn.style.display = 'flex';
   setTimeout(() => {
     const bodyEl = document.getElementById('body-' + origIdx);
     const chevEl = document.getElementById('chev-' + origIdx);
@@ -3425,6 +3436,12 @@ function openCardDetail() {
       setTimeout(() => document.getElementById('card-' + origIdx).classList.remove('highlight'), 1800);
     }
   }, 300);
+}
+
+function resumeStudy() {
+  document.getElementById('studyReturnBtn').style.display = 'none';
+  document.getElementById('studyOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
 
 function rateStudyCard(level) {
