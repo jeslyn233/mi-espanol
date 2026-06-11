@@ -541,11 +541,13 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 }
 .zh-hint {
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
-  font-size: clamp(14px, 3.5vw, 20px); color: var(--text2);
+  font-size: clamp(13px, 3vw, 18px); color: var(--text2);
+  max-width: 100%; overflow: hidden; text-overflow: ellipsis;
 }
 .es-target {
-  font-family: 'DM Sans', system-ui, sans-serif;
-  font-size: clamp(18px, 5vw, 28px); font-weight: 500; color: var(--text);
+  font-family: 'DM Sans', system-ui, sans-serif; font-style: normal;
+  font-size: clamp(16px, 4vw, 24px); font-weight: 500; color: var(--text);
+  max-width: 100%; word-break: normal; overflow-wrap: normal;
 }
 .study-reveal {
   opacity: 0; transform: translateY(12px); transition: all .35s ease;
@@ -765,6 +767,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .study-choices { gap: 6px; margin-top: 20px; }
   .study-spell-input { font-size: 16px; padding: 12px 14px; }
   .study-spell-submit { width: 42px; height: 42px; font-size: 18px; }
+  .zh-hint { font-size: 12px; }
+  .es-target { font-size: 15px; }
   .study-nav.flashcard-only .study-rating { width: 220px; margin-left: -110px; bottom: 24px; }
   .study-nav.flashcard-only .study-post-rating { width: 260px; margin-left: -130px; bottom: 24px; }
   .study-post-rating button { font-size: 12px; padding: 8px 14px; }
