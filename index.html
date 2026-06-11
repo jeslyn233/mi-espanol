@@ -3322,7 +3322,7 @@ function updateStudyCard() {
   // Determine fill question for fill mode
   let fillPrompt = '';
   studyFillAnswer = '';
-  if (isFill) {
+  if (isFill) { try {
     const TENSE_ZH = { presente:'现在时', 'pretérito':'过去时', futuro:'将来时', condicional:'条件式', 'subjuntivo presente':'虚拟现在', imperativo:'命令式' };
     const word = card.word.replace(/se$/, '');
     const isVerb = (card.type || '').startsWith('v');
@@ -3403,8 +3403,10 @@ function updateStudyCard() {
       studyFillAnswer = card.word;
       fillPrompt = (card.core_meaning || card.english || '') + '\n___';
     }
+  } catch(e) { console.error('fill gen error', e); studyFillAnswer = card.word; fillPrompt = (card.core_meaning || card.english || '') + '\n___'; }
   }
 
+  console.log('[fill] word=' + card.word + ' answer=' + studyFillAnswer + ' prompt=' + fillPrompt.replace(/\n/g,'|'));
   const showChoices = !isFlashcard && !isSpell && !isFill;
 
   if (isSpell || isFill) {
