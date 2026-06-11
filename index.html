@@ -3320,19 +3320,23 @@ function updateStudyCard() {
       for (const ch of card.chunks) {
         const text = ch.text || '';
         if (!ch.zh) continue;
-        let idx = text.toLowerCase().indexOf(card.word.toLowerCase());
+        let idx = -1;
+        let matched = '';
+        // First try exact word match
+        const exactRe = new RegExp('\\b' + card.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+        const exactM = text.match(exactRe);
+        if (exactM) { idx = exactM.index; matched = exactM[0]; }
+        // Fallback: match any derivative (conjugated form)
         if (idx < 0 && stem.length >= 3) {
-          const re = new RegExp('\\b' + stem + '[a-záéíóúñü]*', 'i');
-          const m = text.toLowerCase().match(re);
-          if (m) idx = m.index;
+          const re = new RegExp('\\b(' + stem + '[a-záéíóúñü]*)\\b', 'i');
+          const m = text.match(re);
+          if (m) { idx = m.index; matched = m[1]; }
         }
-        if (idx >= 0) {
+        if (idx >= 0 && matched) {
           const before = text.slice(0, idx).trim();
-          let end = idx;
-          while (end < text.length && /[a-záéíóúñü]/i.test(text[end])) end++;
-          const after = text.slice(end).trim();
+          const after = text.slice(idx + matched.length).trim();
           if (before || after) {
-            chunkClozes.push({ zh: ch.zh, before, after });
+            chunkClozes.push({ zh: ch.zh, before, after, answer: matched });
           }
         }
       }
@@ -3355,7 +3359,7 @@ function updateStudyCard() {
       fillPrompt = personMap[pi] + ' · ' + (TENSE_ZH[tense] || tense) + '\n' + card.word;
     } else if (qt === 'cloze') {
       const cl = chunkClozes[Math.floor(Math.random() * chunkClozes.length)];
-      studyFillAnswer = card.word;
+      studyFillAnswer = cl.answer;
       fillPrompt = cl.zh + '\n' + (cl.before ? cl.before + ' ' : '') + '___' + (cl.after ? ' ' + cl.after : '');
     } else {
       studyFillAnswer = card.word;
