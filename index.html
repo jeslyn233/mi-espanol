@@ -3385,11 +3385,16 @@ function updateStudyCard() {
       const personMap = tense === 'imperativo' ? ['tú','usted','nosotros','vosotros','ustedes'] : ['yo','tú','él','nosotros','vosotros','ellos'];
       const pi = Math.floor(Math.random() * Math.min(forms.length, personMap.length));
       studyFillAnswer = forms[pi] || '';
-      if (isReflexive) {
+      if (isReflexive && !/^(me|te|se|nos|os)\s/i.test(studyFillAnswer)) {
         const pro = REFL_PRONOUNS[personMap[pi]] || 'se';
         studyFillAnswer = pro + ' ' + studyFillAnswer;
       }
-      fillPrompt = personMap[pi] + ' · ' + (TENSE_ZH[tense] || tense) + '\n' + card.word;
+      let targetLine = card.word;
+      if (isReflexive) {
+        const pro = REFL_PRONOUNS[personMap[pi]] || 'se';
+        targetLine = pro + ' ___  (' + card.word + ')';
+      }
+      fillPrompt = personMap[pi] + ' · ' + (TENSE_ZH[tense] || tense) + '\n' + targetLine;
     } else if (qt === 'cloze') {
       const cl = chunkClozes[Math.floor(Math.random() * chunkClozes.length)];
       studyFillAnswer = cl.answer;
@@ -3817,6 +3822,9 @@ function checkSpelling() {
 
   if (isCorrect) {
     delete card._retry;
+    // Prevent double-submit: disable input immediately, clear for next card
+    document.getElementById('studySpellInput').disabled = true;
+    document.querySelector('.study-spell-submit').disabled = true;
     studyCurrentBatch.splice(studyBatchIndex, 1);
     setTimeout(() => {
       if (studyCurrentBatch.length === 0) {
