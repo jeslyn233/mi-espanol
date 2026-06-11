@@ -1200,7 +1200,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 <!-- AI Chat -->
 <button class="chat-fab" id="chatFab" onclick="toggleChat()" title="AI 西语助教">💬</button>
-<button id="studyReturnBtn" onclick="resumeStudy()" style="display:none;position:fixed;z-index:160;font-family:'DM Sans',system-ui,sans-serif;font-size:14px;padding:12px 24px;border:none;border-radius:999px;background:#F9E3E8;color:#B05060;cursor:pointer;box-shadow:0 4px 16px rgba(200,120,140,.3);align-items:center;gap:6px;">↩ 返回学习</button>
+<button id="studyReturnBtn" onclick="resumeStudy()" style="display:none;margin:20px auto 8px;font-family:'DM Sans',system-ui,sans-serif;font-size:14px;padding:12px 24px;border:none;border-radius:999px;background:#F9E3E8;color:#B05060;cursor:pointer;box-shadow:0 2px 8px rgba(200,120,140,.25);">↩ 返回学习</button>
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <span>🤖 AI 西语助教</span>
@@ -3437,29 +3437,23 @@ function openCardDetail() {
     if (bodyEl && chevEl) {
       bodyEl.classList.add('open');
       chevEl.classList.add('open');
+      // Append return button at bottom of card body
+      const returnBtn = document.getElementById('studyReturnBtn');
+      bodyEl.appendChild(returnBtn);
+      returnBtn.style.display = 'block';
       cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       cardEl.classList.add('highlight');
       setTimeout(() => cardEl.classList.remove('highlight'), 1800);
     }
-    // Wait for smooth scroll to complete, then position button below the card
-    setTimeout(() => {
-      const returnBtn = document.getElementById('studyReturnBtn');
-      const cr2 = cardEl.getBoundingClientRect();
-      returnBtn.style.bottom = '';
-      returnBtn.style.top = (cr2.bottom + 8) + 'px';
-      returnBtn.style.left = (cr2.left + cr2.width / 2) + 'px';
-      returnBtn.style.transform = 'translateX(-50%)';
-      returnBtn.style.display = 'flex';
-    }, 400);
   }, 300);
 }
 
 function resumeStudy() {
   const btn = document.getElementById('studyReturnBtn');
   btn.style.display = 'none';
+  document.body.appendChild(btn); // move back for next use
   document.getElementById('studyOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
-  // Advance to next card — viewing detail counts as done
   if (studyPaused) resumeFromPause();
 }
 
