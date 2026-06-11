@@ -471,10 +471,10 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 /* Pronunciation */
 .speak-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 26px; height: 26px; border-radius: 50%;
+  width: 20px; height: 20px; border-radius: 50%;
   border: 1px solid var(--border); background: transparent;
   cursor: pointer; flex-shrink: 0; margin-left: 2px;
-  font-size: 13px; color: var(--text3); transition: all .15s;
+  font-size: 10px; color: var(--text3); transition: all .15s;
   padding: 0; opacity: 0;
 }
 .card-head:hover .speak-btn, .card.open .speak-btn { opacity: 1; }
@@ -713,7 +713,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .chat-typing { align-self: flex-start; padding: 10px 14px; color: var(--text3); font-size: 12px; }
 
 @media (max-width: 640px) {
-  .speak-btn { opacity: 0; width: 24px; height: 24px; font-size: 12px; }
+  .speak-btn { opacity: 0; width: 20px; height: 20px; font-size: 10px; }
   .card.open .speak-btn { opacity: 1; }
   .chat-fab { width: 40px; height: 40px; font-size: 18px; bottom: 32px; }
   .chat-panel { width: calc(100vw - 40px); right: 20px; max-height: 55vh; }
@@ -2075,6 +2075,7 @@ async function getDefaults() {
   ];
 }
 
+let _syncTimer = null;
 function saveLocal() {
   // Never overwrite existing data with just the fallback defaults
   const existing = localStorage.getItem('es_vocab_v14');
@@ -2085,6 +2086,11 @@ function saveLocal() {
     } catch (e) {}
   }
   try { localStorage.setItem('es_vocab_v14', JSON.stringify(words)); } catch (e) {}
+  // Debounced auto-sync to Supabase
+  if (sb) {
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(() => syncToSupabase(), 2000);
+  }
 }
 
 function saveGrammarLocal() {
