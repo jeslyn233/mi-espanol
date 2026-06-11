@@ -1218,7 +1218,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     </div>
     <div class="study-post-rating" id="studyPostRating" style="display:none;">
       <button id="studyUndoBtn" onclick="event.stopPropagation();undoCorrect()">↩ 记错了</button>
-      <button id="studyBackBtn" onclick="event.stopPropagation();resumeFromPause()">↩ 返回</button>
+      <button id="studyBackBtn" onclick="event.stopPropagation();resumeFromPause()">下一个 →</button>
       <button id="studyConfirmBtn" class="rating-btn good" onclick="event.stopPropagation();confirmCorrect()" style="font-size:14px;width:auto;padding:12px 24px;border-radius:999px;">下一个 →</button>
     </div>
     <button class="nav-arrow" id="studyNextArrow" onclick="event.stopPropagation();nextStudyCard()" title="下一个 (→)">→</button>
@@ -3253,6 +3253,11 @@ function applyStudyModeUI() {
 function startBatch() {
   studyPaused = false;
   applyStudyModeUI();
+  // Ensure spell input is re-enabled after correct-answer auto-advance
+  const input = document.getElementById('studySpellInput');
+  if (input) { input.disabled = false; input.value = ''; }
+  const submitBtn = document.querySelector('.study-spell-submit');
+  if (submitBtn) submitBtn.disabled = false;
   document.getElementById('studyPostRating').style.display = 'none';
   if (studyQueue.length === 0) {
     if (studyAnsweredCount > 0) {
@@ -3780,8 +3785,8 @@ function answerChoice(idx) {
     document.getElementById('studyNextArrow').style.visibility = 'hidden';
     document.getElementById('studyPostRating').style.display = 'flex';
     document.getElementById('studyUndoBtn').style.display = 'none';
-    document.getElementById('studyConfirmBtn').style.display = '';
-    document.getElementById('studyBackBtn').style.display = 'none';
+    document.getElementById('studyConfirmBtn').style.display = 'none';
+    document.getElementById('studyBackBtn').style.display = '';
     document.getElementById('studyDetailBtn').style.display = 'inline-block';
     document.getElementById('studyPostRating').style.justifyContent = 'center';
   }
@@ -3864,8 +3869,8 @@ function checkSpelling() {
     document.getElementById('studyNextArrow').style.visibility = 'hidden';
     document.getElementById('studyPostRating').style.display = 'flex';
     document.getElementById('studyUndoBtn').style.display = 'none';
-    document.getElementById('studyConfirmBtn').style.display = '';
-    document.getElementById('studyBackBtn').style.display = 'none';
+    document.getElementById('studyConfirmBtn').style.display = 'none';
+    document.getElementById('studyBackBtn').style.display = '';
     document.getElementById('studyDetailBtn').style.display = 'inline-block';
     document.getElementById('studyPostRating').style.justifyContent = 'center';
     updateBatchProgress();
