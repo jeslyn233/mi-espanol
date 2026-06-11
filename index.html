@@ -841,8 +841,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
   /* A-Z bar — shrink */
   .az-bar { right: 2px; padding: 4px 2px; }
-  .az-bar a { font-size: 8px; width: 14px; height: 20px; line-height: 20px; }
-  .az-bar .az-top, .az-bar .az-shuffle { font-size: 9px; width: 14px; height: 18px; line-height: 18px; }
+  .az-bar a { font-size: 8px; width: 14px; height: 15px; line-height: 15px; }
+  .az-bar .az-top, .az-bar .az-shuffle { font-size: 9px; width: 14px; height: 14px; line-height: 14px; }
   .az-bar .az-sep { width: 12px; }
 
   /* Header */
@@ -2046,24 +2046,48 @@ function cleanRelatedWords(card) {
 
 // ── Data load/sync ────────────────────────────────
 async function loadWords() {
-  // 1. Try localStorage first (most recent, includes review progress)
+  // 1. Load localStorage
+  const localMap = {};
   try {
     const s = localStorage.getItem('es_vocab_v14');
-    if (s) { words = JSON.parse(s); }
+    if (s) {
+      const arr = JSON.parse(s);
+      arr.forEach(w => { localMap[w.word.toLowerCase()] = w; });
+    }
   } catch (e) {}
-  // 2. Fallback to Supabase (cloud backup)
-  if (!words.length && sb) {
+
+  // 2. Always fetch Supabase for cross-device sync
+  const cloudMap = {};
+  if (sb) {
     try {
       const { data, error } = await sb.from('words').select('data').order('word');
       if (!error && data && data.length) {
-        words = data.map(r => r.data);
-        saveLocal();
+        data.forEach(r => {
+          if (r.data && r.data.word) cloudMap[r.data.word.toLowerCase()] = r.data;
+        });
       }
     } catch (e) {}
   }
-  // 3. Defaults (if still empty)
-  if (!words.length) { words = await getDefaults(); saveLocal(); }
-  // 4. Sync local → Supabase (always keep cloud in sync)
+
+  // 3. Merge: for each word, keep the version with newer review date
+  const allKeys = new Set([...Object.keys(localMap), ...Object.keys(cloudMap)]);
+  words = [];
+  allKeys.forEach(key => {
+    const local = localMap[key];
+    const cloud = cloudMap[key];
+    if (!cloud) { words.push(local); return; }
+    if (!local) { words.push(cloud); return; }
+    // Both exist: compare review dates, keep newer
+    const localDate = local.review?.last_reviewed || '';
+    const cloudDate = cloud.review?.last_reviewed || '';
+    words.push(localDate >= cloudDate ? local : cloud);
+  });
+
+  // 4. Defaults (if still empty)
+  if (!words.length) { words = await getDefaults(); }
+
+  // 5. Save merged result locally + sync to cloud
+  saveLocal();
   if (sb && words.length) { await syncToSupabase(); }
 }
 
