@@ -119,9 +119,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .toolbar { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
 .toolbar-row { display: flex; align-items: center; gap: 8px; }
 .toolbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: auto; }
-.review-bar { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-.daily-sentence { font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; color: var(--text2); margin-right: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px; }
-.daily-sentence em { font-style: normal; color: var(--text3); margin-left: 6px; }
+.review-bar { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
 .review-due-hint { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; color: var(--text3); margin-left: auto; }
 .flashcard-btn {
   width: 26px; height: 26px; border-radius: 50%;
@@ -879,7 +877,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .filter-row { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
   .toolbar-right { gap: 4px; flex-shrink: 0; }
   .review-bar { gap: 6px; flex-wrap: wrap; }
-  .daily-sentence { max-width: 200px; font-size: 10px; }
   .task-tabs { flex: 1; display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; min-width: fit-content; }
   .task-tab { flex: 1; font-size: 10px; padding: 5px 3px; white-space: nowrap; text-align: center; }
   .light-select { font-size: 11px; padding: 6px 2px; min-width: 0; width: auto; background-position: right 2px center; padding-right: 14px; }
@@ -974,7 +971,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <div class="header-right">
       <span class="lock-msg" id="lockMsg"></span>
       <input type="password" class="lock-input" id="lockInput" placeholder="密码" onkeydown="if(event.key==='Enter')unlock()">
-      <button class="lock-btn" id="lockBtn" onclick="toggleLock()" title="编辑权限">🔒</button>
+      <button class="lock-btn" id="lockBtn" onclick="toggleLock()" title="编辑权限">🔓</button>
     </div>
   </header>
   <div class="nav">
@@ -1030,7 +1027,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       </div>
     </div>
     <div class="review-bar">
-      <span class="daily-sentence" id="dailySentence" title="每日一句"></span>
       <div class="task-tabs">
         <button class="task-tab active" onclick="setReviewFilter('all')">全部 <span class="task-num" id="taskAll">0</span></button>
         <button class="task-tab" onclick="setReviewFilter('due')">待复习 <span class="task-num" id="taskDue">0</span></button>
@@ -1258,7 +1254,7 @@ let lastScrollY = 0;
 let reviewFilter = 'all';
 let flashcardMode = 0; // 0=off, 1=pink(hide EN), 2=purple(hide ES)
 let shuffleMode = false;
-let isLocked = true;
+let isLocked = false;
 const EDIT_PASSWORD = '1994';
 
 // ── Helpers ───────────────────────────────────────
@@ -4452,7 +4448,7 @@ window.onclick = function (e) {
     }
   }
   resetOverdue();
-  document.body.classList.add('locked'); // lock by default
+  // Start unlocked — user can browse freely, lock to prevent edits
   // Ensure default words always up to date in Supabase
   if (sb) {
     const defaults = await getDefaults();
@@ -4469,53 +4465,10 @@ window.onclick = function (e) {
   }
   render();
   renderGrammar();
-  setDailySentence();
   document.getElementById('grammarSort').addEventListener('change', renderGrammar);
   showTab('vocab');
   window.addEventListener('resize', positionAZBar);
 })();
-
-const DAILY_SENTENCES = [
-  'No hay mal que por bien no venga.|祸兮福所倚。',
-  'Más vale tarde que nunca.|迟做总比不做好。',
-  'A quien madruga, Dios le ayuda.|天道酬勤。',
-  'No todo lo que brilla es oro.|发光的不都是金子。',
-  'El hábito no hace al monje.|人不可貌相。',
-  'En boca cerrada no entran moscas.|沉默是金。',
-  'Ojos que no ven, corazón que no siente.|眼不见，心不烦。',
-  'A caballo regalado no le mires el diente.|不要对礼物吹毛求疵。',
-  'Dime con quién andas y te diré quién eres.|观其友，知其人。',
-  'Del dicho al hecho hay mucho trecho.|说是一回事，做是另一回事。',
-  'Afortunado en el juego, desgraciado en amores.|赌场得意，情场失意。',
-  'Cada loco con su tema.|各有所好。',
-  'En casa de herrero, cuchillo de palo.|铁匠家里用木刀。',
-  'Al mal tiempo, buena cara.|逆境中保持乐观。',
-  'De tal palo, tal astilla.|有其父必有其子。',
-  'El que mucho abarca, poco aprieta.|贪多嚼不烂。',
-  'Barriga llena, corazón contento.|酒足饭饱心情好。',
-  'No dejes para mañana lo que puedas hacer hoy.|今日事，今日毕。',
-  'Quien no arriesga, no gana.|不入虎穴，焉得虎子。',
-  'A buen entendedor, pocas palabras bastan.|聪明人不用多说。',
-  'Cría fama y échate a dormir.|名誉一旦建立就可以高枕无忧。',
-  'Donde fueres, haz lo que vieres.|入乡随俗。',
-  'El mundo es un pañuelo.|世界真小。',
-  'Lo barato sale caro.|便宜没好货。',
-  'A diario, una manzana es necesaria.|每日一苹果，医生远离我。',
-  'Cuando el río suena, agua lleva.|无风不起浪。',
-  'Matar dos pájaros de un tiro.|一箭双雕。',
-  'No hay rosa sin espina.|没有不带刺的玫瑰。',
-  'Perro ladrador, poco mordedor.|吠犬不咬人。',
-  'En la variedad está el gusto.|丰富多彩才是乐趣所在。',
-  'Hoy por ti, mañana por mí.|今天你帮我，明天我帮你。',
-];
-function setDailySentence() {
-  const el = document.getElementById('dailySentence');
-  if (!el) return;
-  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  const s = DAILY_SENTENCES[dayOfYear % DAILY_SENTENCES.length];
-  const [es, zh] = s.split('|');
-  el.innerHTML = '📌 ' + es + '<em>— ' + zh + '</em>';
-}
 </script>
 </body>
 </html>
