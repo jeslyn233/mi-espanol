@@ -3441,13 +3441,16 @@ function openCardDetail() {
       cardEl.classList.add('highlight');
       setTimeout(() => cardEl.classList.remove('highlight'), 1800);
     }
-    // Position floating button at card's horizontal center
-    const returnBtn = document.getElementById('studyReturnBtn');
-    const cr = cardEl.getBoundingClientRect();
-    returnBtn.style.top = (cr.bottom + 12) + 'px';
-    returnBtn.style.left = (cr.left + cr.width / 2) + 'px';
-    returnBtn.style.transform = 'translateX(-50%)';
-    returnBtn.style.display = 'flex';
+    // Wait for smooth scroll to complete, then position button below the card
+    setTimeout(() => {
+      const returnBtn = document.getElementById('studyReturnBtn');
+      const cr2 = cardEl.getBoundingClientRect();
+      returnBtn.style.bottom = '';
+      returnBtn.style.top = (cr2.bottom + 8) + 'px';
+      returnBtn.style.left = (cr2.left + cr2.width / 2) + 'px';
+      returnBtn.style.transform = 'translateX(-50%)';
+      returnBtn.style.display = 'flex';
+    }, 400);
   }, 300);
 }
 
