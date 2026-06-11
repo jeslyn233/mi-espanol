@@ -3107,14 +3107,22 @@ function shuffleArray(arr) {
   }
 }
 
+let _studyPrevFilter = 'all';
 function openStudy() {
   // If a study session is hidden (viewing card detail), just resume
   if (document.getElementById('studyReturnBtn').style.display === 'flex') {
     resumeStudy();
     return;
   }
+  // Default to "due" filter so already-reviewed-today words won't repeat
+  _studyPrevFilter = reviewFilter;
+  if (reviewFilter === 'all') setReviewFilter('due');
   studyAllCards = getFilteredCards();
-  if (!studyAllCards.length) { showToast('没有匹配的词卡'); return; }
+  if (!studyAllCards.length) {
+    showToast('没有待复习的词卡');
+    setReviewFilter(_studyPrevFilter);
+    return;
+  }
   studyAnsweredCount = 0;
   studyMode = document.getElementById('studyMode').value;
   studyBatchTotal = parseInt(document.getElementById('studyBatchSize').value) || 0;
@@ -3183,6 +3191,7 @@ function updateBatchProgress() {
 
 function closeStudy() {
   studyPaused = false;
+  setReviewFilter(_studyPrevFilter);
   document.getElementById('studyOverlay').classList.remove('active');
   document.body.style.overflow = '';
   saveLocal();
@@ -3442,6 +3451,7 @@ function resumeStudy() {
   document.getElementById('studyReturnBtn').style.display = 'none';
   document.getElementById('studyOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
+  // Keep the study filter as-is (already switched to due)
 }
 
 function rateStudyCard(level) {
