@@ -567,6 +567,10 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   padding: 16px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.06);
   margin-bottom: 12px;
 }
+.wrong-answer-label {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 600;
+  color: #B05060; display: block; margin-bottom: 4px;
+}
 .wrong-answer-es {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 18px; font-weight: 500;
   color: var(--text); display: block; margin-bottom: 4px;
@@ -3808,15 +3812,6 @@ function checkSpelling() {
   const answer = normalize(userAnswer);
   const isCorrect = correct === answer;
 
-  const result = document.getElementById('studySpellResult');
-  if (isCorrect) {
-    result.textContent = '✓ ' + expectedAnswer;
-    result.className = 'study-spell-result correct';
-  } else {
-    result.textContent = '✗ 正确答案：' + expectedAnswer;
-    result.className = 'study-spell-result wrong';
-  }
-
   // Only score on first attempt; retries keep the original wrong score
   const isRetry = card._retry;
   const origIdx = words.indexOf(card);
@@ -3827,6 +3822,7 @@ function checkSpelling() {
     if (origIdx >= 0) words[origIdx].review = sm2Schedule(words[origIdx].review, 1);
   }
 
+  document.getElementById('studyNewSentenceBtn').style.display = 'none';
   if (isCorrect) {
     delete card._retry;
     // Prevent double-submit: disable input immediately, clear for next card
@@ -3852,12 +3848,11 @@ function checkSpelling() {
     studyLastCorrect = false;
     document.getElementById('studyCard').classList.add('flipped');
     // Populate reveal card with answer
-    let answerHTML = '<div class="wrong-answer-card"><span class="wrong-answer-es">' + escapeHTML(expectedAnswer) + '</span>';
+    let answerHTML = '<div class="wrong-answer-card"><span class="wrong-answer-label">✗ 正确答案</span><span class="wrong-answer-es">' + escapeHTML(expectedAnswer) + '</span>';
     const zh = card.core_meaning || card.english || '';
     const extra = [];
     if (zh) extra.push(zh);
-    if (card.type) extra.push(card.type + (card.level ? ' · ' + card.level : ''));
-    if (card.frequency) extra.push('频次 ' + card.frequency);
+    if (card.type) extra.push(card.type);
     if (extra.length) answerHTML += '<span class="wrong-answer-zh">' + extra.join(' · ') + '</span>';
     answerHTML += '</div>';
     document.getElementById('studyMeaning').innerHTML = answerHTML;
