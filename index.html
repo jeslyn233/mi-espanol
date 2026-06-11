@@ -2129,13 +2129,14 @@ function searchOrGenerate() {
     // Word exists: jump to it
     input.value = '';
     render();
-    // Wait for DOM to be fully ready before jumping
+    showToast('已找到 "' + word + '"');
     const tryJump = (retries) => {
       const card = document.getElementById('card-' + exist);
       if (card) { jumpToWordIdx(exist); return; }
-      if (retries > 0) requestAnimationFrame(() => tryJump(retries - 1));
+      if (retries > 0) { requestAnimationFrame(() => tryJump(retries - 1)); }
+      else { showToast('跳转失败，请手动查找'); }
     };
-    requestAnimationFrame(() => tryJump(5));
+    requestAnimationFrame(() => tryJump(10));
   } else {
     // New word: generate
     autoGenerate();
