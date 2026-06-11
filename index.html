@@ -3266,9 +3266,7 @@ function updateStudyCard() {
   document.getElementById('studyCard').classList.remove('flipped');
   // Force reflow so transition removal takes effect
   reveal.offsetHeight;
-  document.getElementById('studyRating').style.display = '';
-  document.getElementById('studyRating').style.opacity = '';
-  document.getElementById('studyRating').style.pointerEvents = '';
+  applyStudyModeUI();
   document.getElementById('studyPostRating').style.display = 'none';
   document.getElementById('studyDetailBtn').style.display = 'none';
   if (studyCurrentBatch.length === 0) {
