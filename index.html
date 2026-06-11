@@ -3719,13 +3719,15 @@ document.addEventListener('keydown', function(e) {
     return;
   }
 
-  if (e.key === 'ArrowRight') { e.preventDefault(); nextStudyCard(); }
-  else if (e.key === 'ArrowLeft') { e.preventDefault(); prevStudyCard(); }
-
   if (studyCardMode === 'flashcard') {
-    if (e.key === '1' || e.key === '!') { e.preventDefault(); rateStudyCard(0); }
-    else if (e.key === '2' || e.key === '@') { e.preventDefault(); rateStudyCard(2); }
-  } else if (studyCardMode === 'spell' || studyCardMode === 'fill') {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); rateStudyCard(0); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); rateStudyCard(2); }
+  } else {
+    if (e.key === 'ArrowRight') { e.preventDefault(); nextStudyCard(); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); prevStudyCard(); }
+  }
+
+  if (studyCardMode === 'spell' || studyCardMode === 'fill') {
     // Don't intercept when typing in the input
     if (document.activeElement === document.getElementById('studySpellInput')) return;
     if (e.key === ' ') { e.preventDefault(); nextStudyCard(); }
