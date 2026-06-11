@@ -861,7 +861,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .toolbar-right { gap: 4px; flex-shrink: 0; }
   .review-bar { gap: 6px; flex-wrap: wrap; }
   .task-tabs { flex: 1; display: flex; gap: 2px; background: var(--cool-bg2); border-radius: var(--radius-sm); padding: 3px; min-width: fit-content; }
-  .task-tab { flex: 1; font-size: 11px; padding: 6px 4px; white-space: nowrap; text-align: center; }
+  .task-tab { flex: 1; font-size: 10px; padding: 5px 3px; white-space: nowrap; text-align: center; }
   .light-select { font-size: 11px; padding: 6px 2px; min-width: 0; width: auto; background-position: right 2px center; padding-right: 14px; }
   .search-divider { height: 16px; }
   .filter-row .search-divider { height: 16px; }
@@ -1009,8 +1009,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <div class="review-bar">
       <div class="task-tabs">
         <button class="task-tab active" onclick="setReviewFilter('all')">全部 <span class="task-num" id="taskAll">0</span></button>
+        <button class="task-tab" onclick="setReviewFilter('due')">待复习 <span class="task-num" id="taskDue">0</span></button>
         <button class="task-tab" onclick="setReviewFilter('reviewed')">已复习 <span class="task-num" id="taskReviewed">0</span></button>
-        <button class="task-tab" onclick="setReviewFilter('unreviewed')">未复习 <span class="task-num" id="taskUnreviewed">0</span></button>
+        <button class="task-tab" onclick="setReviewFilter('new')">新词 <span class="task-num" id="taskNew">0</span></button>
       </div>
       <button class="primary" onclick="openStudy()" style="padding:5px 12px;font-size:11px;">📖 学习</button>
       <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
@@ -2423,10 +2424,12 @@ function render() {
     // Review filter
     if (reviewFilter === 'reviewed') {
       if (!w.review || w.review.last_reviewed !== today) return false;
-    } else if (reviewFilter === 'unreviewed') {
+    } else if (reviewFilter === 'due') {
       const nextRev = w.review ? w.review.next_review : '0000-00-00';
       if (w.review && w.review.last_reviewed === today) return false;
       if (nextRev > today) return false;
+    } else if (reviewFilter === 'new') {
+      if (w.review) return false;
     }
     return true;
   }).sort((a, b) => a.word.localeCompare(b.word, 'es', { sensitivity: 'base' }));
@@ -2442,14 +2445,16 @@ function render() {
   // Update task tab counts
   const totalN = words.length;
   const reviewedN = words.filter(w => w.review && w.review.last_reviewed === today).length;
-  const unreviewedN = words.filter(w => {
+  const dueN = words.filter(w => {
     const nextRev = w.review ? w.review.next_review : '0000-00-00';
     if (w.review && w.review.last_reviewed === today) return false;
     return nextRev <= today;
   }).length;
+  const newN = words.filter(w => !w.review).length;
   document.getElementById('taskAll').textContent = totalN;
+  document.getElementById('taskDue').textContent = dueN;
   document.getElementById('taskReviewed').textContent = reviewedN;
-  document.getElementById('taskUnreviewed').textContent = unreviewedN;
+  document.getElementById('taskNew').textContent = newN;
 
   document.getElementById('count').textContent = filtered.length + ' palabra' + (filtered.length !== 1 ? 's' : '');
 
@@ -2963,9 +2968,10 @@ function showTab(t) {
 
 function setReviewFilter(f) {
   reviewFilter = f;
-  document.querySelectorAll('.task-tab').forEach(t => t.classList.remove('active'));
+  const labels = { all: '全部', due: '待复习', reviewed: '已复习', new: '新词' };
+  const target = labels[f] || '全部';
   document.querySelectorAll('.task-tab').forEach(t => {
-    if (t.textContent.startsWith(f === 'all' ? '全部' : f === 'reviewed' ? '已复习' : '未复习')) t.classList.add('active');
+    t.classList.toggle('active', t.textContent.startsWith(target));
   });
   render();
 }
@@ -3061,8 +3067,14 @@ function getFilteredCards() {
   const fFreq = document.getElementById('filterFreq')?.value || '';
   const fForm = document.getElementById('filterForm')?.value || '';
   return words.filter((w, i) => {
-    if (reviewFilter === 'reviewed' && !(w.review && w.review.last_reviewed === new Date().toISOString().slice(0,10))) return false;
-    if (reviewFilter === 'unreviewed' && w.review && w.review.last_reviewed === new Date().toISOString().slice(0,10)) return false;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (reviewFilter === 'reviewed' && !(w.review && w.review.last_reviewed === todayStr)) return false;
+    if (reviewFilter === 'due') {
+      const nextRev = w.review ? w.review.next_review : '0000-00-00';
+      if (w.review && w.review.last_reviewed === todayStr) return false;
+      if (nextRev > todayStr) return false;
+    }
+    if (reviewFilter === 'new' && w.review) return false;
     if (fType && fType !== (w.type || '').split('/')[0].trim()) return false;
     if (fLevel && fLevel !== (w.level || '')) return false;
     if (fFreq && fFreq !== (w.frequency || '')) return false;
