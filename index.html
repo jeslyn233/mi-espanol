@@ -2129,9 +2129,13 @@ function searchOrGenerate() {
     // Word exists: jump to it
     input.value = '';
     render();
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => jumpToWordIdx(exist));
-    });
+    // Wait for DOM to be fully ready before jumping
+    const tryJump = (retries) => {
+      const card = document.getElementById('card-' + exist);
+      if (card) { jumpToWordIdx(exist); return; }
+      if (retries > 0) requestAnimationFrame(() => tryJump(retries - 1));
+    };
+    requestAnimationFrame(() => tryJump(5));
   } else {
     // New word: generate
     autoGenerate();
