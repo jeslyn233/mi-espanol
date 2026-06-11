@@ -1164,7 +1164,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       <button class="study-choice" onclick="event.stopPropagation();answerChoice(3)" id="choice3"></button>
     </div>
     <div class="study-spell" id="studySpell" style="display:none;">
-      <input type="text" class="study-spell-input" id="studySpellInput" placeholder="输入答案…" onkeydown="if(event.key==='Enter')checkSpelling()" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <input type="text" class="study-spell-input" id="studySpellInput" placeholder="输入答案…" onkeydown="if(event.key==='Enter'){event.preventDefault();event.stopPropagation();checkSpelling();}" autocomplete="off" autocapitalize="off" spellcheck="false">
       <div class="study-spell-result" id="studySpellResult"></div>
       <button class="study-new-sentence-btn" id="studyNewSentenceBtn" onclick="event.stopPropagation();generateNewSentence()" style="display:none;" title="AI 生成新句子">🔄 换一题</button>
     </div>
@@ -3202,8 +3202,11 @@ function applyStudyModeUI() {
   const isFlashcard = studyMode === 'flashcard';
   const isSpell = studyMode === 'spell';
   const isFill = studyMode === 'fill';
+  const noNav = isSpell || isFill;
   document.getElementById('studyRating').style.display = isFlashcard ? 'flex' : 'none';
-  document.getElementById('studySkipNav').style.display = (isFlashcard || isSpell || isFill) ? 'none' : 'flex';
+  document.getElementById('studySkipNav').style.display = (isFlashcard || noNav) ? 'none' : 'flex';
+  document.getElementById('studyPrevArrow').style.visibility = noNav ? 'hidden' : '';
+  document.getElementById('studyNextArrow').style.visibility = noNav ? 'hidden' : '';
   document.getElementById('studyHint').textContent = isFlashcard
     ? '回忆词义后自评 · 1 ✕  2 ✓ · ← → 浏览'
     : studyMode === 'spell' ? '看中文，输入西班牙语 · Enter 确认'
@@ -3214,9 +3217,7 @@ function applyStudyModeUI() {
 
 function startBatch() {
   studyPaused = false;
-  document.getElementById('studyRating').style.display = '';
-  document.getElementById('studyPrevArrow').style.visibility = '';
-  document.getElementById('studyNextArrow').style.visibility = '';
+  applyStudyModeUI();
   document.getElementById('studyPostRating').style.display = 'none';
   if (studyQueue.length === 0) {
     if (studyAnsweredCount > 0) {
@@ -3633,9 +3634,7 @@ function resumeFromPause() {
 
 function advanceAfterPause() {
   studyPaused = false;
-  document.getElementById('studyRating').style.display = '';
-  document.getElementById('studyPrevArrow').style.visibility = '';
-  document.getElementById('studyNextArrow').style.visibility = '';
+  applyStudyModeUI();
   document.getElementById('studyPostRating').style.display = 'none';
   document.getElementById('studyDetailBtn').style.display = 'none';
 
