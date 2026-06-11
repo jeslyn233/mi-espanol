@@ -3298,6 +3298,9 @@ function updateStudyCard() {
   document.getElementById('studyChoices').style.display = showChoices ? 'flex' : 'none';
   document.getElementById('studySpell').style.display = (isSpell || isFill) ? 'flex' : 'none';
   document.getElementById('studyChoiceModeToggle').style.display = showChoices ? '' : 'none';
+  // Flashcard mode: only rating buttons, no arrow nav
+  document.getElementById('studyPrevArrow').style.display = isFlashcard ? 'none' : '';
+  document.getElementById('studyNextArrow').style.display = isFlashcard ? 'none' : '';
 
   if (isSpell || isFill) {
     const input = document.getElementById('studySpellInput');
