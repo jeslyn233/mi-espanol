@@ -197,6 +197,15 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 .gen-box { display: flex; gap: 6px; align-items: center; }
 .gen-box input { width: 180px; }
+.gen-submit {
+  flex-shrink: 0; width: 32px; height: 32px; padding: 0;
+  border: none; border-radius: 6px; background: transparent;
+  color: var(--accent); font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  margin: 2px;
+}
+.gen-submit:hover { background: var(--accent-bg); }
+.gen-submit:disabled { opacity: .4; cursor: not-allowed; }
 .gen-spin { display: none; animation: spin .8s linear infinite; font-size: 14px; }
 .gen-spin.active { display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -863,6 +872,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .toolbar { flex-direction: column; gap: 6px; }
   .search-bar { width: 100%; max-width: none; }
   .search-bar input { font-size: 13px; padding: 7px 10px; }
+  .gen-submit { width: 28px; height: 28px; font-size: 14px; }
   .toolbar-row { width: 100%; gap: 4px; }
   .filter-row { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); }
   .toolbar-right { gap: 4px; flex-shrink: 0; }
@@ -975,6 +985,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
         <input type="text" id="search" placeholder="搜索…" oninput="render()" onkeydown="if(event.key==='Enter')searchOrGenerate()">
         <span class="search-divider"></span>
         <input type="text" id="newWordInput" placeholder="输入新词…" onkeydown="if(event.key==='Enter')autoGenerate()">
+        <button class="gen-submit" id="genBtn" onclick="autoGenerate()" title="AI 生成"><span class="gen-spin" id="genSpin">⟳</span></button>
       </div>
       <div class="toolbar-row">
         <span class="filter-row">
@@ -1004,7 +1015,6 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
           </select>
         </span>
         <div class="toolbar-right">
-          <button class="primary" id="genBtn" onclick="autoGenerate()"><span class="gen-spin" id="genSpin">⟳</span> AI 生成</button>
           <button class="paste-btn" onclick="openImportModal('word')" style="font-size:12px;">粘贴</button>
           <div class="more-menu">
             <button class="more-btn" onclick="toggleMoreMenu(event)" title="Más opciones">⋯</button>
