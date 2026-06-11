@@ -556,11 +556,24 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .study-card-area.flipped .study-reveal { opacity: 1; transform: translateY(0); }
 .study-meaning {
   font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
-  font-size: 22px; color: var(--text); line-height: 1.5; margin-bottom: 16px;
+  font-size: 22px; color: var(--text); line-height: 1.5; margin-bottom: 8px;
 }
 .study-extra {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px; color: var(--text3);
   line-height: 1.6;
+}
+.wrong-answer-card {
+  background: #FFFFFF; border: 1px solid var(--border2); border-radius: 12px;
+  padding: 16px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  margin-bottom: 12px;
+}
+.wrong-answer-es {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 18px; font-weight: 500;
+  color: var(--text); display: block; margin-bottom: 4px;
+}
+.wrong-answer-zh {
+  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-size: 13px; color: var(--text2); display: block;
 }
 .study-extra span { display: inline-block; margin: 0 6px; }
 .study-nav {
@@ -755,6 +768,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .chat-msg { font-size: 12px; }
   .study-word { font-size: clamp(28px, 10vw, 48px); }
   .study-meaning { font-size: 18px; }
+  .wrong-answer-es { font-size: 15px; }
+  .wrong-answer-zh { font-size: 11px; }
+  .wrong-answer-card { padding: 12px 16px; }
   .study-nav { bottom: 20px; gap: 12px; }
   .study-nav button { font-size: 13px; padding: 10px 18px; }
   .study-nav .nav-arrow { width: 40px; height: 40px; font-size: 18px; }
@@ -2180,8 +2196,7 @@ async function syncGrammarToSupabase() {
 
 // ── Auto-generate ─────────────────────────────────
 function searchOrGenerate() {
-  // Search input Enter: jump to first match if exists
-  if (isLocked) return;
+  // Search input Enter: jump to first exact match
   const input = document.getElementById('search');
   const word = input.value.trim();
   if (!word) return;
@@ -3317,6 +3332,7 @@ function updateStudyCard() {
     const chunkClozes = [];
     if (card.chunks && !card.word.includes(' ')) {
       const stem = word.replace(/(ar|er|ir)$/, '');
+      const reflProRe = /^(me|te|se|nos|os)\s+/i;
       for (const ch of card.chunks) {
         const text = ch.text || '';
         if (!ch.zh) continue;
@@ -3333,8 +3349,18 @@ function updateStudyCard() {
           if (m) { idx = m.index; matched = m[1]; }
         }
         if (idx >= 0 && matched) {
+          // Include preceding reflexive pronoun if present
           const before = text.slice(0, idx).trim();
           const after = text.slice(idx + matched.length).trim();
+          if (isReflexive) {
+            const reflM = before.match(reflProRe);
+            if (reflM) {
+              matched = reflM[0].trim() + ' ' + matched;
+              const adjBefore = text.slice(0, idx - reflM[0].length).trim();
+              chunkClozes.push({ zh: ch.zh, before: adjBefore, after, answer: matched });
+              continue;
+            }
+          }
           if (before || after) {
             chunkClozes.push({ zh: ch.zh, before, after, answer: matched });
           }
@@ -3349,6 +3375,9 @@ function updateStudyCard() {
     if (types.length === 0) types.push('spell');
     const qt = types[Math.floor(Math.random() * types.length)];
 
+    const REFL_PRONOUNS = { yo:'me', tú:'te', él:'se', nosotros:'nos', vosotros:'os', ellos:'se', usted:'se', usteds:'se' };
+    const isReflexive = card.word.endsWith('se') && (card.type || '').startsWith('v');
+
     if (qt === 'conj') {
       const tenses = ['presente','pretérito','futuro','condicional','subjuntivo presente','imperativo'].filter(k => card.verb_forms[k]);
       const tense = tenses[Math.floor(Math.random() * tenses.length)];
@@ -3356,6 +3385,10 @@ function updateStudyCard() {
       const personMap = tense === 'imperativo' ? ['tú','usted','nosotros','vosotros','ustedes'] : ['yo','tú','él','nosotros','vosotros','ellos'];
       const pi = Math.floor(Math.random() * Math.min(forms.length, personMap.length));
       studyFillAnswer = forms[pi] || '';
+      if (isReflexive) {
+        const pro = REFL_PRONOUNS[personMap[pi]] || 'se';
+        studyFillAnswer = pro + ' ' + studyFillAnswer;
+      }
       fillPrompt = personMap[pi] + ' · ' + (TENSE_ZH[tense] || tense) + '\n' + card.word;
     } else if (qt === 'cloze') {
       const cl = chunkClozes[Math.floor(Math.random() * chunkClozes.length)];
@@ -3512,7 +3545,10 @@ function openCardDetail() {
   if (studyCurrentBatch.length === 0) return;
   const cardIdx = studyCurrentBatch[studyBatchIndex];
   const card = studyAllCards[cardIdx];
-  const origIdx = words.indexOf(card);
+  let origIdx = words.indexOf(card);
+  // Fallback: find by word if reference doesn't match
+  if (origIdx < 0) origIdx = words.findIndex(w => w.word === card.word);
+  if (origIdx < 0) return;
   document.getElementById('studyOverlay').classList.remove('active');
   document.body.style.overflow = '';
   document.getElementById('studyReturnBtn').style.display = 'flex';
@@ -3800,6 +3836,17 @@ function checkSpelling() {
     studyPaused = true;
     studyLastCorrect = false;
     document.getElementById('studyCard').classList.add('flipped');
+    // Populate reveal card with answer
+    let answerHTML = '<div class="wrong-answer-card"><span class="wrong-answer-es">' + escapeHTML(expectedAnswer) + '</span>';
+    const zh = card.core_meaning || card.english || '';
+    const extra = [];
+    if (zh) extra.push(zh);
+    if (card.type) extra.push(card.type + (card.level ? ' · ' + card.level : ''));
+    if (card.frequency) extra.push('频次 ' + card.frequency);
+    if (extra.length) answerHTML += '<span class="wrong-answer-zh">' + extra.join(' · ') + '</span>';
+    answerHTML += '</div>';
+    document.getElementById('studyMeaning').innerHTML = answerHTML;
+    document.getElementById('studyExtra').innerHTML = '';
     document.getElementById('studySpellInput').disabled = true;
     document.querySelector('.study-spell-submit').disabled = true;
     document.getElementById('studyRating').style.display = 'none';
