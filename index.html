@@ -117,8 +117,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .more-dropdown.open { display: flex; }
 .more-dropdown button { width: 100%; justify-content: flex-start; border: none; border-radius: 6px; font-size: 13px; padding: 8px 12px; }
 .toolbar { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-.toolbar-row { display: flex; align-items: center; gap: 8px; }
-.toolbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-left: auto; }
+.toolbar-row { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.toolbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .review-bar { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
 .review-due-hint { font-family: 'DM Sans', system-ui, sans-serif; font-size: 11px; color: var(--text3); margin-left: auto; }
 .flashcard-btn {
@@ -206,8 +206,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 }
 .gen-submit:hover { background: var(--accent-bg); }
 .gen-submit:disabled { opacity: .4; cursor: not-allowed; }
-.gen-spin { display: none; animation: spin .8s linear infinite; font-size: 14px; }
-.gen-spin.active { display: inline-block; }
+.gen-spin { display: inline-block; animation: none; font-size: 14px; }
+.gen-spin.active { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .letter-group { margin-bottom: 16px; scroll-margin-top: 20px; }
