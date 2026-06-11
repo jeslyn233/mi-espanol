@@ -557,7 +557,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .study-nav .nav-arrow { font-size: 20px; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .study-nav .nav-arrow:hover { transform: none; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
 .study-rating { display: flex; gap: 10px; }
-.study-nav.flashcard-only .study-rating { width: 280px; left: 50%; margin-left: -140px; position: fixed; bottom: 32px; justify-content: space-between; z-index: 202; }
+.study-nav.flashcard-only .study-rating { width: 220px; left: 50%; margin-left: -110px; position: fixed; bottom: 32px; justify-content: space-between; z-index: 202; }
 .rating-btn {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 20px; font-weight: 600;
   width: 48px; height: 48px; padding: 0; border-radius: 50%; cursor: pointer;
@@ -628,6 +628,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 .study-detail-btn:hover { background: var(--accent-bg); }
 .study-post-rating { display: flex; gap: 10px; align-items: center; }
+.study-nav.flashcard-only .study-post-rating { width: 260px; left: 50%; margin-left: -130px; position: fixed; bottom: 32px; justify-content: center; z-index: 202; }
 .study-post-rating button {
   font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px;
   padding: 10px 20px; border: 1px solid var(--border2); border-radius: 999px;
@@ -736,7 +737,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .study-choice { font-size: 14px; padding: 12px 16px; }
   .study-choices { gap: 6px; margin-top: 20px; }
   .study-spell-input { font-size: 16px; padding: 12px 0 12px 14px; }
-  .study-nav.flashcard-only .study-rating { width: 260px; margin-left: -130px; bottom: 24px; }
+  .study-nav.flashcard-only .study-rating { width: 220px; margin-left: -110px; bottom: 24px; }
+  .study-nav.flashcard-only .study-post-rating { width: 260px; margin-left: -130px; bottom: 24px; }
   .study-post-rating button { font-size: 12px; padding: 8px 14px; }
   .study-post-rating { gap: 6px; }
 }
@@ -3473,17 +3475,19 @@ function rateStudyCard(level) {
   document.getElementById('studyPostRating').style.display = 'flex';
 
   if (isCorrect && isFlashcard) {
-    // Flashcard correct: show 记错了 + 下一个, defer card removal
+    // Flashcard correct: show 记错了 + 下一个 spread apart
     document.getElementById('studyUndoBtn').style.display = '';
     document.getElementById('studyConfirmBtn').style.display = '';
     document.getElementById('studyBackBtn').style.display = 'none';
     document.getElementById('studyDetailBtn').style.display = 'none';
+    document.getElementById('studyPostRating').style.justifyContent = 'space-between';
   } else {
-    // Wrong (all modes): show 返回 + detail button
+    // Wrong (all modes): show 返回 centered + detail button
     document.getElementById('studyUndoBtn').style.display = 'none';
     document.getElementById('studyConfirmBtn').style.display = 'none';
     document.getElementById('studyBackBtn').style.display = '';
     document.getElementById('studyDetailBtn').style.display = 'inline-block';
+    document.getElementById('studyPostRating').style.justifyContent = 'center';
   }
 }
 
@@ -3593,6 +3597,7 @@ function answerChoice(idx) {
     document.getElementById('studyConfirmBtn').style.display = 'none';
     document.getElementById('studyBackBtn').style.display = '';
     document.getElementById('studyDetailBtn').style.display = 'inline-block';
+    document.getElementById('studyPostRating').style.justifyContent = 'center';
   }
 }
 
