@@ -190,7 +190,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .task-tab.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 .task-tab:hover:not(.active) { color: var(--text); }
 .task-num { font-weight: 600; margin-left: 1px; }
-#search { flex: 1; min-width: 120px; }
+#search { flex: 1; min-width: 60px; }
+#newWordInput { flex: 0 0 auto; width: 130px; min-width: 80px; color: var(--accent); }
+#newWordInput::placeholder { color: var(--accent); opacity: .6; }
 .count { font-size: 13px; color: var(--text3); margin-bottom: 10px; font-family: 'DM Sans', system-ui, sans-serif; }
 
 .gen-box { display: flex; gap: 6px; align-items: center; }
@@ -872,7 +874,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .filter-row .search-divider { height: 16px; }
   .flashcard-btn { width: 24px; height: 24px; flex-shrink: 0; }
   .review-due-hint { display: none; }
-  #search { min-width: 80px; }
+  #search { min-width: 50px; }
+  #newWordInput { width: 100px; min-width: 60px; font-size: 12px; }
 
   /* Card */
   .card-head { padding: 10px 12px; gap: 4px; }
@@ -969,7 +972,9 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   <div id="tab-vocab">
     <div class="toolbar">
       <div class="search-bar">
-        <input type="text" id="search" placeholder="搜索单词，或输入新词让 AI 生成…" oninput="render()" onkeydown="if(event.key==='Enter')searchOrGenerate()">
+        <input type="text" id="search" placeholder="搜索…" oninput="render()" onkeydown="if(event.key==='Enter')searchOrGenerate()">
+        <span class="search-divider"></span>
+        <input type="text" id="newWordInput" placeholder="输入新词…" onkeydown="if(event.key==='Enter')autoGenerate()">
       </div>
       <div class="toolbar-row">
         <span class="filter-row">
@@ -2144,13 +2149,13 @@ async function syncGrammarToSupabase() {
 
 // ── Auto-generate ─────────────────────────────────
 function searchOrGenerate() {
+  // Search input Enter: jump to first match if exists
   if (isLocked) return;
   const input = document.getElementById('search');
   const word = input.value.trim();
   if (!word) return;
   const exist = words.findIndex(w => w.word.toLowerCase() === word.toLowerCase());
   if (exist >= 0) {
-    // Word exists: jump to it
     input.value = '';
     render();
     showToast('已找到 "' + word + '"');
@@ -2161,9 +2166,6 @@ function searchOrGenerate() {
       else { showToast('跳转失败，请手动查找'); }
     };
     requestAnimationFrame(() => tryJump(10));
-  } else {
-    // New word: generate
-    autoGenerate();
   }
 }
 
@@ -2179,7 +2181,7 @@ function jumpToWordIdx(idx) {
 
 async function autoGenerate() {
   if (isLocked) return;
-  const input = document.getElementById('search');
+  const input = document.getElementById('newWordInput');
   const btn = document.getElementById('genBtn');
   const spin = document.getElementById('genSpin');
   const word = input.value.trim();
@@ -2252,7 +2254,7 @@ async function autoGenerate() {
     cleanRelatedWords(card);
 
     if (exist >= 0) words[exist] = card;
-    else words.push(card);
+    else { card.createdAt = new Date().toISOString(); words.push(card); }
 
     saveLocal();
     if (sb) {
@@ -2467,7 +2469,7 @@ function render() {
       if (w.review && w.review.last_reviewed === today) return false;
       if (nextRev > today) return false;
     } else if (reviewFilter === 'new') {
-      if (w.review) return false;
+      if (!w.createdAt || w.createdAt.slice(0, 10) !== today) return false;
     }
     return true;
   }).sort((a, b) => a.word.localeCompare(b.word, 'es', { sensitivity: 'base' }));
@@ -2488,7 +2490,7 @@ function render() {
     if (w.review && w.review.last_reviewed === today) return false;
     return nextRev <= today;
   }).length;
-  const newN = words.filter(w => !w.review).length;
+  const newN = words.filter(w => w.createdAt && w.createdAt.slice(0, 10) === today).length;
   document.getElementById('taskAll').textContent = totalN;
   document.getElementById('taskDue').textContent = dueN;
   document.getElementById('taskReviewed').textContent = reviewedN;
@@ -3065,16 +3067,31 @@ function toggleFlashcard() {
 }
 
 // ── Pronunciation ─────────────────────────────────
+let _speechPrimed = false;
+function _primeSpeech() {
+  if (_speechPrimed || !('speechSynthesis' in window)) return;
+  _speechPrimed = true;
+  // Prime the speech engine — required for iOS Safari to work
+  const u = new SpeechSynthesisUtterance('');
+  u.volume = 0;
+  u.lang = 'es-ES';
+  speechSynthesis.speak(u);
+  // Reload voices (they may have loaded asynchronously)
+  cachedVoices = speechSynthesis.getVoices();
+}
+
 function speakWord(btn) {
   if (!('speechSynthesis' in window)) return;
+  _primeSpeech();
   const word = btn.getAttribute('data-word');
   if (!word) return;
-  window.speechSynthesis.cancel();
+  speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(word);
   u.lang = 'es-ES';
   u.rate = 0.85;
+  u.volume = 1;
   const voices = cachedVoices.length ? cachedVoices : speechSynthesis.getVoices();
-  const esVoice = voices.find(v => v.lang.startsWith('es-')) || voices.find(v => v.lang.startsWith('es'));
+  const esVoice = voices.find(v => v.lang.startsWith('es-'));
   if (esVoice) u.voice = esVoice;
   btn.classList.add('speaking');
   u.onend = () => btn.classList.remove('speaking');
@@ -3112,7 +3129,7 @@ function getFilteredCards() {
       if (w.review && w.review.last_reviewed === todayStr) return false;
       if (nextRev > todayStr) return false;
     }
-    if (reviewFilter === 'new' && w.review) return false;
+    if (reviewFilter === 'new' && (!w.createdAt || w.createdAt.slice(0, 10) !== todayStr)) return false;
     if (fType && fType !== (w.type || '').split('/')[0].trim()) return false;
     if (fLevel && fLevel !== (w.level || '')) return false;
     if (fFreq && fFreq !== (w.frequency || '')) return false;
@@ -3433,11 +3450,12 @@ function toggleChoiceMode() {
 
 function speakStudyWord(word) {
   if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
+  _primeSpeech();
+  speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(word);
-  u.lang = 'es-ES'; u.rate = 0.85;
+  u.lang = 'es-ES'; u.rate = 0.85; u.volume = 1;
   const voices = cachedVoices.length ? cachedVoices : speechSynthesis.getVoices();
-  const esVoice = voices.find(v => v.lang.startsWith('es-')) || voices.find(v => v.lang.startsWith('es'));
+  const esVoice = voices.find(v => v.lang.startsWith('es-'));
   if (esVoice) u.voice = esVoice;
   u.onerror = () => {};
   speechSynthesis.speak(u);
@@ -4000,6 +4018,11 @@ let cachedVoices = [];
 if ('speechSynthesis' in window) {
   cachedVoices = speechSynthesis.getVoices();
   speechSynthesis.onvoiceschanged = () => { cachedVoices = speechSynthesis.getVoices(); };
+  // Prime speech engine on first user tap (required for iOS Safari)
+  document.addEventListener('click', function primeOnce() {
+    _primeSpeech();
+    document.removeEventListener('click', primeOnce);
+  }, { once: true });
 }
 
 function jumpToWord(wordStr) {
