@@ -618,8 +618,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .study-spell { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 440px; margin-top: 8px; }
 .study-spell-row { display: flex; width: 100%; gap: 8px; align-items: center; }
 .study-spell-input {
-  flex: 1; min-width: 0; padding: 14px 18px; font-family: 'Georgia', serif;
-  font-size: 20px; font-style: italic; color: var(--text); text-align: center;
+  flex: 1; min-width: 0; padding: 14px 18px; font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 20px; color: var(--text); text-align: center;
   border: 2px solid var(--border2); border-radius: 14px;
   background: var(--surface); outline: none;
   transition: border-color .2s;
@@ -3395,8 +3395,11 @@ function updateStudyCard() {
 
   if (isSpell || isFill) {
     const input = document.getElementById('studySpellInput');
+    input.disabled = false;
     input.value = '';
     input.focus();
+    const submitBtn = document.querySelector('.study-spell-submit');
+    if (submitBtn) submitBtn.disabled = false;
     document.getElementById('studySpellResult').textContent = '';
     document.getElementById('studySpellResult').className = 'study-spell-result';
     document.getElementById('studyNewSentenceBtn').style.display = 'inline-block';
@@ -3527,7 +3530,7 @@ function positionReturnBtn() {
   if (!openCard) return;
   const r = openCard.getBoundingClientRect();
   btn.style.top = (r.bottom + 12) + 'px';
-  btn.style.left = (r.left + r.width / 2) + 'px';
+  btn.style.left = '50%';
   btn.style.transform = 'translateX(-50%)';
 }
 // Keep button aligned with card during scroll
@@ -3789,6 +3792,8 @@ function checkSpelling() {
     studyPaused = true;
     studyLastCorrect = false;
     document.getElementById('studyCard').classList.add('flipped');
+    document.getElementById('studySpellInput').disabled = true;
+    document.querySelector('.study-spell-submit').disabled = true;
     document.getElementById('studyRating').style.display = 'none';
     document.getElementById('studyPrevArrow').style.visibility = 'hidden';
     document.getElementById('studyNextArrow').style.visibility = 'hidden';
