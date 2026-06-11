@@ -1200,7 +1200,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 
 <!-- AI Chat -->
 <button class="chat-fab" id="chatFab" onclick="toggleChat()" title="AI 西语助教">💬</button>
-<button id="studyReturnBtn" onclick="resumeStudy()" style="display:none;position:sticky;bottom:20px;margin:24px auto 8px;z-index:10;font-family:'DM Sans',system-ui,sans-serif;font-size:14px;padding:12px 24px;border:none;border-radius:999px;background:#F9E3E8;color:#B05060;cursor:pointer;box-shadow:0 4px 16px rgba(200,120,140,.3);">↩ 返回学习</button>
+<button id="studyReturnBtn" onclick="resumeStudy()" style="display:none;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);z-index:300;font-family:'DM Sans',system-ui,sans-serif;font-size:14px;padding:12px 24px;border:none;border-radius:999px;background:#F9E3E8;color:#B05060;cursor:pointer;box-shadow:0 4px 16px rgba(200,120,140,.3);">↩ 返回学习</button>
 <div class="chat-panel" id="chatPanel">
   <div class="chat-header">
     <span>🤖 AI 西语助教</span>
@@ -3429,6 +3429,7 @@ function openCardDetail() {
   const origIdx = words.indexOf(card);
   document.getElementById('studyOverlay').classList.remove('active');
   document.body.style.overflow = '';
+  document.getElementById('studyReturnBtn').style.display = 'block';
   setTimeout(() => {
     const cardEl = document.getElementById('card-' + origIdx);
     const bodyEl = document.getElementById('body-' + origIdx);
@@ -3436,10 +3437,6 @@ function openCardDetail() {
     if (!bodyEl || !chevEl) return;
     bodyEl.classList.add('open');
     chevEl.classList.add('open');
-    // Append sticky return button at bottom of card body
-    const btn = document.getElementById('studyReturnBtn');
-    bodyEl.appendChild(btn);
-    btn.style.display = 'block';
     cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     cardEl.classList.add('highlight');
     setTimeout(() => cardEl.classList.remove('highlight'), 1800);
@@ -3447,9 +3444,7 @@ function openCardDetail() {
 }
 
 function resumeStudy() {
-  const btn = document.getElementById('studyReturnBtn');
-  btn.style.display = 'none';
-  document.body.appendChild(btn); // put back for next use
+  document.getElementById('studyReturnBtn').style.display = 'none';
   document.getElementById('studyOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
   if (studyPaused) resumeFromPause();
