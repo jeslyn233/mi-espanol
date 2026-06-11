@@ -1150,7 +1150,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   </div>
   <div class="study-hint" id="studyHint">回忆词义后自评 · 1 ✕  2 —  3 ✓ · ← → 浏览</div>
   <div class="study-nav" id="studyNav">
-    <button class="nav-arrow" onclick="event.stopPropagation();prevStudyCard()" title="上一个 (←)">←</button>
+    <button class="nav-arrow" id="studyPrevArrow" onclick="event.stopPropagation();prevStudyCard()" title="上一个 (←)">←</button>
     <div class="study-rating" id="studyRating">
       <button class="rating-btn again" onclick="event.stopPropagation();rateStudyCard(0)" title="不认识"></button>
       <button class="rating-btn good" onclick="event.stopPropagation();rateStudyCard(2)" title="认识"></button>
@@ -1163,7 +1163,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <div class="study-rating" id="studySkipNav" style="display:none;">
       <button class="rating-btn hard" onclick="event.stopPropagation();skipChoiceCard()" title="跳过" style="background:#F1F5F9;color:#64748B;border-color:#E2E8F0;">⟩</button>
     </div>
-    <button class="nav-arrow" onclick="event.stopPropagation();nextStudyCard()" title="下一个 (→)">→</button>
+    <button class="nav-arrow" id="studyNextArrow" onclick="event.stopPropagation();nextStudyCard()" title="下一个 (→)">→</button>
   </div>
 </div>
 
@@ -3125,6 +3125,8 @@ function applyStudyModeUI() {
 function startBatch() {
   studyPaused = false;
   document.getElementById('studyRating').style.display = '';
+  document.getElementById('studyPrevArrow').style.visibility = '';
+  document.getElementById('studyNextArrow').style.visibility = '';
   document.getElementById('studyPostRating').style.display = 'none';
   if (studyQueue.length === 0) {
     if (studyAnsweredCount > 0) {
@@ -3407,10 +3409,27 @@ function rateStudyCard(level) {
   const isCorrect = level === 2;
   const isFlashcard = studyCardMode === 'flashcard';
 
-  // Score wrong answers immediately; correct answers in flashcard mode are deferred
+  // Non-flashcard correct: score and auto-advance (no pause needed)
+  if (isCorrect && !isFlashcard) {
+    if (origIdx >= 0) words[origIdx].review = sm2Schedule(words[origIdx].review, 5);
+    studyCurrentBatch.splice(studyBatchIndex, 1);
+    document.getElementById('studyCard').classList.add('flipped');
+    setTimeout(() => {
+      if (studyCurrentBatch.length === 0) {
+        saveLocal();
+        if (studyQueue.length > 0) showToast('✅ 本组完成！进入下一组');
+        startBatch();
+        return;
+      }
+      if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
+      updateStudyCard();
+    }, 800);
+    return;
+  }
+
+  // Wrong: score immediately and move to end of batch
   if (!isCorrect) {
     if (origIdx >= 0) words[origIdx].review = sm2Schedule(words[origIdx].review, 1);
-    // Move to end of batch
     const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
     studyCurrentBatch.push(moved);
   }
@@ -3418,12 +3437,14 @@ function rateStudyCard(level) {
   // Flip card to show meaning
   document.getElementById('studyCard').classList.add('flipped');
 
-  // Pause for user action
+  // Pause for user action (wrong all modes, or flashcard correct)
   studyPaused = true;
   studyLastCorrect = isCorrect;
 
-  // Hide rating, show post-rating buttons
+  // Hide rating + arrows, show post-rating buttons
   document.getElementById('studyRating').style.display = 'none';
+  document.getElementById('studyPrevArrow').style.visibility = 'hidden';
+  document.getElementById('studyNextArrow').style.visibility = 'hidden';
   document.getElementById('studyPostRating').style.display = 'flex';
 
   if (isCorrect && isFlashcard) {
@@ -3473,6 +3494,8 @@ function resumeFromPause() {
 function advanceAfterPause() {
   studyPaused = false;
   document.getElementById('studyRating').style.display = '';
+  document.getElementById('studyPrevArrow').style.visibility = '';
+  document.getElementById('studyNextArrow').style.visibility = '';
   document.getElementById('studyPostRating').style.display = 'none';
   document.getElementById('studyDetailBtn').style.display = 'none';
 
@@ -3538,6 +3561,8 @@ function answerChoice(idx) {
     studyPaused = true;
     studyLastCorrect = false;
     document.getElementById('studyRating').style.display = 'none';
+    document.getElementById('studyPrevArrow').style.visibility = 'hidden';
+    document.getElementById('studyNextArrow').style.visibility = 'hidden';
     document.getElementById('studyPostRating').style.display = 'flex';
     document.getElementById('studyUndoBtn').style.display = 'none';
     document.getElementById('studyConfirmBtn').style.display = 'none';
@@ -3597,6 +3622,8 @@ function checkSpelling() {
     studyPaused = true;
     studyLastCorrect = false;
     document.getElementById('studyRating').style.display = 'none';
+    document.getElementById('studyPrevArrow').style.visibility = 'hidden';
+    document.getElementById('studyNextArrow').style.visibility = 'hidden';
     document.getElementById('studyPostRating').style.display = 'flex';
     document.getElementById('studyUndoBtn').style.display = 'none';
     document.getElementById('studyConfirmBtn').style.display = 'none';
@@ -3654,6 +3681,26 @@ document.addEventListener('keydown', function(e) {
   const overlay = document.getElementById('studyOverlay');
   if (!overlay.classList.contains('active')) return;
   if (e.key === 'Escape') { e.preventDefault(); closeStudy(); return; }
+
+  // Paused after rating: arrow keys map to post-rating actions
+  if (studyPaused) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (studyLastCorrect) {
+        // Flashcard correct: left=记错了, right=下一个
+        if (e.key === 'ArrowLeft') undoCorrect();
+        else confirmCorrect();
+      } else {
+        // Wrong (all modes): either arrow = 返回
+        resumeFromPause();
+      }
+    } else if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      resumeFromPause();
+    }
+    return;
+  }
+
   if (e.key === 'ArrowRight') { e.preventDefault(); nextStudyCard(); }
   else if (e.key === 'ArrowLeft') { e.preventDefault(); prevStudyCard(); }
 
