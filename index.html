@@ -971,7 +971,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     <div class="header-right">
       <span class="lock-msg" id="lockMsg"></span>
       <input type="password" class="lock-input" id="lockInput" placeholder="密码" onkeydown="if(event.key==='Enter')unlock()">
-      <button class="lock-btn" id="lockBtn" onclick="toggleLock()" title="编辑权限">🔓</button>
+      <button class="lock-btn" id="lockBtn" onclick="toggleLock()" title="编辑权限">🔒</button>
     </div>
   </header>
   <div class="nav">
@@ -1254,7 +1254,7 @@ let lastScrollY = 0;
 let reviewFilter = 'all';
 let flashcardMode = 0; // 0=off, 1=pink(hide EN), 2=purple(hide ES)
 let shuffleMode = false;
-let isLocked = false;
+let isLocked = true;
 const EDIT_PASSWORD = '1994';
 
 // ── Helpers ───────────────────────────────────────
@@ -2060,50 +2060,50 @@ function cleanRelatedWords(card) {
 }
 
 // ── Data load/sync ────────────────────────────────
-async function loadWords() {
-  // 1. Load localStorage
-  const localMap = {};
+function loadWords() {
+  // Load from localStorage (fast, synchronous — no network)
   try {
     const s = localStorage.getItem('es_vocab_v14');
-    if (s) {
-      const arr = JSON.parse(s);
-      arr.forEach(w => { localMap[w.word.toLowerCase()] = w; });
-    }
+    if (s) { words = JSON.parse(s); }
   } catch (e) {}
-
-  // 2. Always fetch Supabase for cross-device sync
-  const cloudMap = {};
-  if (sb) {
-    try {
-      const { data, error } = await sb.from('words').select('data').order('word');
-      if (!error && data && data.length) {
-        data.forEach(r => {
-          if (r.data && r.data.word) cloudMap[r.data.word.toLowerCase()] = r.data;
-        });
-      }
-    } catch (e) {}
+  if (!words.length) {
+    // Use inline fallback so we never block on network
+    words = [{word:"tener",type:"v",level:"A1",core_meaning:"有；拥有；感到",frequency:"A",tags:["通用","中性","日常"],situations:["表达拥有某物或某种关系","描述身体感受如饿渴冷热困","说明年龄或时间安排"],chunks:[{text:"Tengo hambre.",zh:"我饿了。",highlight:"",note:"A1",explain:"tener + 名词 表示身体感受，不是 ser/estar + adj。"},{text:"tener que + infinitivo",zh:"必须做某事",highlight:"tener que",note:"A2",explain:"tener que + inf. 固定结构，表示「必须」（客观需要）。"},{text:"No tengo ganas de salir hoy.",zh:"我今天不想出门。",highlight:"",note:"A2"}],nuance:[{word:"haber",desc:"无人称（hay），不表示拥有"},{word:"poseer",desc:"「拥有」的正式说法，多用于法律/书面"}],related_words:["haber","poseer","contar con","carecer"],native_expressions:[],notes:["西班牙语用 tener 表达很多感受类的东西（hambre/sed/frío/calor/sueño/miedo），英语用 be+adj，千万别翻译成 ser/estar+adj。"],verb_forms:{presente:"tengo / tienes / tiene / tenemos / tenéis / tienen",pretérito:"tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",futuro:"tendré / tendrás / tendrá / tendremos / tendréis / tendrán",imperativo:"ten / tenga / tengamos / tened / tengan",subjuntivo_presente:"tenga / tengas / tenga / tengamos / tengáis / tengan",subjuntivo_imperfecto:"tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",otros:[]}}];
   }
+}
 
-  // 3. Merge: for each word, keep the version with newer review date
-  const allKeys = new Set([...Object.keys(localMap), ...Object.keys(cloudMap)]);
-  words = [];
-  allKeys.forEach(key => {
-    const local = localMap[key];
-    const cloud = cloudMap[key];
-    if (!cloud) { words.push(local); return; }
-    if (!local) { words.push(cloud); return; }
-    // Both exist: compare review dates, keep newer
-    const localDate = local.review?.last_reviewed || '';
-    const cloudDate = cloud.review?.last_reviewed || '';
-    words.push(localDate >= cloudDate ? local : cloud);
-  });
+async function syncFromCloud() {
+  if (!sb) return;
+  // Fetch cloud data and merge with local, keeping newer review dates
+  try {
+    const { data, error } = await sb.from('words').select('data').order('word');
+    if (error || !data || !data.length) return;
 
-  // 4. Defaults (if still empty)
-  if (!words.length) { words = await getDefaults(); }
+    const localMap = {};
+    words.forEach(w => { localMap[w.word.toLowerCase()] = w; });
 
-  // 5. Save merged result locally + sync to cloud
-  saveLocal();
-  if (sb && words.length) { await syncToSupabase(); }
+    let changed = false;
+    data.forEach(r => {
+      if (!r.data || !r.data.word) return;
+      const key = r.data.word.toLowerCase();
+      const exist = localMap[key];
+      if (!exist) {
+        words.push(r.data);
+        changed = true;
+      } else {
+        const localDate = exist.review?.last_reviewed || '';
+        const cloudDate = r.data.review?.last_reviewed || '';
+        if (cloudDate > localDate) {
+          Object.assign(exist, r.data);
+          changed = true;
+        }
+      }
+    });
+
+    if (changed) { saveLocal(); render(); }
+  } catch (e) {}
+  // Also sync any local-only words to cloud
+  await syncToSupabase();
 }
 
 async function getDefaults() {
@@ -4402,72 +4402,45 @@ window.onclick = function (e) {
 
 // ── Init ──────────────────────────────────────────
 (async function init() {
-  // Load grammar: localStorage wins, Supabase as backup
-  const gMap = new Map();
-  // Load localStorage first (user's latest edits)
+  // 1. Load grammar from localStorage (fast)
   try {
     const g = localStorage.getItem('es_grammar_v1');
-    if (g) {
-      for (const n of JSON.parse(g)) gMap.set(n.title, n);
-    }
+    if (g) { grammarNotes = JSON.parse(g); }
   } catch (e) {}
-  // Merge Supabase (don't overwrite localStorage)
-  if (sb) {
-    try {
-      const { data, error } = await sb.from('grammar').select('data').order('title');
-      if (!error && data && data.length) {
-        for (const r of data) {
-          if (!gMap.has(r.data.title)) gMap.set(r.data.title, r.data);
-        }
-      }
-    } catch (e) { console.warn('Grammar Supabase load failed'); }
-  }
-  grammarNotes = [...gMap.values()];
-  saveGrammarLocal();
-  // Sync merged result to Supabase
-  if (sb && grammarNotes.length) { syncGrammarToSupabase(); }
-  await loadWords();
-  // Auto-fill missing verb_forms for known irregular verbs and their compounds
-  const TENSE_KEYS = ['presente','pretérito imperfecto','pretérito','futuro','condicional','subjuntivo presente','subjuntivo imperfecto','imperativo'];
-  let verbFormsFixed = false;
-  for (const w of words) {
-    if (!(w.type || '').startsWith('v') || w.word.includes(' ')) continue;
-    const hasTenseData = w.verb_forms && TENSE_KEYS.some(k => w.verb_forms[k]);
-    if (!hasTenseData) {
-      const autoVF = autoGenerateVerbForms(w.word);
-      if (autoVF) { w.verb_forms = autoVF; verbFormsFixed = true; }
-    }
-  }
-  if (verbFormsFixed) {
-    saveLocal();
-    if (sb) {
-      for (const w of words) {
-        if (!(w.type || '').startsWith('v') || w.word.includes(' ')) continue;
-        try { await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch (e) {}
-      }
-    }
-  }
+
+  // 2. Load words from localStorage (fast)
+  loadWords();
   resetOverdue();
-  // Start unlocked — user can browse freely, lock to prevent edits
-  // Ensure default words always up to date in Supabase
-  if (sb) {
-    const defaults = await getDefaults();
-    for (const w of defaults) {
-      const idx = words.findIndex(x => x.word === w.word);
-      if (idx >= 0) {
-        continue; // don't overwrite existing words
-      } else {
-        words.push(w);
-      }
-      try { await sb.from('words').upsert({ word: w.word, data: w }, { onConflict: 'word' }); } catch (e) {}
-    }
-    saveLocal();
-  }
+  document.body.classList.add('locked');
+
+  // 3. Render immediately — no waiting for network
   render();
   renderGrammar();
   document.getElementById('grammarSort').addEventListener('change', renderGrammar);
   showTab('vocab');
   window.addEventListener('resize', positionAZBar);
+
+  // 4. Background: sync with Supabase (non-blocking)
+  syncFromCloud();
+  if (sb) {
+    // Merge grammar from cloud
+    (async () => {
+      try {
+        const gMap = new Map();
+        grammarNotes.forEach(n => gMap.set(n.title, n));
+        const { data, error } = await sb.from('grammar').select('data').order('title');
+        if (!error && data && data.length) {
+          for (const r of data) {
+            if (!gMap.has(r.data.title)) gMap.set(r.data.title, r.data);
+          }
+          grammarNotes = [...gMap.values()];
+          saveGrammarLocal();
+          renderGrammar();
+        }
+      } catch (e) {}
+      if (grammarNotes.length) syncGrammarToSupabase();
+    })();
+  }
 })();
 </script>
 </body>
