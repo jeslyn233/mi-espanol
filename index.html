@@ -2046,25 +2046,24 @@ function cleanRelatedWords(card) {
 
 // ── Data load/sync ────────────────────────────────
 async function loadWords() {
-  // 1. Try Supabase
-  if (sb) {
+  // 1. Try localStorage first (most recent, includes review progress)
+  try {
+    const s = localStorage.getItem('es_vocab_v14');
+    if (s) { words = JSON.parse(s); }
+  } catch (e) {}
+  // 2. Fallback to Supabase (cloud backup)
+  if (!words.length && sb) {
     try {
       const { data, error } = await sb.from('words').select('data').order('word');
       if (!error && data && data.length) {
         words = data.map(r => r.data);
         saveLocal();
-        return;
       }
-    } catch (e) { console.warn('Supabase load failed, trying localStorage'); }
+    } catch (e) {}
   }
-  // 2. Try localStorage
-  try {
-    const s = localStorage.getItem('es_vocab_v14');
-    if (s) { words = JSON.parse(s); }
-  } catch (e) {}
   // 3. Defaults (if still empty)
   if (!words.length) { words = await getDefaults(); saveLocal(); }
-  // 4. Sync local → Supabase (first-time migration)
+  // 4. Sync local → Supabase (always keep cloud in sync)
   if (sb && words.length) { await syncToSupabase(); }
 }
 
@@ -2130,7 +2129,9 @@ function searchOrGenerate() {
     // Word exists: jump to it
     input.value = '';
     render();
-    setTimeout(() => jumpToWordIdx(exist), 100);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => jumpToWordIdx(exist));
+    });
   } else {
     // New word: generate
     autoGenerate();
@@ -3429,7 +3430,7 @@ function openCardDetail() {
   const origIdx = words.indexOf(card);
   document.getElementById('studyOverlay').classList.remove('active');
   document.body.style.overflow = '';
-  document.getElementById('studyReturnBtn').style.display = 'block';
+  document.getElementById('studyReturnBtn').style.display = 'flex';
   setTimeout(() => {
     const cardEl = document.getElementById('card-' + origIdx);
     const bodyEl = document.getElementById('body-' + origIdx);
@@ -3440,8 +3441,32 @@ function openCardDetail() {
     cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     cardEl.classList.add('highlight');
     setTimeout(() => cardEl.classList.remove('highlight'), 1800);
+    // Position button centered relative to card after scroll settles
+    setTimeout(positionReturnBtn, 400);
   }, 300);
 }
+
+function positionReturnBtn() {
+  const btn = document.getElementById('studyReturnBtn');
+  if (btn.style.display === 'none') return;
+  const openCard = document.querySelector('.card.open');
+  if (!openCard) return;
+  const r = openCard.getBoundingClientRect();
+  btn.style.top = (r.bottom + 12) + 'px';
+  btn.style.left = (r.left + r.width / 2) + 'px';
+  btn.style.transform = 'translateX(-50%)';
+}
+// Keep button aligned with card during scroll
+let _returnBtnScrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (!_returnBtnScrollTicking) {
+    requestAnimationFrame(() => {
+      positionReturnBtn();
+      _returnBtnScrollTicking = false;
+    });
+    _returnBtnScrollTicking = true;
+  }
+}, { passive: true });
 
 function resumeStudy() {
   document.getElementById('studyReturnBtn').style.display = 'none';
