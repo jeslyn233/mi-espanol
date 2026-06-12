@@ -2060,6 +2060,31 @@ function normalizeVerbFormStr(str) {
   return parts.join(' / ');
 }
 
+function identifyConjugation(matched, verbForms) {
+  if (!verbForms) return null;
+  const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const baseMatch = matched.replace(/^(me|te|se|nos|os)\s+/i, '');
+  const TENSES = ['presente','pretérito','futuro','condicional','subjuntivo presente','imperativo'];
+  const PERSONS_BY_TENSE = { 'imperativo': ['tú','usted','nosotros','vosotros','ustedes'] };
+  const DEFAULT_PERSONS = ['yo','tú','él','nosotros','vosotros','ellos'];
+  // Try full matched text first, then without reflexive pronoun
+  const candidates = [matched];
+  if (baseMatch !== matched) candidates.push(baseMatch);
+  for (const tense of TENSES) {
+    const formsStr = verbForms[tense];
+    if (!formsStr) continue;
+    const forms = normalizeVerbFormStr(formsStr).split('/').map(f => f.trim().replace(/^\*|\*$/g, ''));
+    const persons = PERSONS_BY_TENSE[tense] || DEFAULT_PERSONS;
+    for (const candidate of candidates) {
+      const idx = forms.findIndex(f => norm(f) === norm(candidate));
+      if (idx >= 0 && idx < persons.length) {
+        return { tense, person: persons[idx] };
+      }
+    }
+  }
+  return null;
+}
+
 function cleanVerbForms(card) {
   const vf = card.verb_forms;
   if (!vf || !Object.keys(vf).length) return;
@@ -3368,12 +3393,14 @@ function updateStudyCard() {
             if (reflM) {
               matched = reflM[0].trim() + ' ' + matched;
               const adjBefore = text.slice(0, idx - reflM[0].length).trim();
-              chunkClozes.push({ zh: ch.zh, before: adjBefore, after, answer: matched });
+              const conjInfo1 = identifyConjugation(matched, card.verb_forms);
+              chunkClozes.push({ zh: ch.zh, before: adjBefore, after, answer: matched, conjInfo: conjInfo1, isVerb });
               continue;
             }
           }
           if (before || after) {
-            chunkClozes.push({ zh: ch.zh, before, after, answer: matched });
+            const conjInfo2 = identifyConjugation(matched, card.verb_forms);
+            chunkClozes.push({ zh: ch.zh, before, after, answer: matched, conjInfo: conjInfo2, isVerb });
           }
         }
       }
@@ -3408,7 +3435,14 @@ function updateStudyCard() {
     } else if (qt === 'cloze') {
       const cl = chunkClozes[Math.floor(Math.random() * chunkClozes.length)];
       studyFillAnswer = cl.answer;
-      fillPrompt = cl.zh + '\n' + (cl.before ? cl.before + ' ' : '') + '___' + (cl.after ? ' ' + cl.after : '');
+      // Cloze hint: prefer identified conjugation → tense + person + infinitive
+      let clozeHint = '';
+      if (cl.conjInfo) {
+        clozeHint = '\n' + cl.conjInfo.person + ' · ' + (TENSE_ZH[cl.conjInfo.tense] || cl.conjInfo.tense) + '  (' + card.word + ')';
+      } else if (cl.isVerb) {
+        clozeHint = '\n动词: ' + card.word;
+      }
+      fillPrompt = cl.zh + '\n' + (cl.before ? cl.before + ' ' : '') + '___' + (cl.after ? ' ' + cl.after : '') + clozeHint;
     } else {
       studyFillAnswer = card.word;
       fillPrompt = (card.core_meaning || card.english || '') + '\n___';
@@ -3422,7 +3456,7 @@ function updateStudyCard() {
     const lines = promptText.split('\n');
     const zh = lines[0] || '';
     const es = lines[1] || '___';
-    document.getElementById('studyType').textContent = '';
+    document.getElementById('studyType').textContent = (isSpell || isFill) ? ((card.type || '').split('/')[0].trim() || '') : '';
     document.getElementById('studyWord').innerHTML = '<span class="zh-hint">' + escapeHTML(zh) + '</span><br><span class="es-target">' + escapeHTML(es) + '</span>';
   } else {
     document.getElementById('studyWord').textContent = (!studyChoiceAudio || !showChoices) ? card.word : '🔊';
@@ -3567,19 +3601,19 @@ function openCardDetail() {
   document.getElementById('studyOverlay').classList.remove('active');
   document.body.style.overflow = '';
   document.getElementById('studyReturnBtn').style.display = 'flex';
-  setTimeout(() => {
+  // Use rAF to let overlay hide, then instant-scroll (smooth scroll adds ~400ms lag)
+  requestAnimationFrame(() => {
     const cardEl = document.getElementById('card-' + origIdx);
     const bodyEl = document.getElementById('body-' + origIdx);
     const chevEl = document.getElementById('chev-' + origIdx);
     if (!bodyEl || !chevEl) return;
     bodyEl.classList.add('open');
     chevEl.classList.add('open');
-    cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    cardEl.scrollIntoView({ behavior: 'instant', block: 'center' });
     cardEl.classList.add('highlight');
     setTimeout(() => cardEl.classList.remove('highlight'), 1800);
-    // Position button centered relative to card after scroll settles
-    setTimeout(positionReturnBtn, 400);
-  }, 300);
+    positionReturnBtn();
+  });
 }
 
 function positionReturnBtn() {
@@ -3828,6 +3862,13 @@ function checkSpelling() {
   document.getElementById('studyNewSentenceBtn').style.display = 'none';
   if (isCorrect) {
     delete card._retry;
+    // Show correct indicator before auto-advancing
+    document.getElementById('studySpellResult').textContent = '✓ 正确';
+    document.getElementById('studySpellResult').className = 'study-spell-result correct';
+    // Show the word meaning as confirmation
+    document.getElementById('studyReveal').style.display = '';
+    document.getElementById('studyMeaning').textContent = expectedAnswer;
+    document.getElementById('studyExtra').textContent = card.core_meaning || card.english || '';
     // Prevent double-submit: disable input immediately, clear for next card
     document.getElementById('studySpellInput').disabled = true;
     document.querySelector('.study-spell-submit').disabled = true;
