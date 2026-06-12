@@ -3164,6 +3164,7 @@ let studyFillAnswer = ''; // correct answer for fill mode
 let studyChoiceAudio = false; // choice mode: show word or play audio
 let studyPaused = false; // paused after rating, waiting for user action
 let studyLastCorrect = false; // was the last rating "correct"?
+let studyPausedCardIdx = -1; // index into studyAllCards of the paused card (used by openCardDetail)
 
 function getFilteredCards() {
   const sq = (document.getElementById('search')?.value || '').trim().toLowerCase();
@@ -3557,7 +3558,7 @@ function shuffleArraySlice(arr, n) {
 
 function openCardDetail() {
   if (studyCurrentBatch.length === 0) return;
-  const cardIdx = studyCurrentBatch[studyBatchIndex];
+  const cardIdx = studyPausedCardIdx >= 0 ? studyPausedCardIdx : studyCurrentBatch[studyBatchIndex];
   const card = studyAllCards[cardIdx];
   let origIdx = words.indexOf(card);
   // Fallback: find by word if reference doesn't match
@@ -3649,6 +3650,7 @@ function rateStudyCard(level) {
 
   // Pause for user action (wrong all modes, or flashcard correct)
   studyPaused = true;
+  studyPausedCardIdx = cardIdx;
   studyLastCorrect = isCorrect;
 
   // Hide rating + arrows, show post-rating buttons
@@ -3696,6 +3698,7 @@ function undoCorrect() {
   const moved = studyCurrentBatch.splice(studyBatchIndex, 1)[0];
   studyCurrentBatch.push(moved);
   // Switch to wrong-answer UI: show 返回 + detail, stay paused
+  studyPausedCardIdx = cardIdx;
   studyLastCorrect = false;
   document.getElementById('studyUndoBtn').style.display = 'none';
   document.getElementById('studyConfirmBtn').style.display = 'none';
@@ -3711,6 +3714,7 @@ function resumeFromPause() {
 
 function advanceAfterPause() {
   studyPaused = false;
+  studyPausedCardIdx = -1;
   applyStudyModeUI();
   document.getElementById('studyPostRating').style.display = 'none';
   document.getElementById('studyDetailBtn').style.display = 'none';
@@ -3781,6 +3785,7 @@ function answerChoice(idx) {
     studyCurrentBatch.push(moved);
     if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
     studyPaused = true;
+    studyPausedCardIdx = cardIdx;
     studyLastCorrect = false;
     document.getElementById('studyRating').style.display = 'none';
     document.getElementById('studyPrevArrow').style.visibility = 'hidden';
@@ -3843,6 +3848,7 @@ function checkSpelling() {
     studyCurrentBatch.push(moved);
     if (studyBatchIndex >= studyCurrentBatch.length) studyBatchIndex = 0;
     studyPaused = true;
+    studyPausedCardIdx = cardIdx;
     studyLastCorrect = false;
     document.getElementById('studyCard').classList.add('flipped');
     // Populate reveal card with answer
