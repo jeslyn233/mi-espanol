@@ -2368,6 +2368,8 @@ const AI_SYSTEM_PROMPT = `Eres profesor de español ELE. Genera una tarjeta de v
 
 🔴 单词验证铁律：如果输入的词在西班牙语中根本不存在（拼写错误、虚构词、其他语言的词、纯乱码如asdf），禁止编造虚假词卡。必须返回 {"error": "「xxx」no es una palabra válida en español."}。
 
+🔴 自复动词铁律：生成动词(type=v)卡片时，必须检查该动词是否有常用自复(pronominal)形式。西语中绝大多数及物动词都有自复用法——动作落到自己身上时加se。不仅是irse/dormirse/lavarse这种高频词，以下同样常见且必须识别：incorporar→incorporarse（加入/融入）, presentar→presentarse（自我介绍/出席）, dedicar→dedicarse（致力于）, comunicar→comunicarse（沟通/交流）, adaptar→adaptarse（适应）, recuperar→recuperarse（康复）, casar→casarse（结婚）, preocupar→preocuparse（担心）, convertir→convertirse（变成）, negar→negarse（拒绝）。只要自复形式在真实西语中常用，就必须填pronominal和pronominal_data，不可省略。不确定时宁可填写。
+
 ESTRUCTURA:
 {
   "word": "palabra",
