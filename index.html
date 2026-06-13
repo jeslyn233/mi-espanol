@@ -2132,6 +2132,13 @@ function loadWords() {
     const s = localStorage.getItem('es_vocab_v14');
     if (s) { words = JSON.parse(s); }
   } catch (e) {}
+  // Strip pronominal from multi-word phrases (e.g. "tomar prestado" shouldn't show "prestarse")
+  for (const w of words) {
+    if (w.word && w.word.includes(' ') && (w.pronominal || w.pronominal_data)) {
+      delete w.pronominal;
+      delete w.pronominal_data;
+    }
+  }
   if (!words.length) {
     // Use inline fallback so we never block on network
     words = [{word:"tener",type:"v",level:"A1",core_meaning:"有；拥有；感到",frequency:"A",tags:["通用","中性","日常"],situations:["表达拥有某物或某种关系","描述身体感受如饿渴冷热困","说明年龄或时间安排"],chunks:[{text:"Tengo hambre.",zh:"我饿了。",highlight:"",note:"A1",explain:"tener + 名词 表示身体感受，不是 ser/estar + adj。"},{text:"tener que + infinitivo",zh:"必须做某事",highlight:"tener que",note:"A2",explain:"tener que + inf. 固定结构，表示「必须」（客观需要）。"},{text:"No tengo ganas de salir hoy.",zh:"我今天不想出门。",highlight:"",note:"A2"}],nuance:[{word:"haber",desc:"无人称（hay），不表示拥有"},{word:"poseer",desc:"「拥有」的正式说法，多用于法律/书面"}],related_words:["haber","poseer","contar con","carecer"],native_expressions:[],notes:["西班牙语用 tener 表达很多感受类的东西（hambre/sed/frío/calor/sueño/miedo），英语用 be+adj，千万别翻译成 ser/estar+adj。"],verb_forms:{presente:"tengo / tienes / tiene / tenemos / tenéis / tienen",pretérito:"tuve / tuviste / tuvo / tuvimos / tuvisteis / tuvieron",futuro:"tendré / tendrás / tendrá / tendremos / tendréis / tendrán",imperativo:"ten / tenga / tengamos / tened / tengan",subjuntivo_presente:"tenga / tengas / tenga / tengamos / tengáis / tengan",subjuntivo_imperfecto:"tuviera / tuvieras / tuviera / tuviéramos / tuvierais / tuvieran",otros:[]}}];
@@ -2165,6 +2172,15 @@ async function syncFromCloud() {
         }
       }
     });
+
+    // Strip pronominal from multi-word phrases (sync cleanup)
+    for (const w of words) {
+      if (w.word && w.word.includes(' ') && (w.pronominal || w.pronominal_data)) {
+        delete w.pronominal;
+        delete w.pronominal_data;
+        changed = true;
+      }
+    }
 
     if (changed) { saveLocal(); render(); }
   } catch (e) {}
@@ -2608,7 +2624,8 @@ function render() {
 function buildCard(w, idx) {
   let body = '';
 
-  const hasPron = !!(w.pronominal && w.pronominal_data);
+  // Multi-word phrases (e.g. "tomar prestado") can't have a meaningful pronominal form
+  const hasPron = !!(w.pronominal && w.pronominal_data && !w.word.includes(' '));
   const pd = w.pronominal_data;
 
   if (hasPron) {
