@@ -3434,16 +3434,16 @@ function updateStudyCard() {
     if (hasConj) types.push('conj');
     if (chunkClozes.length > 0) types.push('cloze');
     if (types.length === 0) {
-      // No conj or cloze available — show loading while AI generates a sentence
+      // No conj or cloze — show loading while AI generates a sentence
       studyFillAnswer = card.word;
       fillPrompt = '⏳ 生成填空…\n___';
       generateNewSentence();
-    }
-    const qt = types[Math.floor(Math.random() * types.length)];
+    } else {
+      const qt = types[Math.floor(Math.random() * types.length)];
 
-    const REFL_PRONOUNS = { yo:'me', tú:'te', él:'se', nosotros:'nos', vosotros:'os', ellos:'se', usted:'se', usteds:'se' };
+      const REFL_PRONOUNS = { yo:'me', tú:'te', él:'se', nosotros:'nos', vosotros:'os', ellos:'se', usted:'se', usteds:'se' };
 
-    if (qt === 'conj') {
+      if (qt === 'conj') {
       const tenses = ['presente','pretérito','futuro','condicional','subjuntivo presente','imperativo'].filter(k => card.verb_forms[k]);
       const tense = tenses[Math.floor(Math.random() * tenses.length)];
       const forms = normalizeVerbFormStr(card.verb_forms[tense]).split('/').map(f => f.trim().replace(/^\*|\*$/g, ''));
@@ -3474,6 +3474,7 @@ function updateStudyCard() {
     } else {
       studyFillAnswer = card.word;
       fillPrompt = (card.core_meaning || card.english || '') + '\n___';
+    }
     }
   }
 
