@@ -3202,6 +3202,7 @@ let studyBatchTotal = 10;
 let studyShuffle = false;
 let studyMode = 'flashcard'; // flashcard | choice | listen | spell | mix
 let studyCardMode = 'flashcard'; // actual mode for current card (may differ in mix)
+let studyLastMixMode = ''; // avoid consecutive repeats in mix mode
 let choiceOptions = []; // current choice options (indices into studyAllCards)
 let studyAnsweredCount = 0; // prevent false completion
 let studyFillAnswer = ''; // correct answer for fill mode
@@ -3364,7 +3365,10 @@ function updateStudyCard() {
   }
   let effectiveMode = studyMode;
   if (studyMode === 'mix') {
-    effectiveMode = ['choice', 'spell', 'fill'][Math.floor(Math.random() * 3)];
+    const modes = ['choice', 'spell', 'fill'];
+    const pool = modes.filter(m => m !== studyLastMixMode);
+    effectiveMode = pool[Math.floor(Math.random() * pool.length)];
+    studyLastMixMode = effectiveMode;
   }
   studyCardMode = effectiveMode;
   const isFlashcard = effectiveMode === 'flashcard';
@@ -3429,7 +3433,12 @@ function updateStudyCard() {
     const types = [];
     if (hasConj) types.push('conj');
     if (chunkClozes.length > 0) types.push('cloze');
-    if (types.length === 0) types.push('spell');
+    if (types.length === 0) {
+      // No conj or cloze available — show loading while AI generates a sentence
+      studyFillAnswer = card.word;
+      fillPrompt = '⏳ 生成填空…\n___';
+      generateNewSentence();
+    }
     const qt = types[Math.floor(Math.random() * types.length)];
 
     const REFL_PRONOUNS = { yo:'me', tú:'te', él:'se', nosotros:'nos', vosotros:'os', ellos:'se', usted:'se', usteds:'se' };
