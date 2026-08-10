@@ -766,7 +766,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .notebook-overlay {
   display: none; position: fixed; inset: 0;
   z-index: 210; flex-direction: column; align-items: center;
-  background: #EDEEF0;
+  background: var(--bg);
 }
 .notebook-overlay.active { display: flex; }
 .notebook-topbar {
@@ -797,28 +797,29 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   margin-top: 52px; width: 95%; max-width: 1200px;
   padding: 20px 0 60px; overflow-y: auto; flex: 1;
   display: flex; flex-direction: column; gap: 16px;
+  position: relative;
 }
 
 /* ── Add form (above the book) ─────────────────── */
 .notebook-add-card {
-  background: #FBFCFD; border: 1px solid #D0D4DE; border-radius: 4px;
-  padding: 16px; display: flex; flex-direction: column; gap: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  background: transparent; border: none; border-radius: 0;
+  padding: 0 0 16px; display: flex; flex-direction: column; gap: 8px;
+  box-shadow: none;
 }
 .notebook-add-words { display: flex; flex-direction: column; gap: 6px; }
 .nb-word-row { display: flex; gap: 8px; align-items: center; }
 .notebook-input {
-  font-size: 15px; padding: 10px 14px;
+  font-size: 14px; padding: 8px 12px;
   border: 1px solid #C8CDD4; border-radius: 4px;
   background: #F7F9FB; color: #3A4A5C; outline: none;
   transition: border-color .15s;
 }
 .nb-es { flex: 1; font-family: 'Georgia', 'Times New Roman', serif; font-style: italic; font-size: 16px; }
 .notebook-textarea {
-  font-family: 'Georgia', 'Times New Roman', serif; font-style: italic; font-size: 15px;
-  padding: 10px 14px; border: 1px solid #C8CDD4; border-radius: 4px;
+  font-family: 'Georgia', 'Times New Roman', serif; font-style: italic; font-size: 14px;
+  padding: 8px 12px; border: 1px solid #C8CDD4; border-radius: 4px;
   background: #F7F9FB; color: #4A5A6C; outline: none;
-  resize: vertical; line-height: 1.6;
+  resize: vertical; line-height: 1.5;
 }
 #nbQuoteZh { font-family: 'DengXian', '等线', 'Microsoft YaHei', '微软雅黑', sans-serif, serif; font-size: 14px; }
 .notebook-textarea:focus { border-color: #9098A8; background: #fff; }
@@ -836,6 +837,20 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   padding: 8px; cursor: pointer; transition: all .15s;
 }
 .nb-add-word-btn:hover { border-color: #9098A8; color: #4A5A6C; background: #F7F9FB; }
+/* ── Cat ──────────────────────────────────────── */
+.nb-cat {
+  position: absolute; top: 50px; right: calc(6% - 8px);
+  width: 90px; height: auto; z-index: 215;
+  pointer-events: none;
+  animation: nb-swing 4s ease-in-out infinite;
+  transform-origin: top center;
+}
+@keyframes nb-swing {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(4deg); }
+  75% { transform: rotate(-4deg); }
+}
+
 /* ── Book ──────────────────────────────────────── */
 .nb-book {
   margin-top: 16px;
@@ -1433,6 +1448,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     </span>
     <button onclick="closeNotebook()">✕ 关闭</button>
   </div>
+  <img src="黎猫猫.png" class="nb-cat" alt="🐱">
   <div class="notebook-content" id="notebookContent">
     <div class="notebook-add-card">
       <div class="notebook-add-words" id="nbWordRows">
@@ -1443,8 +1459,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       </div>
       <button class="nb-add-word-btn" onclick="addNbWordRow()">+ 添加单词</button>
       <div class="nb-quote-inputs">
-        <textarea class="notebook-textarea" id="nbQuote" placeholder="引用原文（西语）" rows="2"></textarea>
-        <textarea class="notebook-textarea" id="nbQuoteZh" placeholder="引用翻译（中文）" rows="2"></textarea>
+        <textarea class="notebook-textarea" id="nbQuote" placeholder="引用原文（西语）" rows="1"></textarea>
+        <textarea class="notebook-textarea" id="nbQuoteZh" placeholder="引用翻译（中文）" rows="1"></textarea>
       </div>
       <button class="primary" onclick="addNotebookEntry()" style="font-size:12px;padding:6px 16px;align-self:flex-end;">➕ 保存</button>
     </div>
