@@ -4,5 +4,7 @@
       "memory": 512,
       "maxDuration": 60
     }
-  }
+  },
+  "cleanUrls": true,
+  "trailingSlash": false
 }
