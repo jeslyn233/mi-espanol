@@ -6,7 +6,6 @@
     }
   },
   "rewrites": [
-    { "source": "/", "destination": "/spanish/" },
-    { "source": "/:path", "destination": "/spanish/:path" }
+    { "source": "/", "destination": "/spanish/" }
   ]
 }
