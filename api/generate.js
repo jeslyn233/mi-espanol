@@ -132,6 +132,16 @@ export default async function handler(req) {
     });
   }
 
+  // ── Auth check ─────────────────────────────────
+  const authHeader = req.headers.get('Authorization') || '';
+  const token = authHeader.replace('Bearer ', '');
+  if (!token || token !== process.env.AUTH_TOKEN) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
   let body;
   try { body = await req.json(); } catch (e) {
     return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
@@ -140,9 +150,10 @@ export default async function handler(req) {
     });
   }
 
-  const { word } = body;
-  if (!word || typeof word !== 'string') {
-    return new Response(JSON.stringify({ error: 'word required' }), {
+  const { action } = body;
+  const validActions = ['generate_card', 'generate_sentence', 'chat'];
+  if (!action || !validActions.includes(action)) {
+    return new Response(JSON.stringify({ error: 'Invalid or missing action' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' }
     });
@@ -156,9 +167,67 @@ export default async function handler(req) {
     });
   }
 
+  // ── Build request per action ───────────────────
+  let messages, temperature, max_tokens, response_format;
+
+  if (action === 'generate_card') {
+    const { word } = body;
+    if (!word || typeof word !== 'string') {
+      return new Response(JSON.stringify({ error: 'word required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    messages = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: `Genera la tarjeta para: "${word.trim()}"` }
+    ];
+    temperature = 0.3;
+    max_tokens = 2000;
+    response_format = { type: 'json_object' };
+  } else if (action === 'generate_sentence') {
+    const { word } = body;
+    if (!word || typeof word !== 'string') {
+      return new Response(JSON.stringify({ error: 'word required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    messages = [
+      { role: 'system', content: `Eres un profesor de español. Genera UNA frase natural en español que contenga la palabra "${word}". Devuelve SOLO un JSON: {"zh":"中文翻译","es":"frase con la palabra ${word}","blank":"la misma frase pero reemplazando ${word} por ___"}` },
+      { role: 'user', content: `Genera una frase con "${word}"` }
+    ];
+    temperature = 0.9;
+    max_tokens = 300;
+    response_format = { type: 'json_object' };
+  } else if (action === 'chat') {
+    const { messages: chatMessages } = body;
+    if (!chatMessages || !Array.isArray(chatMessages) || chatMessages.length === 0) {
+      return new Response(JSON.stringify({ error: 'messages array required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    messages = chatMessages;
+    temperature = 0.7;
+    max_tokens = 1500;
+    response_format = undefined;
+  }
+
+  // ── Call DeepSeek ──────────────────────────────
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 50000);
+
+    const fetchBody = {
+      model: 'deepseek-chat',
+      messages,
+      temperature,
+      max_tokens
+    };
+    if (response_format) {
+      fetchBody.response_format = response_format;
+    }
 
     const resp = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
@@ -166,16 +235,7 @@ export default async function handler(req) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey}`
       },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: `Genera la tarjeta para: "${word.trim()}"` }
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.3,
-        max_tokens: 2000
-      }),
+      body: JSON.stringify(fetchBody),
       signal: controller.signal
     });
     clearTimeout(timeout);
@@ -197,6 +257,24 @@ export default async function handler(req) {
       });
     }
 
+    // ── Chat: return reply directly ──────────────
+    if (action === 'chat') {
+      return new Response(JSON.stringify({ reply: content }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // ── Generate sentence: parse and return ──────
+    if (action === 'generate_sentence') {
+      const parsed = JSON.parse(content);
+      return new Response(JSON.stringify(parsed), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // ── Generate card: full post-processing ──────
     const card = JSON.parse(content);
 
     // Deduplicate highlights across chunks
