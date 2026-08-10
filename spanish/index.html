@@ -761,6 +761,193 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .chat-input-row button:disabled { opacity: .4; cursor: not-allowed; }
 .chat-typing { align-self: flex-start; padding: 10px 14px; color: var(--text3); font-size: 12px; }
 
+/* ── Notebook ────────────────────────────────────── */
+/* ── Notebook (Book Design) ─────────────────────── */
+.notebook-overlay {
+  display: none; position: fixed; inset: 0;
+  z-index: 210; flex-direction: column; align-items: center;
+  background: #EDEEF0;
+}
+.notebook-overlay.active { display: flex; }
+.notebook-topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 52px;
+  background: rgba(255,255,255,.85); backdrop-filter: blur(8px);
+  border-bottom: 1px solid #C0C8D0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; z-index: 212;
+}
+.notebook-title {
+  font-family: 'Georgia', 'Times New Roman', serif; font-style: italic;
+  font-size: 20px; color: #3A4A5C;
+}
+.notebook-count {
+  font-size: 12px; color: #889098;
+}
+.nb-tool-group { display: flex; gap: 0; }
+.nb-tool-group button:first-child { border-radius: 999px 0 0 999px; }
+.nb-tool-group button:last-child { border-radius: 0 999px 999px 0; border-left: none; }
+.notebook-topbar button {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 13px;
+  padding: 6px 14px; border: 1px solid #B8BFC8; border-radius: 999px;
+  background: #fff; color: #4A5A6C; cursor: pointer;
+}
+.notebook-topbar button:hover { background: #EAEEF2; }
+
+.notebook-content {
+  margin-top: 52px; width: 95%; max-width: 1200px;
+  padding: 20px 0 60px; overflow-y: auto; flex: 1;
+  display: flex; flex-direction: column; gap: 16px;
+}
+
+/* ── Add form (above the book) ─────────────────── */
+.notebook-add-card {
+  background: #FBFCFD; border: 1px solid #D0D4DE; border-radius: 4px;
+  padding: 16px; display: flex; flex-direction: column; gap: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.notebook-add-words { display: flex; flex-direction: column; gap: 6px; }
+.nb-word-row { display: flex; gap: 8px; align-items: center; }
+.notebook-input {
+  font-size: 15px; padding: 10px 14px;
+  border: 1px solid #C8CDD4; border-radius: 4px;
+  background: #F7F9FB; color: #3A4A5C; outline: none;
+  transition: border-color .15s;
+}
+.nb-es { flex: 1; font-family: 'Georgia', 'Times New Roman', serif; font-style: italic; font-size: 16px; }
+.notebook-textarea {
+  font-family: 'Georgia', 'Times New Roman', serif; font-style: italic; font-size: 15px;
+  padding: 10px 14px; border: 1px solid #C8CDD4; border-radius: 4px;
+  background: #F7F9FB; color: #4A5A6C; outline: none;
+  resize: vertical; line-height: 1.6;
+}
+#nbQuoteZh { font-family: 'DengXian', '等线', 'Microsoft YaHei', '微软雅黑', sans-serif, serif; font-size: 14px; }
+.notebook-textarea:focus { border-color: #9098A8; background: #fff; }
+.notebook-input:focus { border-color: #9098A8; background: #fff; }
+.nb-row-remove {
+  width: 28px; height: 28px; border-radius: 50%; border: 1px solid #C8CDD4;
+  background: #fff; color: #9098A8; cursor: pointer; font-size: 12px;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.nb-row-remove:hover { background: #FEE2E2; color: #B05060; border-color: #E8B0B0; }
+.nb-add-word-btn {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 12px; color: #889098;
+  background: none; border: 1px dashed #B8BFC8; border-radius: 4px;
+  padding: 8px; cursor: pointer; transition: all .15s;
+}
+.nb-add-word-btn:hover { border-color: #9098A8; color: #4A5A6C; background: #F7F9FB; }
+/* ── Book ──────────────────────────────────────── */
+.nb-book {
+  margin-top: 16px;
+  background-color: #FBFCFD;
+  background-image:
+    radial-gradient(circle, #D8DCE2 0.7px, transparent 0.7px);
+  background-size: 10px 10px;
+  border-radius: 4px 8px 8px 4px;
+  box-shadow: 2px 4px 20px rgba(0,0,0,.08), inset 0 0 1px rgba(0,0,0,.03);
+  padding: 36px 40px 40px; position: relative;
+  column-count: 2; column-gap: 40px;
+  column-rule: 1px solid #D8DCE4;
+}
+.notebook-list { column-span: none; }
+.nb-entry {
+  break-inside: avoid; padding: 10px 0;
+  border-bottom: 1px dashed #E0E4EA;
+}
+/* Page numbers */
+.nb-book::after {
+  content: '— ' attr(data-left) ' —';
+  position: absolute; bottom: 14px; left: 40px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 13px; color: #B0B8C4;
+}
+.nb-book-rt {
+  position: absolute; bottom: 14px; right: 40px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 13px; color: #B0B8C4;
+}
+.nb-entry:first-of-type { padding-top: 0; }
+
+/* Scroll mode */
+.nb-book.nb-scroll { column-count: 1; column-rule: none; }
+.nb-book.nb-scroll::after,
+.nb-book.nb-scroll .nb-book-rt { display: none; }
+.nb-words { display: flex; flex-direction: column; }
+.nb-word-line {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 6px 0 6px 14px;
+}
+.nb-word-line:not(:last-of-type) { border-bottom: 1px dotted #E8ECF2; }
+/* Inline edit */
+.nb-inline-word-row {
+  display: flex; gap: 6px; align-items: center; margin-bottom: 4px;
+}
+.nb-inline-word-row .notebook-input { padding: 6px 10px; font-size: 14px; }
+.nb-inline-es { flex: 1; }
+.nb-entry-editing { background: #F8F9FB; padding: 12px; border-radius: 6px; }
+.nb-w-es {
+  font-family: 'Georgia', 'Times New Roman', serif; font-style: italic;
+  font-size: 19px; color: #2A3A4C;
+}
+.nb-w-dot { color: #C0C8D0; font-size: 12px; }
+.nb-w-zh {
+  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-size: 14px; color: #5A6A78;
+}
+
+/* Quote row */
+.nb-quote-row {
+  display: flex; flex-direction: column; gap: 0; margin-top: 10px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(150,160,180,.12); overflow: hidden;
+}
+.nb-quote-box {
+  padding: 10px 14px 4px;
+  font-family: 'DM Sans', 'Georgia', system-ui, sans-serif;
+  font-size: 15px; color: #4A4050; line-height: 1.7;
+}
+.nb-quote-zh {
+  padding: 2px 14px 10px;
+  font-family: 'DengXian', '等线', 'Microsoft YaHei', '微软雅黑', sans-serif, serif;
+  font-size: 15px; color: #5A4A58; line-height: 1.7;
+}
+.nb-quote-box .nb-bold { font-weight: 700; color: #2A3A4C; }
+
+/* Quote inputs — side by side */
+.nb-quote-inputs {
+  display: flex; gap: 10px;
+}
+.nb-quote-inputs .notebook-textarea { flex: 1; }
+
+#nbPageNum { text-align: center; padding: 12px 0 0; }
+#nbPageNum .nb-nav-btn {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 14px;
+  padding: 4px 10px; border: 1px solid #D0D4DE; border-radius: 4px;
+  background: #fff; color: #6A7A88; cursor: pointer;
+}
+#nbPageNum .nb-nav-btn:disabled { opacity: .3; cursor: default; }
+#nbPageNum .nb-nav-info {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 14px; color: #8090A0; margin: 0 8px;
+}
+
+/* Actions */
+.nb-entry-actions {
+  display: flex; justify-content: flex-end; gap: 4px; margin-top: 8px;
+}
+.nb-entry-actions button {
+  font-family: 'DM Sans', system-ui, sans-serif; font-size: 10px;
+  padding: 2px 8px; border: 1px solid #D0D4DE; border-radius: 3px;
+  background: transparent; color: #A0A8B8; cursor: pointer;
+}
+.nb-entry-actions button:hover { background: #E8ECF2; color: #4A5A6C; }
+
+.notebook-empty {
+  text-align: center; padding: 60px 20px; color: #9098A8;
+  font-family: '京华老宋体', 'Noto Serif SC', 'STSong', 'SimSun', serif;
+  font-size: 15px;
+}
+
 @media (max-width: 640px) {
   .speak-btn { opacity: 0; width: 20px; height: 20px; font-size: 10px; }
   .card.open .speak-btn { opacity: 1; }
@@ -774,6 +961,12 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .study-meaning { font-size: 18px; }
   .wrong-answer-es { font-size: 15px; }
   .wrong-answer-zh { font-size: 11px; }
+  .notebook-content { width: 96%; padding: 16px 0 40px; }
+  .nb-book { column-count: 1; column-rule: none; padding: 24px 20px 32px; }
+  .nb-w-es { font-size: 16px; }
+  .nb-quote-row { flex-direction: column; }
+  .nb-quote-inputs { flex-direction: column; }
+  .notebook-input { font-size: 14px; padding: 8px 10px; }
   .wrong-answer-card { padding: 12px 16px; }
   .study-nav { bottom: 20px; gap: 12px; }
   .study-nav button { font-size: 13px; padding: 10px 18px; }
@@ -1075,6 +1268,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
         <button class="task-tab" onclick="setReviewFilter('new')">新词 <span class="task-num" id="taskNew">0</span></button>
       </div>
       <button class="primary" onclick="openStudy()" style="padding:5px 12px;font-size:11px;">📖 学习</button>
+      <button class="primary" onclick="openNotebook()" style="padding:5px 12px;font-size:11px;">📓 笔记本</button>
       <button class="flashcard-btn" id="flashcardBtn" onclick="toggleFlashcard()" title="闪卡模式"></button>
     </div>
     <div id="count" class="count"></div>
@@ -1226,6 +1420,38 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       <button id="studyConfirmBtn" class="rating-btn good" onclick="event.stopPropagation();confirmCorrect()" style="font-size:14px;width:auto;padding:12px 24px;border-radius:999px;">下一个 →</button>
     </div>
     <button class="nav-arrow" id="studyNextArrow" onclick="event.stopPropagation();nextStudyCard()" title="下一个 (→)">→</button>
+  </div>
+</div>
+
+<div class="notebook-overlay" id="notebookOverlay">
+  <div class="notebook-topbar">
+    <span class="notebook-title">📓 笔记本</span>
+    <span class="notebook-count" id="notebookCount">0 组</span>
+    <span class="nb-tool-group">
+      <button onclick="toggleNotebookEdit()" id="nbEditToggle" title="编辑模式">✎ 编辑</button>
+      <button onclick="toggleNotebookLayout()" id="nbLayoutBtn" title="切换布局">📖 双页</button>
+    </span>
+    <button onclick="closeNotebook()">✕ 关闭</button>
+  </div>
+  <div class="notebook-content" id="notebookContent">
+    <div class="notebook-add-card">
+      <div class="notebook-add-words" id="nbWordRows">
+        <div class="nb-word-row">
+          <input type="text" class="notebook-input nb-es" placeholder="西语单词或短语" autocomplete="off" onkeydown="if(event.key==='Enter'){addNotebookEntry()}">
+          <button class="nb-row-remove" onclick="removeNbWordRow(this)" title="移除" style="display:none;">✕</button>
+        </div>
+      </div>
+      <button class="nb-add-word-btn" onclick="addNbWordRow()">+ 添加单词</button>
+      <div class="nb-quote-inputs">
+        <textarea class="notebook-textarea" id="nbQuote" placeholder="引用原文（西语）" rows="2"></textarea>
+        <textarea class="notebook-textarea" id="nbQuoteZh" placeholder="引用翻译（中文）" rows="2"></textarea>
+      </div>
+      <button class="primary" onclick="addNotebookEntry()" style="font-size:12px;padding:6px 16px;align-self:flex-end;">➕ 保存</button>
+    </div>
+    <div class="nb-book" id="nbBook">
+      <div class="notebook-list" id="notebookList"></div>
+      <div class="nb-page-num" id="nbPageNum"></div>
+    </div>
   </div>
 </div>
 
@@ -3284,6 +3510,251 @@ function closeStudy() {
     }
   }
   render();
+}
+
+// ── Notebook ──────────────────────────────────────
+let notebookGroups = [];
+let notebookEditing = false;
+let editingId = null;
+let notebookDoublePage = true;
+let nbColorIdx = 0;
+const NB_COLORS = ['#FBF3F5','#F5F2FA','#FAF8EC','#E2EEF8']; // true=双页, false=滚动
+
+function loadNotebook() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('mi_espanol_notebook') || '[]');
+    notebookGroups = raw.filter(g => g.words && Array.isArray(g.words));
+    notebookGroups.forEach((g, i) => {
+      if (!g.color) g.color = NB_COLORS[i % NB_COLORS.length];
+    });
+  } catch (e) { notebookGroups = []; }
+}
+loadNotebook();
+
+function saveNotebook() {
+  localStorage.setItem('mi_espanol_notebook', JSON.stringify(notebookGroups));
+}
+
+function openNotebook() {
+  document.getElementById('notebookOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  notebookEditing = false;
+  renderNotebook();
+  const firstEs = document.querySelector('#nbWordRows .nb-es');
+  if (firstEs) firstEs.focus();
+}
+
+function toggleNotebookEdit() {
+  notebookEditing = !notebookEditing;
+  renderNotebook();
+}
+
+function toggleNotebookLayout() {
+  notebookDoublePage = !notebookDoublePage;
+  renderNotebook();
+}
+
+function closeNotebook() {
+  document.getElementById('notebookOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function addNbWordRow() {
+  const container = document.getElementById('nbWordRows');
+  const row = document.createElement('div');
+  row.className = 'nb-word-row';
+  row.innerHTML = `
+    <input type="text" class="notebook-input nb-es" placeholder="西语单词或短语" autocomplete="off" onkeydown="if(event.key==='Enter'){addNotebookEntry()}">
+    <button class="nb-row-remove" onclick="removeNbWordRow(this)" title="移除">✕</button>
+  `;
+  container.appendChild(row);
+  row.querySelector('.nb-es').focus();
+  updateNbRemoveButtons();
+}
+
+function removeNbWordRow(btn) {
+  const rows = document.querySelectorAll('#nbWordRows .nb-word-row');
+  if (rows.length <= 1) return; // keep at least one row
+  btn.parentElement.remove();
+  updateNbRemoveButtons();
+}
+
+function updateNbRemoveButtons() {
+  const rows = document.querySelectorAll('#nbWordRows .nb-word-row');
+  const btns = document.querySelectorAll('#nbWordRows .nb-row-remove');
+  const show = rows.length > 1;
+  btns.forEach(b => { b.style.display = show ? 'flex' : 'none'; });
+}
+
+function addNotebookEntry() {
+  const rows = document.querySelectorAll('#nbWordRows .nb-word-row');
+  const words = [];
+  rows.forEach(row => {
+    const es = row.querySelector('.nb-es').value.trim();
+    if (es) words.push({ es: es, zh: '' });
+  });
+  if (!words.length) return;
+
+  const quoteEl = document.getElementById('nbQuote');
+  const quoteZhEl = document.getElementById('nbQuoteZh');
+  notebookGroups.unshift({
+    id: Date.now(),
+    words: words,
+    quote: quoteEl.value.trim(),
+    quoteZh: quoteZhEl.value.trim(),
+    color: NB_COLORS[nbColorIdx % NB_COLORS.length],
+    createdAt: new Date().toISOString()
+  });
+  nbColorIdx++;
+
+  // Reset form
+  document.getElementById('nbWordRows').innerHTML = `
+    <div class="nb-word-row">
+      <input type="text" class="notebook-input nb-es" placeholder="西语单词或短语" autocomplete="off" onkeydown="if(event.key==='Enter'){addNotebookEntry()}">
+      <button class="nb-row-remove" onclick="removeNbWordRow(this)" title="移除" style="display:none;">✕</button>
+    </div>
+  `;
+  quoteEl.value = '';
+  quoteZhEl.value = '';
+
+  saveNotebook();
+  renderNotebook();
+  const firstGroup = document.querySelector('.nb-group');
+  if (firstGroup) firstGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelector('#nbWordRows .nb-es').focus();
+}
+
+function editNotebookGroup(id) {
+  editingId = id;
+  renderNotebook();
+}
+
+function saveInlineEdit(id) {
+  const entryEl = document.querySelector(`.nb-entry[data-id="${id}"]`);
+  if (!entryEl) return;
+  const group = notebookGroups.find(g => g.id === id);
+  if (!group) return;
+  const wordRows = entryEl.querySelectorAll('.nb-inline-word-row');
+  const words = [];
+  wordRows.forEach(row => {
+    const es = row.querySelector('.nb-inline-es').value.trim();
+    if (es) words.push({ es: es, zh: '' });
+  });
+  if (!words.length) return;
+  group.words = words;
+  group.quote = (entryEl.querySelector('.nb-inline-quote') || {}).value || '';
+  group.quoteZh = (entryEl.querySelector('.nb-inline-quotezh') || {}).value || '';
+  editingId = null;
+  saveNotebook();
+  renderNotebook();
+}
+
+function cancelInlineEdit() {
+  editingId = null;
+  renderNotebook();
+}
+
+function addInlineWordRow(btn) {
+  const row = document.createElement('div');
+  row.className = 'nb-inline-word-row';
+  row.innerHTML = `
+    <input type="text" class="notebook-input nb-es nb-inline-es" placeholder="西语单词或短语" autocomplete="off">
+    <button class="nb-row-remove" onclick="this.parentElement.remove()" title="移除">✕</button>
+  `;
+  btn.parentElement.insertBefore(row, btn);
+}
+
+function deleteNotebookGroup(id) {
+  if (!confirm('确定删除这一组？')) return;
+  notebookGroups = notebookGroups.filter(g => g.id !== id);
+  saveNotebook();
+  renderNotebook();
+}
+
+function boldWords(text, words) {
+  let result = escapeHTML(text);
+  words.forEach(w => {
+    const esc = escapeHTML(w.es);
+    const regex = new RegExp('(' + esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+    result = result.replace(regex, '<b class="nb-bold">$1</b>');
+  });
+  return result;
+}
+
+function renderEntryHTML(g) {
+  const isEditing = editingId === g.id;
+  if (isEditing) {
+    return `
+    <div class="nb-entry nb-entry-editing" data-id="${g.id}">
+      <div class="nb-words">
+        ${g.words.map(w => `
+          <div class="nb-inline-word-row">
+            <input type="text" class="notebook-input nb-es nb-inline-es" value="${escapeHTML(w.es)}" autocomplete="off">
+            <button class="nb-row-remove" onclick="this.parentElement.remove()" title="移除">✕</button>
+          </div>
+        `).join('')}
+        <button class="nb-add-word-btn" onclick="addInlineWordRow(this)" style="margin-top:6px;">+ 添加单词</button>
+      </div>
+      <textarea class="notebook-textarea nb-inline-quote" rows="2" style="margin-top:8px;">${escapeHTML(g.quote || '')}</textarea>
+      <textarea class="notebook-textarea nb-inline-quotezh" rows="2">${escapeHTML(g.quoteZh || '')}</textarea>
+      <div class="nb-entry-actions">
+        <button onclick="saveInlineEdit(${g.id})" style="background:#4A5A6C;color:#fff;">✓ 保存</button>
+        <button onclick="cancelInlineEdit()">✕ 取消</button>
+      </div>
+    </div>`;
+  }
+  return `
+    <div class="nb-entry" data-id="${g.id}">
+      <div class="nb-words">
+        ${g.words.map(w => `
+          <div class="nb-word-line">
+            <span class="nb-w-es">${escapeHTML(w.es)}</span>
+          </div>
+        `).join('')}
+      </div>
+      ${(g.quote || g.quoteZh) ? `
+      <div class="nb-quote-row" style="background:${g.color || NB_COLORS[0]}">
+        ${g.quote ? `<div class="nb-quote-box">${boldWords(g.quote, g.words)}</div>` : '<div class="nb-quote-box"></div>'}
+        ${g.quoteZh ? `<div class="nb-quote-zh">${escapeHTML(g.quoteZh)}</div>` : '<div class="nb-quote-zh"></div>'}
+      </div>` : ''}
+      ${notebookEditing ? `
+      <div class="nb-entry-actions">
+        <button onclick="editNotebookGroup(${g.id})" title="编辑">✎ 编辑</button>
+        <button onclick="deleteNotebookGroup(${g.id})" title="删除">🗑</button>
+      </div>` : ''}
+    </div>`;
+}
+
+function renderNotebook() {
+  const list = document.getElementById('notebookList');
+  if (!list) return;
+  document.getElementById('notebookCount').textContent = notebookGroups.length + ' 组';
+  const book = document.getElementById('nbBook');
+  const layoutBtn = document.getElementById('nbLayoutBtn');
+  if (layoutBtn) {
+    layoutBtn.textContent = notebookDoublePage ? '📜 滚动' : '📖 双页';
+  }
+  if (book) {
+    book.classList.toggle('nb-scroll', !notebookDoublePage);
+  }
+  const editBtn = document.getElementById('nbEditToggle');
+  if (editBtn) {
+    editBtn.textContent = notebookEditing ? '✎ 完成' : '✎ 编辑';
+    editBtn.style.background = notebookEditing ? '#4A5A6C' : '';
+    editBtn.style.color = notebookEditing ? '#fff' : '';
+  }
+  if (!notebookGroups.length) {
+    list.innerHTML = '<div class="notebook-empty">还没有记录。<br>在上方添加你阅读时遇到的单词吧 ✍️</div>';
+    document.getElementById('nbPageNum').innerHTML = '';
+    return;
+  }
+  list.innerHTML = notebookGroups.map(g => renderEntryHTML(g)).join('');
+  const total = Math.max(1, Math.ceil(notebookGroups.length / 6));
+  book.setAttribute('data-left', total);
+  let rtEl = book.querySelector('.nb-book-rt');
+  if (!rtEl) { rtEl = document.createElement('span'); rtEl.className = 'nb-book-rt'; book.appendChild(rtEl); }
+  rtEl.textContent = '— ' + (total + 1) + ' —';
+  document.getElementById('nbPageNum').innerHTML = '';
 }
 
 function updateStudyCard() {
