@@ -839,8 +839,8 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .nb-add-word-btn:hover { border-color: #9098A8; color: #4A5A6C; background: #F7F9FB; }
 /* ── Cat ──────────────────────────────────────── */
 .nb-cat {
-  position: absolute; top: 50px; right: calc(6% - 8px);
-  width: 90px; height: auto; z-index: 215;
+  position: fixed; top: 54px; right: 4%;
+  width: 90px; height: auto; z-index: 999;
   pointer-events: none;
   animation: nb-swing 4s ease-in-out infinite;
   transform-origin: top center;
@@ -1448,7 +1448,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
     </span>
     <button onclick="closeNotebook()">✕ 关闭</button>
   </div>
-  <img src="cat1.png" class="nb-cat" alt="🐱">
+  <img src="/spanish/cat1.png" class="nb-cat" alt="🐱">
   <div class="notebook-content" id="notebookContent">
     <div class="notebook-add-card">
       <div class="notebook-add-words" id="nbWordRows">
