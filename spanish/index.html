@@ -919,12 +919,12 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
 .nb-quote-box {
   padding: 10px 14px 4px;
   font-family: 'DM Sans', 'Georgia', system-ui, sans-serif;
-  font-size: 16px; color: #4A4050; line-height: 1.7;
+  font-size: 16px; color: #4A4050; line-height: 1.55;
 }
 .nb-quote-zh {
   padding: 2px 14px 10px;
   font-family: 'DengXian', '等线', 'Microsoft YaHei', '微软雅黑', sans-serif, serif;
-  font-size: 15px; color: #5A4A58; line-height: 1.7;
+  font-size: 15px; color: #5A4A58; line-height: 1.55;
 }
 .nb-quote-box .nb-bold { font-weight: 700; color: #2A3A4C; }
 
@@ -3533,16 +3533,12 @@ let notebookGroups = [];
 let notebookEditing = false;
 let editingId = null;
 let notebookDoublePage = true;
-let nbColorIdx = 0;
 const NB_COLORS = ['#FBF3F5','#F5F2FA','#FAF8EC','#E2EEF8']; // true=双页, false=滚动
 
 function loadNotebook() {
   try {
     const raw = JSON.parse(localStorage.getItem('mi_espanol_notebook') || '[]');
     notebookGroups = raw.filter(g => g.words && Array.isArray(g.words));
-    notebookGroups.forEach((g, i) => {
-      if (!g.color) g.color = NB_COLORS[i % NB_COLORS.length];
-    });
   } catch (e) { notebookGroups = []; }
 }
 loadNotebook();
@@ -3618,10 +3614,8 @@ function addNotebookEntry() {
     words: words,
     quote: quoteEl.value.trim(),
     quoteZh: quoteZhEl.value.trim(),
-    color: NB_COLORS[nbColorIdx % NB_COLORS.length],
     createdAt: new Date().toISOString()
   });
-  nbColorIdx++;
 
   // Reset form
   document.getElementById('nbWordRows').innerHTML = `
@@ -3697,7 +3691,7 @@ function boldWords(text, words) {
   return result;
 }
 
-function renderEntryHTML(g) {
+function renderEntryHTML(g, i) {
   const isEditing = editingId === g.id;
   if (isEditing) {
     return `
@@ -3729,7 +3723,7 @@ function renderEntryHTML(g) {
         `).join('')}
       </div>
       ${(g.quote || g.quoteZh) ? `
-      <div class="nb-quote-row" style="background:${g.color || NB_COLORS[0]}">
+      <div class="nb-quote-row" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}">
         ${g.quote ? `<div class="nb-quote-box">${boldWords(g.quote, g.words)}</div>` : '<div class="nb-quote-box"></div>'}
         ${g.quoteZh ? `<div class="nb-quote-zh">${escapeHTML(g.quoteZh)}</div>` : '<div class="nb-quote-zh"></div>'}
       </div>` : ''}
@@ -3764,7 +3758,7 @@ function renderNotebook() {
     document.getElementById('nbPageNum').innerHTML = '';
     return;
   }
-  list.innerHTML = notebookGroups.map(g => renderEntryHTML(g)).join('');
+  list.innerHTML = notebookGroups.map((g, i) => renderEntryHTML(g, i)).join('');
   const total = Math.max(1, Math.ceil(notebookGroups.length / 6));
   book.setAttribute('data-left', total);
   let rtEl = book.querySelector('.nb-book-rt');
