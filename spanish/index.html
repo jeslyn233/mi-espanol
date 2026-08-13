@@ -1553,7 +1553,7 @@ function escapeHTML(str) {
   return div.innerHTML;
 }
 function escapeMultiline(str) {
-  return escapeHTML(str).replace(/\n/g, '<br>');
+  return escapeHTML(str).split('\n').map(l => `<div>${l || '&nbsp;'}</div>`).join('');
 }
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -3691,7 +3691,7 @@ function boldWords(text, words) {
     const regex = new RegExp('(' + esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
     result = result.replace(regex, '<b class="nb-bold">$1</b>');
   });
-  return result.replace(/\n/g, '<br>');
+  return result.split('\n').map(l => `<div>${l || '&nbsp;'}</div>`).join('');
 }
 
 function renderEntryHTML(g, i) {
