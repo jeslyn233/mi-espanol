@@ -1552,6 +1552,9 @@ function escapeHTML(str) {
   div.appendChild(document.createTextNode(str));
   return div.innerHTML;
 }
+function escapeMultiline(str) {
+  return escapeHTML(str).replace(/\n/g, '<br>');
+}
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -3688,7 +3691,7 @@ function boldWords(text, words) {
     const regex = new RegExp('(' + esc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
     result = result.replace(regex, '<b class="nb-bold">$1</b>');
   });
-  return result;
+  return result.replace(/\n/g, '<br>');
 }
 
 function renderEntryHTML(g, i) {
@@ -3725,7 +3728,7 @@ function renderEntryHTML(g, i) {
       ${(g.quote || g.quoteZh) ? `
       <div class="nb-quote-row" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}">
         ${g.quote ? `<div class="nb-quote-box">${boldWords(g.quote, g.words)}</div>` : '<div class="nb-quote-box"></div>'}
-        ${g.quoteZh ? `<div class="nb-quote-zh">${escapeHTML(g.quoteZh)}</div>` : '<div class="nb-quote-zh"></div>'}
+        ${g.quoteZh ? `<div class="nb-quote-zh">${escapeMultiline(g.quoteZh)}</div>` : '<div class="nb-quote-zh"></div>'}
       </div>` : ''}
       ${notebookEditing ? `
       <div class="nb-entry-actions">
