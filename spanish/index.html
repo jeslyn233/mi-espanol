@@ -2545,7 +2545,7 @@ async function autoGenerate() {
 
     if (!resp.ok) {
       const errData = await resp.json().catch(() => ({}));
-      throw new Error(errData.error || 'API error: ' + resp.status);
+      throw new Error(errData.error ? (errData.error + (errData.detail ? ': ' + errData.detail : '')) : ('API error: ' + resp.status));
     }
 
     const card = await resp.json();
@@ -4560,7 +4560,7 @@ async function sendChat() {
 
     if (!resp.ok) {
       const errData = await resp.json().catch(() => ({}));
-      throw new Error(errData.error || 'API error: ' + resp.status);
+      throw new Error(errData.error ? (errData.error + (errData.detail ? ': ' + errData.detail : '')) : ('API error: ' + resp.status));
     }
 
     const data = await resp.json();

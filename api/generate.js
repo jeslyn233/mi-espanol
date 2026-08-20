@@ -192,7 +192,7 @@ export default async function handler(req) {
       { role: 'user', content: `Genera la tarjeta para: "${word.trim()}"` }
     ];
     temperature = 0.3;
-    max_tokens = 2000;
+    max_tokens = 4000;
     response_format = { type: 'json_object' };
   } else if (action === 'generate_sentence') {
     const { word } = body;
@@ -284,13 +284,39 @@ export default async function handler(req) {
     }
 
     // ── Generate card: full post-processing ──────
-    const card = extractJson(content);
+    let card;
+    try {
+      card = extractJson(content);
+    } catch (e) {
+      return new Response(JSON.stringify({
+        error: 'Failed to parse AI response',
+        detail: e.message + ' — ' + String(content).slice(0, 300)
+      }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (!card.word || typeof card.word !== 'string') {
+      return new Response(JSON.stringify({
+        error: 'Generated card missing word field',
+        detail: String(content).slice(0, 300)
+      }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (!Array.isArray(card.chunks)) card.chunks = [];
+    if (!Array.isArray(card.notes)) card.notes = [];
+    if (!Array.isArray(card.related_words)) card.related_words = [];
 
     // Deduplicate highlights across chunks
-    if (card.chunks && card.chunks.length) {
+    if (card.chunks.length) {
       const seen = new Set();
       for (const ch of card.chunks) {
-        const h = (ch.highlight || '').trim();
+        if (!ch || typeof ch !== 'object') continue;
+        const h = String(ch.highlight || '').trim();
         if (!h) continue;
         const key = h.toLowerCase();
         if (seen.has(key)) { ch.highlight = ''; }
@@ -299,12 +325,13 @@ export default async function handler(req) {
     }
 
     // Strip conjugation boilerplate from notes
-    if (card.notes && card.notes.length) {
+    if (card.notes.length) {
       const conjKeywords = ['现在时','过去时','将来时','虚拟式','命令式','过去分词','副动词',
         'presente','pretérito','futuro','subjuntivo','imperativo','participio','gerundio',
         'tengo','tienes','tuviera','conjugación','变位','规则动词','不规则动词',
         '遵循','ir 动词','er 动词','ar 动词'];
       card.notes = card.notes.filter(n => {
+        if (typeof n !== 'string') return false;
         const lower = n.toLowerCase();
         const hits = conjKeywords.filter(k => lower.includes(k.toLowerCase()));
         if (hits.length >= 3) return false;
@@ -319,8 +346,8 @@ export default async function handler(req) {
     }
 
     // Strip verb conjugations from related_words
-    if (card.related_words && card.related_words.length) {
-      card.related_words = card.related_words.filter(rw => rw.toLowerCase() !== card.word.toLowerCase());
+    if (card.related_words.length) {
+      card.related_words = card.related_words.filter(rw => typeof rw === 'string' && rw.toLowerCase() !== card.word.toLowerCase());
       if (card.related_words.length && (card.type || '').startsWith('v')) {
         const stem = card.word.toLowerCase().replace(/(ar|er|ir)$/, '');
         const prefix = stem.slice(0, 3);
@@ -331,21 +358,13 @@ export default async function handler(req) {
       }
     }
 
-    // Validate minimum structure
-    if (!card.word) {
-      return new Response(JSON.stringify({ error: 'Generated card missing word field' }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
     return new Response(JSON.stringify(card), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (e) {
-    return new Response(JSON.stringify({ error: 'Generation failed', detail: e.message }), {
+    return new Response(JSON.stringify({ error: 'Generation failed: ' + e.message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
