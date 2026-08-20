@@ -133,47 +133,58 @@ function extractJson(text) {
   return JSON.parse(t);
 }
 
-export default async function handler(req) {
+function send(res, status, obj) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(obj));
+}
+
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'POST required' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return send(res, 405, { error: 'POST required' });
   }
 
   // ── Auth check ─────────────────────────────────
-  const authHeader = req.headers.get('Authorization') || '';
+  const authHeader = req.headers['authorization'] || '';
   const token = authHeader.replace('Bearer ', '');
   if (!token || token !== process.env.AUTH_TOKEN) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return send(res, 401, { error: 'Unauthorized' });
   }
 
-  let body;
-  try { body = await req.json(); } catch (e) {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+  // ── Parse body (Vercel Node runtime provides req.body when JSON) ──
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = JSON.parse(body); } catch (e) { body = undefined; }
+  }
+  if (body === undefined || body === null) {
+    try {
+      body = await new Promise((resolve, reject) => {
+        const chunks = [];
+        req.on('data', c => chunks.push(c));
+        req.on('end', () => {
+          if (!chunks.length) return resolve({});
+          try { resolve(JSON.parse(Buffer.concat(chunks).toString('utf8'))); }
+          catch (e) { reject(e); }
+        });
+        req.on('error', reject);
+      });
+    } catch (e) {
+      body = undefined;
+    }
+  }
+  if (!body || typeof body !== 'object') {
+    return send(res, 400, { error: 'Invalid JSON' });
   }
 
   const { action } = body;
   const validActions = ['generate_card', 'generate_sentence', 'chat'];
   if (!action || !validActions.includes(action)) {
-    return new Response(JSON.stringify({ error: 'Invalid or missing action' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return send(res, 400, { error: 'Invalid or missing action' });
   }
 
   const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'API key not configured' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return send(res, 500, { error: 'API key not configured' });
   }
 
   // ── Build request per action ───────────────────
@@ -182,10 +193,7 @@ export default async function handler(req) {
   if (action === 'generate_card') {
     const { word } = body;
     if (!word || typeof word !== 'string') {
-      return new Response(JSON.stringify({ error: 'word required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return send(res, 400, { error: 'word required' });
     }
     messages = [
       { role: 'system', content: SYSTEM_PROMPT },
@@ -197,10 +205,7 @@ export default async function handler(req) {
   } else if (action === 'generate_sentence') {
     const { word } = body;
     if (!word || typeof word !== 'string') {
-      return new Response(JSON.stringify({ error: 'word required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return send(res, 400, { error: 'word required' });
     }
     messages = [
       { role: 'system', content: `Eres un profesor de español. Genera UNA frase natural en español que contenga la palabra "${word}". Devuelve SOLO un JSON: {"zh":"中文翻译","es":"frase con la palabra ${word}","blank":"la misma frase pero reemplazando ${word} por ___"}` },
@@ -212,10 +217,7 @@ export default async function handler(req) {
   } else if (action === 'chat') {
     const { messages: chatMessages } = body;
     if (!chatMessages || !Array.isArray(chatMessages) || chatMessages.length === 0) {
-      return new Response(JSON.stringify({ error: 'messages array required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return send(res, 400, { error: 'messages array required' });
     }
     messages = chatMessages;
     temperature = 0.7;
@@ -251,36 +253,24 @@ export default async function handler(req) {
 
     if (!resp.ok) {
       const err = await resp.text();
-      return new Response(JSON.stringify({ error: 'DeepSeek API error', detail: err }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return send(res, 502, { error: 'DeepSeek API error', detail: String(err).slice(0, 300) });
     }
 
     const data = await resp.json();
     const content = data.choices?.[0]?.message?.content;
     if (!content) {
-      return new Response(JSON.stringify({ error: 'Empty response from AI' }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return send(res, 502, { error: 'Empty response from AI' });
     }
 
     // ── Chat: return reply directly ──────────────
     if (action === 'chat') {
-      return new Response(JSON.stringify({ reply: content }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return send(res, 200, { reply: content });
     }
 
     // ── Generate sentence: parse and return ──────
     if (action === 'generate_sentence') {
       const parsed = extractJson(content);
-      return new Response(JSON.stringify(parsed), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      return send(res, 200, parsed);
     }
 
     // ── Generate card: full post-processing ──────
@@ -288,22 +278,16 @@ export default async function handler(req) {
     try {
       card = extractJson(content);
     } catch (e) {
-      return new Response(JSON.stringify({
+      return send(res, 502, {
         error: 'Failed to parse AI response',
         detail: e.message + ' — ' + String(content).slice(0, 300)
-      }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' }
       });
     }
 
     if (!card.word || typeof card.word !== 'string') {
-      return new Response(JSON.stringify({
+      return send(res, 502, {
         error: 'Generated card missing word field',
         detail: String(content).slice(0, 300)
-      }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -358,15 +342,9 @@ export default async function handler(req) {
       }
     }
 
-    return new Response(JSON.stringify(card), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return send(res, 200, card);
 
   } catch (e) {
-    return new Response(JSON.stringify({ error: 'Generation failed: ' + e.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return send(res, 500, { error: 'Generation failed: ' + e.message });
   }
 }
