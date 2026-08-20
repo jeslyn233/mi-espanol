@@ -124,6 +124,15 @@ REGLAS ESTRICTAS:
 
 RESPONDE ÚNICAMENTE CON EL JSON, SIN TEXTO ADICIONAL.`;
 
+function extractJson(text) {
+  let t = String(text).trim();
+  t = t.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+  const start = t.indexOf('{');
+  const end = t.lastIndexOf('}');
+  if (start >= 0 && end > start) t = t.slice(start, end + 1);
+  return JSON.parse(t);
+}
+
 export default async function handler(req) {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'POST required' }), {
@@ -267,7 +276,7 @@ export default async function handler(req) {
 
     // ── Generate sentence: parse and return ──────
     if (action === 'generate_sentence') {
-      const parsed = JSON.parse(content);
+      const parsed = extractJson(content);
       return new Response(JSON.stringify(parsed), {
         status: 200,
         headers: { 'Content-Type': 'application/json' }
@@ -275,7 +284,7 @@ export default async function handler(req) {
     }
 
     // ── Generate card: full post-processing ──────
-    const card = JSON.parse(content);
+    const card = extractJson(content);
 
     // Deduplicate highlights across chunks
     if (card.chunks && card.chunks.length) {
