@@ -1476,7 +1476,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       <button class="nb-add-word-btn" onclick="addNbWordRow()">+ 添加单词</button>
       <div class="nb-quote-inputs">
         <textarea class="notebook-textarea" id="nbQuote" placeholder="引用原文（西语）" rows="1"></textarea>
-        <textarea class="notebook-textarea" id="nbQuoteZh" placeholder="翻译 / 解释（每行一条）" rows="1"></textarea>
+        <textarea class="notebook-textarea" id="nbQuoteZh" placeholder="翻译 / 解释（每行一条，Shift+Enter 换行不分点）" rows="1" onkeydown="nbSoftBreak(event)"></textarea>
       </div>
       <button class="primary" onclick="addNotebookEntry()" style="font-size:12px;padding:6px 16px;align-self:flex-end;">➕ 保存</button>
     </div>
@@ -3701,10 +3701,26 @@ function deleteNotebookGroup(id) {
 }
 
 function dotLines(text) {
-  return escapeHTML(text).split('\n')
-    .map(l => l.trim())
-    .filter(Boolean)
-    .map(l => `<li>${l}</li>`).join('');
+  const items = [];
+  let buf = '';
+  text.split('\n').forEach(line => {
+    const t = line.trim();
+    if (!t) return;
+    const soft = line.trimEnd().endsWith('↵');
+    buf += (buf ? '<br>' : '') + escapeHTML(t.replace(/↵$/, ''));
+    if (!soft) { items.push(buf); buf = ''; }
+  });
+  if (buf) items.push(buf);
+  return items.map(t => `<li>${t}</li>`).join('');
+}
+
+function nbSoftBreak(e) {
+  if (e.key === 'Enter' && e.shiftKey) {
+    e.preventDefault();
+    const ta = e.target;
+    ta.setRangeText('↵\n', ta.selectionStart, ta.selectionEnd, 'end');
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+  }
 }
 
 function boldWords(text, words) {
@@ -3732,7 +3748,7 @@ function renderEntryHTML(g, i) {
         <button class="nb-add-word-btn" onclick="addInlineWordRow(this)" style="margin-top:6px;">+ 添加单词</button>
       </div>
       <textarea class="notebook-textarea nb-inline-quote" rows="2" style="margin-top:8px;">${escapeHTML(g.quote || '')}</textarea>
-      <textarea class="notebook-textarea nb-inline-quotezh" rows="2" placeholder="翻译 / 解释（每行一条）">${escapeHTML(g.quoteZh || '')}</textarea>
+      <textarea class="notebook-textarea nb-inline-quotezh" rows="2" placeholder="翻译 / 解释（每行一条，Shift+Enter 换行不分点）" onkeydown="nbSoftBreak(event)">${escapeHTML(g.quoteZh || '')}</textarea>
       <div class="nb-entry-actions">
         <button onclick="saveInlineEdit(${g.id})" style="background:#4A5A6C;color:#fff;">✓ 保存</button>
         <button onclick="cancelInlineEdit()">✕ 取消</button>
@@ -3751,7 +3767,7 @@ function renderEntryHTML(g, i) {
       ${(g.quote || g.quoteZh) ? `
       <div class="nb-quote-wrap">
         ${g.quote ? `<div class="nb-quote-box" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}">${boldWords(g.quote, g.words)}</div>` : ''}
-        ${g.quoteZh ? `<ul class="nb-quote-zh" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}66">${dotLines(g.quoteZh)}</ul>` : ''}
+        ${g.quoteZh ? `<ul class="nb-quote-zh" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}59">${dotLines(g.quoteZh)}</ul>` : ''}
       </div>` : ''}
       ${notebookEditing ? `
       <div class="nb-entry-actions">
