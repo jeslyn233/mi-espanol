@@ -910,21 +910,37 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   font-size: 14px; color: #5A6A78;
 }
 
-/* Quote row */
-.nb-quote-row {
-  display: flex; flex-direction: column; gap: 0; margin-top: 10px;
-  border-radius: 6px;
-  box-shadow: 0 1px 4px rgba(150,160,180,.12); overflow: hidden;
+/* Quote blocks — 原文块与注释块分开 */
+.nb-quote-wrap {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 10px;
 }
 .nb-quote-box {
-  padding: 10px 14px 4px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(150,160,180,.12);
   font-family: 'DM Sans', 'Georgia', system-ui, sans-serif;
   font-size: 16px; color: #4A4050; line-height: 1.55;
 }
 .nb-quote-zh {
-  padding: 2px 14px 10px;
+  padding: 10px 14px;
+  margin: 0;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(150,160,180,.07);
   font-family: 'DengXian', '等线', 'Microsoft YaHei', '微软雅黑', sans-serif, serif;
-  font-size: 15px; color: #5A4A58; line-height: 1.55;
+  font-size: 15px; color: #5A4A58; line-height: 1.6;
+  list-style: none;
+}
+.nb-quote-zh li {
+  position: relative;
+  padding-left: 16px;
+}
+.nb-quote-zh li::before {
+  content: '';
+  position: absolute;
+  left: 2px; top: .62em;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #C2AEB6;
 }
 .nb-quote-box .nb-bold { font-weight: 700; color: #2A3A4C; }
 
@@ -979,7 +995,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
   .notebook-content { width: 96%; padding: 16px 0 40px; }
   .nb-book { column-count: 1; column-rule: none; padding: 24px 20px 32px; }
   .nb-w-es { font-size: 18px; }
-  .nb-quote-row { flex-direction: column; }
+  .nb-quote-wrap { gap: 6px; }
   .nb-quote-inputs { flex-direction: column; }
   .notebook-input { font-size: 14px; padding: 8px 10px; }
   .wrong-answer-card { padding: 12px 16px; }
@@ -1460,7 +1476,7 @@ button.edit:hover { background: var(--surface2); border-color: var(--border2); }
       <button class="nb-add-word-btn" onclick="addNbWordRow()">+ 添加单词</button>
       <div class="nb-quote-inputs">
         <textarea class="notebook-textarea" id="nbQuote" placeholder="引用原文（西语）" rows="1"></textarea>
-        <textarea class="notebook-textarea" id="nbQuoteZh" placeholder="引用翻译（中文）" rows="1"></textarea>
+        <textarea class="notebook-textarea" id="nbQuoteZh" placeholder="翻译 / 解释（每行一条）" rows="1"></textarea>
       </div>
       <button class="primary" onclick="addNotebookEntry()" style="font-size:12px;padding:6px 16px;align-self:flex-end;">➕ 保存</button>
     </div>
@@ -3684,6 +3700,13 @@ function deleteNotebookGroup(id) {
   renderNotebook();
 }
 
+function dotLines(text) {
+  return escapeHTML(text).split('\n')
+    .map(l => l.trim())
+    .filter(Boolean)
+    .map(l => `<li>${l}</li>`).join('');
+}
+
 function boldWords(text, words) {
   let result = escapeHTML(text);
   words.forEach(w => {
@@ -3709,7 +3732,7 @@ function renderEntryHTML(g, i) {
         <button class="nb-add-word-btn" onclick="addInlineWordRow(this)" style="margin-top:6px;">+ 添加单词</button>
       </div>
       <textarea class="notebook-textarea nb-inline-quote" rows="2" style="margin-top:8px;">${escapeHTML(g.quote || '')}</textarea>
-      <textarea class="notebook-textarea nb-inline-quotezh" rows="2">${escapeHTML(g.quoteZh || '')}</textarea>
+      <textarea class="notebook-textarea nb-inline-quotezh" rows="2" placeholder="翻译 / 解释（每行一条）">${escapeHTML(g.quoteZh || '')}</textarea>
       <div class="nb-entry-actions">
         <button onclick="saveInlineEdit(${g.id})" style="background:#4A5A6C;color:#fff;">✓ 保存</button>
         <button onclick="cancelInlineEdit()">✕ 取消</button>
@@ -3726,9 +3749,9 @@ function renderEntryHTML(g, i) {
         `).join('')}
       </div>
       ${(g.quote || g.quoteZh) ? `
-      <div class="nb-quote-row" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}">
-        ${g.quote ? `<div class="nb-quote-box">${boldWords(g.quote, g.words)}</div>` : '<div class="nb-quote-box"></div>'}
-        ${g.quoteZh ? `<div class="nb-quote-zh">${escapeMultiline(g.quoteZh)}</div>` : '<div class="nb-quote-zh"></div>'}
+      <div class="nb-quote-wrap">
+        ${g.quote ? `<div class="nb-quote-box" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}">${boldWords(g.quote, g.words)}</div>` : ''}
+        ${g.quoteZh ? `<ul class="nb-quote-zh" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}66">${dotLines(g.quoteZh)}</ul>` : ''}
       </div>` : ''}
       ${notebookEditing ? `
       <div class="nb-entry-actions">
