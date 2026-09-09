@@ -2714,10 +2714,13 @@ function pickFreq(e, idx) {
 
 function resetOverdue() {
   const today = todayLocal();
+  const tomorrow = addDaysLocal(1);
   let changed = false;
   words.forEach(w => {
     if (!w.review) return;
-    if (w.review.next_review < today && w.review.last_reviewed < today) {
+    // 旧版曾把逾期词误推到明天：next_review=明天 且今天没复习过 → 拉回今天
+    const legacyDeferred = w.review.next_review === tomorrow && w.review.last_reviewed !== today;
+    if ((w.review.next_review < today && w.review.last_reviewed < today) || legacyDeferred) {
       w.review.stage = 0;
       w.review.next_review = today; // 逾期词今天继续待复习，不推迟到明天
       changed = true;
