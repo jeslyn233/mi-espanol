@@ -8,6 +8,7 @@ REGLAS ESTRICTAS:
   "type": "n|v|adj|adv|prep|conj|pron|interj",
   "level": "A1|A2|B1|B2|C1|C2",
   "core_meaning": "中文核心意思，简短",
+  "english": "英文释义，简短",
   "frequency": "A|B|C|D (A=daily, B=high, C=medium, D=low)",
   "tags": ["标签1", "标签2"],
   "situations": ["中文使用场景1", "场景2", "场景3"],
@@ -120,7 +121,7 @@ REGLAS ESTRICTAS:
 
 10. **Nivel**: 根据词频和使用难度判断 A1/A2/B1/B2/C1/C2
 
-11. **Idioma**: core_meaning, situations, tags, nuance.desc, notes, native_expressions.zh 用中文。word, chunks.text, related_words, native_expressions.text 用西语。
+11. **Idioma**: core_meaning, situations, tags, nuance.desc, notes, native_expressions.zh 用中文。english 用英文（该词/词组对应的英文释义，简短、准确，必须填写）。word, chunks.text, related_words, native_expressions.text 用西语。
 
 RESPONDE ÚNICAMENTE CON EL JSON, SIN TEXTO ADICIONAL.`;
 

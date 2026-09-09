@@ -1,0 +1,17 @@
+{
+  "_instructions": {
+    "title": "语法笔记标题",
+    "tag": "标签（如 gramatica / verbos / preposiciones 等）",
+    "blocks": "内容块数组，按顺序渲染。可用类型：",
+    "section": "大标题，底部横线（#2A4A6A），标题与横线同色",
+    "subsection": "独立内容块标记，非层级副标题，纯文字无装饰",
+    "text": "正文段落",
+    "note": "提示 / 注意（蓝底卡片）",
+    "list": "列表，每项前面有序号",
+    "examples": "例句，西语斜体",
+    "table": "表格，headers 为表头数组，rows 为数据行二维数组"
+  },
+  "title": "",
+  "tag": "",
+  "blocks": []
+}

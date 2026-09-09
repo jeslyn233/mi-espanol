@@ -2640,6 +2640,11 @@ const DOT_CONFIGS = [
 ];
 // ── SM-2 Spaced Repetition ───────────────────────
 // quality: 1=不记得, 3=模糊, 5=知道了 (maps from 1/3/5 to SM-2 0-5 scale)
+function fmtLocalDate(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function todayLocal() { return fmtLocalDate(new Date()); }
+function addDaysLocal(n) { const d = new Date(); d.setDate(d.getDate() + n); return fmtLocalDate(d); }
 const SM2_INITIAL_EASE = 2.5;
 const SM2_MIN_EASE = 1.3;
 
@@ -2647,7 +2652,7 @@ function sm2Schedule(review, quality) {
   // quality: 1 (again), 3 (hard), 5 (good) — mapped to SM-2 0-5
   if (!review) review = { stage: 0, ease: SM2_INITIAL_EASE, interval: 0, repetitions: 0, last_reviewed: null };
   let { ease = SM2_INITIAL_EASE, interval = 0, repetitions = 0 } = review;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
 
   if (quality < 3) {
     // Failed: reset
@@ -2664,16 +2669,13 @@ function sm2Schedule(review, quality) {
   ease = ease + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02));
   ease = Math.max(SM2_MIN_EASE, ease);
 
-  const nextDate = new Date();
-  nextDate.setDate(nextDate.getDate() + interval);
-
   return {
     stage: Math.min(repetitions, 12),
     ease: Math.round(ease * 100) / 100,
     interval,
     repetitions,
     last_reviewed: today,
-    next_review: nextDate.toISOString().slice(0, 10)
+    next_review: addDaysLocal(interval)
   };
 }
 
@@ -2690,7 +2692,7 @@ function markReviewed(e, idx) {
   e.stopPropagation();
   const w = words[idx];
   if (!w) return;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
   if (w.review && w.review.last_reviewed === today) return; // already reviewed today
   w.review = sm2Schedule(w.review, 5); // checkbox = perfect recall
   saveLocal();
@@ -2711,15 +2713,13 @@ function pickFreq(e, idx) {
 }
 
 function resetOverdue() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
   let changed = false;
   words.forEach(w => {
     if (!w.review) return;
     if (w.review.next_review < today && w.review.last_reviewed < today) {
       w.review.stage = 0;
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      w.review.next_review = tomorrow.toISOString().slice(0, 10);
+      w.review.next_review = today; // 逾期词今天继续待复习，不推迟到明天
       changed = true;
     }
   });
@@ -2743,7 +2743,7 @@ function render() {
   const level = document.getElementById('filterLevel')?.value || '';
   const freq = document.getElementById('filterFreq')?.value || '';
   const form = document.getElementById('filterForm')?.value || '';
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
 
   const filtered = words.filter(w => {
     if (q && !w.word.toLowerCase().includes(q) && !(w.english || '').toLowerCase().includes(q) && !(w.core_meaning || '').toLowerCase().includes(q)) return false;
@@ -2762,7 +2762,7 @@ function render() {
       if (w.review && w.review.last_reviewed === today) return false;
       if (nextRev > today) return false;
     } else if (reviewFilter === 'new') {
-      if (!w.createdAt || w.createdAt.slice(0, 10) !== today) return false;
+      if (!w.createdAt || fmtLocalDate(new Date(w.createdAt)) !== today) return false;
     }
     return true;
   }).sort((a, b) => a.word.localeCompare(b.word, 'es', { sensitivity: 'base' }));
@@ -2783,7 +2783,7 @@ function render() {
     if (w.review && w.review.last_reviewed === today) return false;
     return nextRev <= today;
   }).length;
-  const newN = words.filter(w => w.createdAt && w.createdAt.slice(0, 10) === today).length;
+  const newN = words.filter(w => w.createdAt && fmtLocalDate(new Date(w.createdAt)) === today).length;
   document.getElementById('taskAll').textContent = totalN;
   document.getElementById('taskDue').textContent = dueN;
   document.getElementById('taskReviewed').textContent = reviewedN;
@@ -3112,7 +3112,7 @@ function buildCard(w, idx) {
     body += `<div class="section"><div class="sec-label">Etiquetas</div><div class="chip-row">${w.tags.map(t => `<span class="chip">${escapeHTML(t)}</span>`).join('')}</div></div>`;
   }
 
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = todayLocal();
   const reviewedToday = w.review && w.review.last_reviewed === todayStr;
   const dotsHTML = renderReviewDots(w.review ? w.review.stage : 0);
   const checkClass = reviewedToday ? ' done' : '';
@@ -3418,14 +3418,14 @@ function getFilteredCards() {
   const fFreq = document.getElementById('filterFreq')?.value || '';
   const fForm = document.getElementById('filterForm')?.value || '';
   return words.filter((w, i) => {
-    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayStr = todayLocal();
     if (reviewFilter === 'reviewed' && !(w.review && w.review.last_reviewed === todayStr)) return false;
     if (reviewFilter === 'due') {
       const nextRev = w.review ? w.review.next_review : '0000-00-00';
       if (w.review && w.review.last_reviewed === todayStr) return false;
       if (nextRev > todayStr) return false;
     }
-    if (reviewFilter === 'new' && (!w.createdAt || w.createdAt.slice(0, 10) !== todayStr)) return false;
+    if (reviewFilter === 'new' && (!w.createdAt || fmtLocalDate(new Date(w.createdAt)) !== todayStr)) return false;
     if (fType && fType !== (w.type || '').split('/')[0].trim()) return false;
     if (fLevel && fLevel !== (w.level || '')) return false;
     if (fFreq && fFreq !== (w.frequency || '')) return false;
@@ -3767,7 +3767,7 @@ function renderEntryHTML(g, i) {
       ${(g.quote || g.quoteZh) ? `
       <div class="nb-quote-wrap">
         ${g.quote ? `<div class="nb-quote-box" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}">${boldWords(g.quote, g.words)}</div>` : ''}
-        ${g.quoteZh ? `<ul class="nb-quote-zh" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}66">${dotLines(g.quoteZh)}</ul>` : ''}
+        ${g.quoteZh ? `<ul class="nb-quote-zh" style="background:${NB_COLORS[(notebookGroups.length - 1 - i) % NB_COLORS.length]}59">${dotLines(g.quoteZh)}</ul>` : ''}
       </div>` : ''}
       ${notebookEditing ? `
       <div class="nb-entry-actions">
